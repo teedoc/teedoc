@@ -1,0 +1,46 @@
+{
+    "route": {
+        "docs": {
+            "/get_started/zh": "docs/get_started/zh",
+            "/get_started/en": "docs/get_started/en",
+            "/develop/zh": "docs/develop/zh",
+            "/develop/en": "docs/develop/en"
+        },
+        "pages": {
+            "/": "pages/index/zh",
+            "/en": "pages/index/en"
+        },
+        "/blog": "blog"
+    },
+    "navbar": {
+        "title": "MaixPy",
+        "logo": {
+            "alt": "teedoc logo",
+            "src": "/static/image/logo.jpg"
+        },
+        "items": [
+            {
+                "url": "/get_started/zh",
+                "label": "安装使用",
+                "position": "left"
+            },
+            {
+                "url": "/develop/zh",
+                "label": "开发",
+                "position": "left"
+            },
+            {
+                "items": [
+                    {
+                        "url": "/",
+                        "label": "中文"
+                    },
+                    {
+                        "url": "en",
+                        "label": "English"
+                    }
+                ]
+            }
+        ]
+    }
+}
