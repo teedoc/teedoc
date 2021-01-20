@@ -1,5 +1,4 @@
 {
-
     "navbar": {
         "title": "MaixPy",
         "logo": {
@@ -24,7 +23,7 @@
                         "label": "中文"
                     },
                     {
-                        "url": "en",
+                        "url": "/en",
                         "label": "English"
                     }
                 ]

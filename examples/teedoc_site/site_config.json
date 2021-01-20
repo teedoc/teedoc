@@ -1,0 +1,18 @@
+{
+    "route": {
+        "docs": {
+            "/get_started/zh": "docs/get_started/zh",
+            "/get_started/en": "docs/get_started/en",
+            "/develop/zh": "docs/develop/zh",
+            "/develop/en": "docs/develop/en"
+        },
+        "pages": {
+            "/": "pages/index/zh",
+            "/en": "pages/index/en"
+        },
+        "/blog": "blog"
+    },
+    "plugin": {
+        "teedoc-plugin-markdown-parser": "pypi"
+    }
+}
