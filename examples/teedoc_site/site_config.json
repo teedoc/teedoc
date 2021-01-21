@@ -12,7 +12,7 @@
         },
         "/blog": "blog"
     },
-    "plugin": {
-        "teedoc-plugin-markdown-parser": "pypi"
+    "plugins": {
+        "teedoc-plugin-markdown-parser": "../../plugins/teedoc-plugin-markdown-parser"
     }
 }
