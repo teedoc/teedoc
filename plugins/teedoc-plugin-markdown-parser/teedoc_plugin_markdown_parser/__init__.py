@@ -76,7 +76,7 @@ if __name__ == "__main__":
         os.makedirs("out")
     for file, html in res["htmls"].items():
         if html:
-            file = "{}.html".format(os.path.dirname(file))
+            file = "{}.html".format(os.path.splitext(os.path.basename(file))[0])
             with open(os.path.join("out", file), "w") as f:
                 f.write(html)
 
