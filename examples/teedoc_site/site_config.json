@@ -12,7 +12,16 @@
         },
         "/blog": "blog"
     },
+    "executable": {
+        "python": "python",
+        "pip": "pip"
+    },
     "plugins": {
-        "teedoc-plugin-markdown-parser": "../../plugins/teedoc-plugin-markdown-parser"
+        "teedoc-plugin-markdown-parser":{
+            "from": "../../plugins/teedoc-plugin-markdown-parser",
+            "config": {
+
+            }
+        }
     }
 }

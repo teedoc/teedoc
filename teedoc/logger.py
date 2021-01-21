@@ -8,9 +8,10 @@
 
 
 import logging
+import coloredlogs
 
 
-class Logger():
+class Logger:
     '''
         use logging module to record log to console or file
     '''
@@ -25,6 +26,7 @@ class Logger():
         elif level == "e":
             level_ = logging.ERROR
         # terminal output
+        coloredlogs.install(level=level_)
         self.log.setLevel(level_)
         sh = logging.StreamHandler()
         sh.setFormatter(formatter)
@@ -61,7 +63,7 @@ class Logger():
             out += " " + str(arg)
         self.log.error(out)
 
-class Fake_Logger():
+class Fake_Logger:
     '''
         use logging module to record log to console or file
     '''
