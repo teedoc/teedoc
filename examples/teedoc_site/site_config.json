@@ -20,7 +20,7 @@
         "teedoc-plugin-markdown-parser":{
             "from": "../../plugins/teedoc-plugin-markdown-parser",
             "config": {
-
+                "parse_files": ["md"]
             }
         }
     }

@@ -91,7 +91,7 @@ def main():
             try:
                 plugin_config = info['config']
             except Exception:
-                plugin_config = None
+                plugin_config = {}
             plugin_import_name = plugin.replace("-", "_")
             module = __import__(plugin_import_name)
             plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, logger=log)
