@@ -1,27 +1,18 @@
-import os
+import os, sys
 import markdown2
-
-class Fake_Logger:
-    '''
-        use logging module to record log to console or file
-    '''
-    def __init__(self, level="d", file_path=None, fmt = '%(asctime)s - [%(levelname)s]: %(message)s'):
-        pass
-
-    def d(self, *args):
-        print(*args)
-
-    def i(self, *args):
-        print(*args)
-
-    def w(self, *args):
-        print(*args)
-
-    def e(self, *args):
-        print(*args)
+try:
+    curr_path = os.path.dirname(os.path.abspath(__file__))
+    teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
+    if os.path.basename(teedoc_project_path) == "teedoc":
+        sys.path.insert(0, teedoc_project_path)
+except Exception:
+    pass
+from teedoc import Plugin_Base
+from teedoc import Fake_Logger
 
 
-class Plugin:
+
+class Plugin(Plugin_Base):
     name = "markdown-parser"
     desc = "markdown parser plugin for teedoc"
     defautl_config = {
@@ -38,10 +29,10 @@ class Plugin:
         self.config = Plugin.defautl_config
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
-        self.logger.i("config: {}".format(self.config))
+        self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         
 
-    def parse_files(self, files):
+    def on_parse_files(self, files):
         # result, format must be this
         result = {
             "ok": False,
@@ -52,19 +43,31 @@ class Plugin:
         if not "md" in self.config["parse_files"]:
             result["msg"] = "disabled markdown parse, but only support markdown"
             return result
-        self.logger.d("-- plugin <{}> parse files".format(self.name))
-        self.logger.d("files: {}".format(files))
+        self.logger.d("-- plugin <{}> parse {} files".format(self.name, len(files)))
+        # self.logger.d("files: {}".format(files))
         markdown = markdown2.Markdown()
         for file in files:
             ext = os.path.splitext(file)[1].lower()
-            print("---", ext)
             if ext.endswith("md"):
                 with open(file, encoding="utf-8") as f:
-                    html = markdown.convert(f.read())
-                    result["htmls"][file] = html
+                    content = f.read().strip()
+                    html = markdown.convert(content)
+                    #TODO:
+                    result["htmls"][file] = {
+                        "title": "",
+                        "desc": "",
+                        "keywords": [],
+                        "body": html
+                    }
             else:
                 result["htmls"][file] = None
+        result['ok'] = True
         return result
+    
+    def on_add_header_items(self):
+        items = []
+        items.append('<meta name="markdown-generator" content="teedoc-plugin-markdown-parser">')
+        return items
 
 if __name__ == "__main__":
     config = {

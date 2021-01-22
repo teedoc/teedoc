@@ -15,7 +15,7 @@ class Logger:
     '''
         use logging module to record log to console or file
     '''
-    def __init__(self, level="d", file_path=None, fmt = '%(asctime)s - [%(levelname)s]: %(message)s'):
+    def __init__(self, level="d", file_path=None, fmt = '%(asctime)s - [%(levelname)s] - [%(threadName)s]: %(message)s'):
         self.log = logging.getLogger("logger")
         formatter=logging.Formatter(fmt=fmt)
         level_ = logging.DEBUG
@@ -26,12 +26,31 @@ class Logger:
         elif level == "e":
             level_ = logging.ERROR
         # terminal output
-        coloredlogs.install(level=level_)
+        coloredlogs.DEFAULT_FIELD_STYLES = {'asctime': {'color': 'green'}, 'hostname': {'color': 'magenta'},
+                                    'levelname': {'color': 'green', 'bold': True}, 'request_id': {'color': 'yellow'},
+                                    'name': {'color': 'blue'}, 'programname': {'color': 'cyan'},
+                                    'threadName': {'color': 'magenta'}}
+        level_styles = {
+            'debug': {
+                'color': "white"
+            },
+            'info': {
+                'color': "green"
+            },
+            'warn': {
+                'color': "yellow"
+            },
+            'error': {
+                'color': "red"
+            }
+        }
+
+        coloredlogs.install(level=level_, fmt=fmt, level_styles=level_styles)
         self.log.setLevel(level_)
-        sh = logging.StreamHandler()
-        sh.setFormatter(formatter)
-        sh.setLevel(level_)
-        self.log.addHandler(sh)
+        # sh = logging.StreamHandler()
+        # sh.setFormatter(formatter)
+        # sh.setLevel(level_)
+        # self.log.addHandler(sh)
         # file output
         if file_path:
             fh = logging.FileHandler(file_path, mode="a", encoding="utf-8")#默认mode 为a模式，默认编码方式为utf-8
@@ -71,16 +90,16 @@ class Fake_Logger:
         pass
 
     def d(self, *args):
-        pass
+        print(*args)
 
     def i(self, *args):
-        pass
+        print(*args)
 
     def w(self, *args):
-        pass
+        print(*args)
 
     def e(self, *args):
-        pass
+        print(*args)
 
 
 if __name__ == "__main__":

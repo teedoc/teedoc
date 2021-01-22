@@ -1,5 +1,5 @@
 
 
-requirements = [ "coloredlogs>=15.0",
+requirements = [ "coloredlogs",
                  "markdown2"
                ]

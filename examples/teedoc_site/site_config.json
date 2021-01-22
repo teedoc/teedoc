@@ -1,4 +1,6 @@
 {
+    "site_name": "teedoc",
+    "site_slogon": "happy to write",
     "route": {
         "docs": {
             "/get_started/zh": "docs/get_started/zh",
