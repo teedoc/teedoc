@@ -28,7 +28,6 @@
         },
         {
             "name": "更多样例",
-            "file": "null",
             "items":[
                 {
                     "name": "使用了 teedoc 的网站",
@@ -36,11 +35,9 @@
                 },
                 {
                     "name": "二级子目录样例",
-                    "file": "null",
                     "items":[
                         {
                             "name": "三级子目录样例",
-                            "file": "null",
                             "items":[
                                 {
                                     "name": "文章1",

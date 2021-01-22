@@ -63,6 +63,75 @@ def write_to_file(files_content, in_path, out_path):
                     f.write(s.read())
     return True, ""
 
+def get_sidbar(doc_dir):
+    sidebar_config_path = os.path.join(doc_dir, "sidebar.json")
+    with open(sidebar_config_path) as f:
+        return json.load(f)
+
+def generate_sidebar_html(htmls, sidebar, doc_url):
+    '''
+        @htmls  {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html
+                                }
+                }
+        @return {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html，
+                                “sidebar": ""
+                                }
+                }
+    '''
+    def get_url_by_file(file_path, doc_url):
+        url = os.path.splitext(file_path)[0]
+        tmp = os.path.split(url)
+        if tmp[1].lower() == "readme":
+            url = "{}/index".format(tmp[0])
+        return "{}/{}.html".format(doc_url, url)
+
+    def generate_items(config, doc_url):
+        html = ""
+        li = False
+        if "name" in config:
+            if "file" in config and config["file"] != None and config["file"] != "null":
+                url = get_url_by_file(config["file"], doc_url)
+                item_html = '<li><a href="{}">{}</a>'.format(
+                    url, config["name"]
+                )
+            else:
+                item_html = '<li>{}'.format(
+                    config["name"]
+                )
+            li = True
+            html += item_html
+        if "items" in config:
+            html += "<ul>\n"
+            for item in config["items"]:
+                item_html = generate_items(item, doc_url)
+                html += item_html
+            html += "</ul>\n"
+        if li:
+            html += "</li>\n"
+        return html
+
+
+    for file, html in htmls.items():
+        if not html:
+            continue
+        items = generate_items(sidebar, doc_url)
+        sidebar_html = '''
+            <div id="sidebar">
+                {}
+            </div>'''.format(items)
+        html["sidebar"] = sidebar_html
+        htmls[file] = html
+    return htmls
 
 def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
     '''
@@ -81,7 +150,7 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
         }
     '''
     
-    def construct_html(htmls, header_items):
+    def construct_html(htmls, header_items_in):
         '''
             @htmls  {
                 "title": "",
@@ -100,7 +169,7 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
                     title = "{} - {}".format(html["title"], site_config["site_name"])
                 else:
                     title = site_config["site_name"]
-                header_items = "\n".join(header_items)
+                header_items = "\n".join(header_items_in)
                 files[file] = '''<!DOCTYPE html>
 <html>
     <head>
@@ -122,42 +191,6 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
                         html["sidebar"],
                         html["body"])
         return files
-    
-    def get_sidbar(doc_dir):
-        sidebar_config_path = os.path.join(doc_dir, "sidebar.json")
-        with open(sidebar_config_path) as f:
-            return json.load(f)
-    
-    def generate_sidebar_html(htmls, sidebar):
-        '''
-            @htmls  {
-                    "file1_path": {
-                                    "title": "",
-                                    "desc": "",
-                                    "keywords": [],
-                                    "body": html
-                                 }
-                    }
-            @return {
-                    "file1_path": {
-                                    "title": "",
-                                    "desc": "",
-                                    "keywords": [],
-                                    "body": html，
-                                    “sidebar": ""
-                                 }
-                    }
-        '''
-        for file, html in htmls.items():
-            if not html:
-                continue
-            sidebar_html = '''
-                <div id="sidebar">
-                
-                </div>'''
-            html["sidebar"] = sidebar_html
-            htmls[file] = html
-        return htmls
 
     # ---start---
     # get html header item from plugins
@@ -169,6 +202,7 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
             return False
         if items:
             header_items.extend(items)
+        print(header_items)
     # parse all docs
     docs = site_config["route"]["docs"]
     for url, dir in docs.items():
@@ -192,7 +226,7 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
                 return False
         htmls = result['htmls']
         # generate sidebar to html
-        generate_sidebar_html(htmls, sidebar)
+        generate_sidebar_html(htmls, sidebar, url)
         # generate sidebar
         # consturct html page
         htmls = construct_html(htmls, header_items)
@@ -336,11 +370,11 @@ def main():
                     self.send_response(404)
                 else:
                     self.send_response(200)
-                with open(file_path) as f:
+                with open(file_path, "rb") as f:
                     content = f.read()
-                self.send_header('Content-type', 'text/html')
+                # self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                self.wfile.write(content.encode())
+                self.wfile.write(content)
                 # print(self.address_string())
                 # print(self.request)
  
