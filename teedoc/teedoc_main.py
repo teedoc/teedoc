@@ -68,7 +68,7 @@ def get_sidbar(doc_dir):
     with open(sidebar_config_path) as f:
         return json.load(f)
 
-def generate_sidebar_html(htmls, sidebar, doc_url):
+def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
     '''
         @htmls  {
                 "file1_path": {
@@ -95,13 +95,14 @@ def generate_sidebar_html(htmls, sidebar, doc_url):
             url = "{}/index".format(tmp[0])
         return "{}/{}.html".format(doc_url, url)
 
-    def generate_items(config, doc_url):
+    def generate_items(config, doc_path_relative, doc_url):
         html = ""
         li = False
         if "name" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file(config["file"], doc_url)
-                item_html = '<li><a href="{}">{}</a>'.format(
+                item_html = '<li{}><a href="{}">{}</a>'.format(
+                    "" if doc_path_relative != config["file"] else ' class="active"',
                     url, config["name"]
                 )
             else:
@@ -113,7 +114,7 @@ def generate_sidebar_html(htmls, sidebar, doc_url):
         if "items" in config:
             html += "<ul>\n"
             for item in config["items"]:
-                item_html = generate_items(item, doc_url)
+                item_html = generate_items(item, doc_path_relative, doc_url)
                 html += item_html
             html += "</ul>\n"
         if li:
@@ -124,7 +125,8 @@ def generate_sidebar_html(htmls, sidebar, doc_url):
     for file, html in htmls.items():
         if not html:
             continue
-        items = generate_items(sidebar, doc_url)
+        doc_path_relative = file.replace(doc_path, "")[1:]
+        items = generate_items(sidebar, doc_path_relative, doc_url)
         sidebar_html = '''
             <div id="sidebar">
                 {}
@@ -226,7 +228,7 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
                 return False
         htmls = result['htmls']
         # generate sidebar to html
-        generate_sidebar_html(htmls, sidebar, url)
+        htmls = generate_sidebar_html(htmls, sidebar, dir, url)
         # generate sidebar
         # consturct html page
         htmls = construct_html(htmls, header_items)
