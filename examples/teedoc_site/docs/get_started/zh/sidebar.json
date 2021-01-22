@@ -1,52 +1,52 @@
 {
     "items":[
         {
-            "name": "teedoc 简介",
+            "label": "teedoc 简介",
             "file": "README.md"
         },
         {
-            "name": "安装 teedoc",
+            "label": "安装 teedoc",
             "file": "install/README.md"
         },
         {
-            "name": "插件",
+            "label": "插件",
             "file": "plugins/README.md",
             "items":[
                 {
-                    "name": "默认插件",
+                    "label": "默认插件",
                     "file": "plugins/defaults.md"
                 },
                 {
-                    "name": "主题插件",
+                    "label": "主题插件",
                     "file": "plugins/themes.md"
                 },
                 {
-                    "name": "其它插件",
+                    "label": "其它插件",
                     "file": "plugins/others.md"
                 }
             ]
         },
         {
-            "name": "更多样例",
+            "label": "更多样例",
             "items":[
                 {
-                    "name": "使用了 teedoc 的网站",
+                    "label": "使用了 teedoc 的网站",
                     "file": "more/sites.md"
                 },
                 {
-                    "name": "二级子目录样例",
+                    "label": "二级子目录样例",
                     "items":[
                         {
-                            "name": "三级子目录样例",
+                            "label": "三级子目录样例",
                             "items":[
                                 {
-                                    "name": "文章1",
+                                    "label": "文章1",
                                     "file": "more/example_docs/doc1.md"
                                 }
                             ]
                         },
                         {
-                            "name": "文章2",
+                            "label": "文章2",
                             "file": "more/example_docs/doc2.md"
                         }
                     ]

@@ -63,10 +63,15 @@ def write_to_file(files_content, in_path, out_path):
                     f.write(s.read())
     return True, ""
 
-def get_sidbar(doc_dir):
+def get_sidebar(doc_dir):
     sidebar_config_path = os.path.join(doc_dir, "sidebar.json")
     with open(sidebar_config_path) as f:
         return json.load(f)
+
+def get_navbar(doc_dir):
+    sidebar_config_path = os.path.join(doc_dir, "config.json")
+    with open(sidebar_config_path) as f:
+        return json.load(f)['navbar']
 
 def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
     '''
@@ -98,16 +103,16 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
     def generate_items(config, doc_path_relative, doc_url):
         html = ""
         li = False
-        if "name" in config:
+        if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file(config["file"], doc_url)
                 item_html = '<li{}><a href="{}">{}</a>'.format(
                     "" if doc_path_relative != config["file"] else ' class="active"',
-                    url, config["name"]
+                    url, config["label"]
                 )
             else:
                 item_html = '<li>{}'.format(
-                    config["name"]
+                    config["label"]
                 )
             li = True
             html += item_html
@@ -135,6 +140,76 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
         htmls[file] = html
     return htmls
 
+def generate_navbar_html(htmls, navbar, doc_path, doc_url):
+    '''
+        @doc_path  doc path, contain config.json and sidebar.json
+        @doc_url   doc url, config in "route" of site_config.json
+        @htmls  {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html,
+                                “sidebar": ""
+                                }
+                }
+        @return {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html，
+                                "sidebar": "",
+                                "navbar": ""
+                                }
+                }
+    '''
+    def get_url_by_file(file_path, doc_url):
+        url = os.path.splitext(file_path)[0]
+        tmp = os.path.split(url)
+        if tmp[1].lower() == "readme":
+            url = "{}/index".format(tmp[0])
+        return "{}/{}.html".format(doc_url, url)
+
+    def generate_items(config, doc_url):
+        html = ""
+        li = False
+        if "label" in config:
+            if "url" in config and config["url"] != None and config["url"] != "null":
+                if not config["url"].startswith("/"):
+                    config["url"] = "/{}".format(config["url"])
+                item_html = '<li{}><a href="{}">{}</a>'.format(
+                    "" if doc_url != config["url"] else ' class="active"',
+                    config["url"], config["label"]
+                )
+            else:
+                item_html = '<li>{}'.format(
+                    config["label"]
+                )
+            li = True
+            html += item_html
+        if "items" in config:
+            html += "<ul>\n"
+            for item in config["items"]:
+                item_html = generate_items(item, doc_url)
+                html += item_html
+            html += "</ul>\n"
+        if li:
+            html += "</li>\n"
+        return html
+
+    for file, html in htmls.items():
+        if not html:
+            continue
+        items = generate_items(navbar, doc_url)
+        navbar_html = '''
+            <div id="navbar">
+                {}
+            </div>'''.format(items)
+        html["navbar"] = navbar_html
+        htmls[file] = html
+    return htmls
+
 def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
     '''
         "route": {
@@ -159,7 +234,8 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
                 "desc": "",
                 "keywords": [],
                 "body": "",
-                "sidebar": ""
+                "sidebar": "",
+                "navbar": ""
             }
         '''
         files = {}
@@ -186,10 +262,12 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
     <body>
         {}
         {}
+        {}
     </doby>
 </html>
 '''.format(",".join(html["keywords"]), html["desc"], 
                         header_items, title,
+                        html["navbar"],
                         html["sidebar"],
                         html["body"])
         return files
@@ -212,9 +290,14 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
         log.i("parse doc: {}, url:{}".format(dir, url))
         # get sidebar config
         try:
-            sidebar = get_sidbar(dir)
+            sidebar = get_sidebar(dir)
         except Exception as e:
             log.e("parse sidebar.json fail: {}".format(e))
+            return False
+        try:
+            navbar = get_navbar(dir)
+        except Exception as e:
+            log.e("parse config.json navbar fail: {}".format(e))
             return False
         files = get_files(dir)
         # call plugins to parse files
@@ -229,7 +312,8 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
         htmls = result['htmls']
         # generate sidebar to html
         htmls = generate_sidebar_html(htmls, sidebar, dir, url)
-        # generate sidebar
+        # generate navbar to html
+        htmls = generate_navbar_html(htmls, navbar, dir, url)
         # consturct html page
         htmls = construct_html(htmls, header_items)
         # write to file

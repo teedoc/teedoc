@@ -1,7 +1,7 @@
 {
     "items":[
         {
-            "name": "teedoc development",
+            "label": "teedoc development",
             "file": "README.md"
         }
     ]
