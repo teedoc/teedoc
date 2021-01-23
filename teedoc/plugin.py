@@ -1,4 +1,5 @@
 from logger import Fake_Logger
+import os
 
 class Plugin_Base:
     name = "markdown-plugin"
@@ -41,5 +42,16 @@ class Plugin_Base:
         '''
             @return list items(navbar item, e.g. "<a href=></a>")
         '''
-        return ["<a>sassss</a>"]
+        return []
+    
+    def on_copy_files(self):
+        '''
+            copy file to out directory
+            @return dict object, keyword is url, value is file path
+                    {
+                        "/static/css/theme-default.css": "{}/theme-default.css".format(assets_abs_path)
+                    }
+                    how to get assets_abs_path see teedoc-plugin-theme-default
+        '''
+        return {}
 

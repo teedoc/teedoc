@@ -31,6 +31,13 @@ def copy_dir(src, dst):
     shutil.copytree(src, dst)
     return True
 
+def copy_file(src, dst):
+    dir = os.path.dirname(dst)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    shutil.copyfile(src, dst)
+    return True
+
 def get_files(dir_path):
     result = []
     files = os.listdir(dir_path)
@@ -322,6 +329,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
             return False
         files = get_files(dir)
         # call plugins to parse files
+        result_htmls = None
         for plugin in plugins_objs:
             # parse file content
             result = plugin.on_parse_files(files)
@@ -330,7 +338,11 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
             if not result['ok']:
                 log.e("plugin <{}> parse files error: {}".format(plugin.name, result['msg']))
                 return False
-        htmls = result['htmls']
+            result_htmls = result['htmls']
+        if not result_htmls:
+            log.e("parse files error")
+            return False
+        htmls = result_htmls
         # generate sidebar to html
         htmls = generate_sidebar_html(htmls, sidebar, dir, url)
         # generate navbar to html
@@ -359,6 +371,17 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
         out_path = os.path.join(out_dir, target_dir)
         if not copy_dir(in_path, out_path):
             return False
+    # copy files from pulgins
+    for plugin in plugins_objs:
+        files = plugin.on_copy_files()
+        for dst,src in files.items():
+            if dst.startswith("/"):
+                dst = dst[1:]
+            dst = os.path.join(out_dir, dst)
+            if not os.path.isabs(src):
+                log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
+            if not copy_file(src, dst):
+                return False
     return True
 
 

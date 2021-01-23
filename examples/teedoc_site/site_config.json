@@ -28,6 +28,13 @@
             "from": "../../plugins/teedoc-plugin-markdown-parser",
             "config": {
             }
+        },
+        "teedoc-plugin-theme-default":{
+            "from": "../../plugins/teedoc-plugin-theme-default",
+            "config": {
+                "dark": true,
+                "light": true
+            }
         }
     }
 }
