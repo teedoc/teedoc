@@ -5,6 +5,23 @@ import json
 import subprocess
 import shutil
 
+
+def get_content_type_by_path(file_path):
+    ext = os.path.splitext(file_path)[1][1:].lower()
+    content_type = "text/plain"
+    if ext == "svg":
+        content_type = "image/svg+xml"
+    elif ext == "html":
+        content_type = "text/html"
+    elif ext == "jpeg" or ext == "jpg" or ext == "png":
+        content_type = "image/{}".format(ext)
+    elif ext == "css":
+        content_type = "text/css"
+    elif ext == "js":
+        content_type = "application/javascript"
+
+    return content_type
+
 def parse_site_config(doc_src_path):
     site_config_path = os.path.join(doc_src_path, "site_config.json")
     def check_site_config(config):
@@ -120,20 +137,22 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
     def generate_items(config, doc_path_relative, doc_url):
         html = ""
         li = False
+        is_dir = "items" in config
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file(config["file"], doc_url)
-                item_html = '<li{}><a href="{}">{}<span class="sub_indicator"></a>'.format(
+                item_html = '<li{}><a href="{}"><span>{}</span><span class="{}"></span></a>'.format(
                     "" if doc_path_relative != config["file"] else ' class="active"',
-                    url, config["label"]
+                    url, config["label"],
+                    "sub_indicator" if is_dir else ""
                 )
             else:
-                item_html = '<li><a>{}<span class="sub_indicator"></span></a>'.format(
-                    config["label"]
+                item_html = '<li><a><span>{}</span><span class="{}"></span></a>'.format(
+                    config["label"], "sub_indicator" if is_dir else ""
                 )
             li = True
             html += item_html
-        if "items" in config:
+        if is_dir:
             html += "<ul>\n"
             for item in config["items"]:
                 item_html = generate_items(item, doc_path_relative, doc_url)
@@ -188,9 +207,8 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
             if "url" in config and config["url"] != None and config["url"] != "null":
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
-                item_html = '<li class="{} {}"><a href="{}">{}</a>'.format(
+                item_html = '<li class="{}"><a href="{}">{}</a>'.format(
                     "" if doc_url != config["url"] else 'active',
-                    config["position"] if "position" in config else "",
                     config["url"], config["label"]
                 )
             else:
@@ -200,9 +218,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
             li = True
             html += item_html
         if "items" in config:
-            html += '<ul class="{} {}">\n'.format(config["position"] if "position" in config else "",
-                                                    "nav_item" if level==0 else ""
-                                                 )
+            html += '<ul >\n'
             for item in config["items"]:
                 item_html = generate_items(item, doc_url, level + 1)
                 html += item_html
@@ -210,11 +226,24 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
         if li:
             html += "</li>\n"
         return html
+    
+    def generate_lef_right_items(config, doc_url):
+        left = '<ul id="nav_left">\n'
+        right = '<ul id="nav_right">\n'
+        for item in config["items"]:
+            html = generate_items(item, doc_url, 0)
+            if "position" in item and item["position"] == "right":
+                right += html
+            else:
+                left  += html
+        left += "</ul>\n"
+        right += "</ul>\n"
+        return left, right
 
     for file, html in htmls.items():
         if not html:
             continue
-        items = generate_items(navbar, doc_url, 0)
+        nav_left, nav_right = generate_lef_right_items(navbar, doc_url)
         logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
                         navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]
                      )
@@ -224,17 +253,22 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
             _items = plugin.on_add_navbar_items()
             if not _items:
                 continue
-            items_html = '<ul class="plugins_nav_item">'
+            items_html = '<ul id="nav_plugins">'
             for item in _items:
                 items_html += "<li>{}</li>".format(item)
             items_html += "</ul>"
             items_plugins_html += items_html
         navbar_html = '''
             <div id="navbar">
-                {}
-                {}
-                {}
-            </div>'''.format(logo_html, items, items_plugins_html)
+                <div>
+                    {}
+                    {}
+                </div>
+                <div>
+                    {}
+                    {}
+                </div>
+            </div>'''.format(logo_html, nav_left, nav_right, items_plugins_html)
         html["navbar"] = navbar_html
         htmls[file] = html
     return htmls
@@ -517,7 +551,8 @@ def main():
                     self.send_response(200)
                 with open(file_path, "rb") as f:
                     content = f.read()
-                # self.send_header('Content-type', 'text/html')
+                content_type = get_content_type_by_path(file_path)
+                self.send_header('Content-type', content_type)
                 self.end_headers()
                 self.wfile.write(content)
                 # print(self.address_string())

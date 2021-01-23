@@ -2,6 +2,9 @@ html {
     color: #606975;
     background-color: white;
 }
+body {
+    margin: 0;
+}
 a {
     color: #606975;
     text-decoration: none;
@@ -9,8 +12,15 @@ a {
 a:visited {
     color: #606975;
 }
+
+#wrapper {
+    display: flex;
+}
+
 #navbar {
     display: flex;
+    justify-content: space-between;
+    margin: 5px 10px;
 }
 #navbar * {
     display: flex;
@@ -25,29 +35,69 @@ a:visited {
 #navbar ul {
     list-style: none;
 }
-#wrapper {
-    display: flex;
-}
-#wrapper #sidebar {
 
+#sidebar {
+    width: 300px;
 }
-#wrapper #sidebar a:hover {
+#sidebar ul {
+    padding-inline-start: 20px;
+}
+#sidebar > ul {
+    padding-inline-start: 0;
+}
+#sidebar li {
+    list-style: none;
+    margin: 2px 0;
+}
+#sidebar li > a {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+#sidebar li > a + ul {
+}
+#sidebar a:hover {
     cursor: pointer;
 }
-#wrapper #sidebar .active > a, #navbar .active > a{
+#sidebar .active > a, #navbar .active > a{
     background-color: #e8e8e8;
     border-radius: 5px;
     color: #009688;
 }
-#wrapper #sidebar li, li>a {
-    padding: 10px;
-}
-#wrapper #article #content {
-    max-width: 60%;
-    margin: auto;
-}
-#wrapper #sidebar li>a:hover, #navbar li>a:hover{
+
+#sidebar li>a:hover, #navbar li>a:hover{
     background-color: #e8e8e8;
     border-radius: 5px;
     transition: 0.4s;
+}
+#sidebar .sub_indicator {
+    transition: transform 0.4s linear;
+    background: url("/static/image/theme_default/indicator.svg");
+    background-size: 1.25rem 1.25rem;
+    height: 1.25rem;
+    width: 1.25rem;
+    -ms-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+#sidebar .sub_indicator_collapsed {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+#sidebar ul {
+    transition: 0.4s;
+}
+#sidebar ul .collapsed {
+    display: none;
+}
+
+#article {
+    width: 100%;
+}
+#article #content {
+    max-width: 60%;
+    margin: auto;
 }

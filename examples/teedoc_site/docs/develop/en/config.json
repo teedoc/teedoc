@@ -18,6 +18,7 @@
                 "position": "left"
             },
             {
+                "position": "right",
                 "items": [
                     {
                         "url": "/develop/zh",

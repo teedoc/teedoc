@@ -34,19 +34,22 @@ class Plugin(Plugin_Base):
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
         self.dark_css  = {
-            "/static/css/default/dark.css": os.path.join(self.assets_abs_path, "dark.css")
+            "/static/css/theme_default/dark.css": os.path.join(self.assets_abs_path, "dark.css")
         }
         self.light_css = {
-            "/static/css/default/light.css": os.path.join(self.assets_abs_path, "light.css")
+            "/static/css/theme_default/light.css": os.path.join(self.assets_abs_path, "light.css")
         }
         self.dark_js = {
 
         }
         self.light_js = {
-            
+            "/static/js/theme_default/light.js": os.path.join(self.assets_abs_path, "light.js")
         }
         self.js = {
-
+            "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js")
+        }
+        self.images = {
+            "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg")
         }
         self.html_header_items = self._generate_html_header_items()
         self.files_to_copy = {}
@@ -56,6 +59,8 @@ class Plugin(Plugin_Base):
         if self.config["light"]:
             self.files_to_copy.update(self.light_css)
             self.files_to_copy.update(self.light_js)
+        self.files_to_copy.update(self.js)
+        self.files_to_copy.update(self.images)
         self.themes_btn = '<div class="themes"></div>'
 
 
@@ -71,6 +76,9 @@ class Plugin(Plugin_Base):
                 item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
                 items.append(item)
         # js
+        for url in self.js:
+            item = '<script src="{}"></script>'.format(url)
+            items.append(item)
         if self.config["dark"]:
             for url in self.dark_js:
                 item = '<script src="{}"></script>'.format(url)
@@ -79,10 +87,6 @@ class Plugin(Plugin_Base):
             for url in self.light_js:
                 item = '<script src="{}"></script>'.format(url)
                 items.append(item)
-        for url in self.js:
-            item = '<script src="{}"></script>'.format(url)
-            items.append(item)
-
         return items
         
 
@@ -91,7 +95,7 @@ class Plugin(Plugin_Base):
     
     def on_add_navbar_items(self):
         items = [self.themes_btn]
-        # return items
+        return items
         # TODO:
         return []
     
