@@ -64,7 +64,7 @@ class Plugin(Plugin_Base):
         result['ok'] = True
         return result
     
-    def on_add_header_items(self):
+    def on_add_html_header_items(self):
         items = []
         items.append('<meta name="markdown-generator" content="teedoc-plugin-markdown-parser">')
         return items

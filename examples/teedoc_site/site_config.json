@@ -10,7 +10,12 @@
         },
         "pages": {
             "/": "pages/index/zh",
+            "/zh": "pages/index/zh",
             "/en": "pages/index/en"
+        },
+        "assets": {
+            "/static": "static",
+            "/get_started/assets": "docs/get_started/assets"
         },
         "/blog": "blog"
     },
@@ -22,7 +27,6 @@
         "teedoc-plugin-markdown-parser":{
             "from": "../../plugins/teedoc-plugin-markdown-parser",
             "config": {
-                "parse_files": ["md"]
             }
         }
     }

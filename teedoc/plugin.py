@@ -34,6 +34,12 @@ class Plugin_Base:
     def on_parse_pages(self, pages):
         return None
     
-    def on_add_header_items(self):
+    def on_add_html_header_items(self):
         return []
+    
+    def on_add_navbar_items(self):
+        '''
+            @return list items(navbar item, e.g. "<a href=></a>")
+        '''
+        return ["<a>sassss</a>"]
 

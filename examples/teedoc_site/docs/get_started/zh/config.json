@@ -5,6 +5,7 @@
             "alt": "teedoc logo",
             "src": "/static/image/logo.jpg"
         },
+        "home_url": "/",
         "items": [
             {
                 "url": "/get_started/zh",
@@ -17,14 +18,15 @@
                 "position": "left"
             },
             {
+                "position": "right",
                 "items": [
-                    {
-                        "url": "/get_started/zh",
-                        "label": "中文"
-                    },
                     {
                         "url": "/get_started/en",
                         "label": "English"
+                    },
+                    {
+                        "url": "/get_started/zh",
+                        "label": "中文"
                     }
                 ]
             }

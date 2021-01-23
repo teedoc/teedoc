@@ -5,15 +5,16 @@
             "alt": "teedoc logo",
             "src": "/static/image/logo.jpg"
         },
+        "home_url": "/en",
         "items": [
             {
-                "url": "/get_started/zh",
-                "label": "安装使用",
+                "url": "/get_started/en",
+                "label": "Install",
                 "position": "left"
             },
             {
-                "url": "/develop/zh",
-                "label": "开发",
+                "url": "/develop/en",
+                "label": "Develop",
                 "position": "left"
             },
             {

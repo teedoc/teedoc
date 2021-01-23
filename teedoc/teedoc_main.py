@@ -3,6 +3,7 @@ from logger import Logger
 import os, sys
 import json
 import subprocess
+import shutil
 
 def parse_site_config(doc_src_path):
     site_config_path = os.path.join(doc_src_path, "site_config.json")
@@ -23,6 +24,12 @@ def parse_site_config(doc_src_path):
     if not ok:
         return False, "check site_config.json fail: {}".format(msg)
     return True, site_config
+
+def copy_dir(src, dst):
+    if os.path.exists(dst):
+        shutil.rmtree(dst)
+    shutil.copytree(src, dst)
+    return True
 
 def get_files(dir_path):
     result = []
@@ -98,7 +105,10 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
         tmp = os.path.split(url)
         if tmp[1].lower() == "readme":
             url = "{}/index".format(tmp[0])
-        return "{}/{}.html".format(doc_url, url)
+            if url.startswith("/"):
+                url = url[1:]
+        url = "{}/{}.html".format(doc_url, url)
+        return url
 
     def generate_items(config, doc_path_relative, doc_url):
         html = ""
@@ -140,7 +150,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
         htmls[file] = html
     return htmls
 
-def generate_navbar_html(htmls, navbar, doc_path, doc_url):
+def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
     '''
         @doc_path  doc path, contain config.json and sidebar.json
         @doc_url   doc url, config in "route" of site_config.json
@@ -164,22 +174,16 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url):
                                 }
                 }
     '''
-    def get_url_by_file(file_path, doc_url):
-        url = os.path.splitext(file_path)[0]
-        tmp = os.path.split(url)
-        if tmp[1].lower() == "readme":
-            url = "{}/index".format(tmp[0])
-        return "{}/{}.html".format(doc_url, url)
-
-    def generate_items(config, doc_url):
+    def generate_items(config, doc_url, level):
         html = ""
         li = False
         if "label" in config:
             if "url" in config and config["url"] != None and config["url"] != "null":
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
-                item_html = '<li{}><a href="{}">{}</a>'.format(
-                    "" if doc_url != config["url"] else ' class="active"',
+                item_html = '<li class="{} {}"><a href="{}">{}</a>'.format(
+                    "" if doc_url != config["url"] else 'active',
+                    config["position"] if "position" in config else "",
                     config["url"], config["label"]
                 )
             else:
@@ -189,9 +193,11 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url):
             li = True
             html += item_html
         if "items" in config:
-            html += "<ul>\n"
+            html += '<ul class="{} {}">\n'.format(config["position"] if "position" in config else "",
+                                                    "nav_item" if level==0 else ""
+                                                 )
             for item in config["items"]:
-                item_html = generate_items(item, doc_url)
+                item_html = generate_items(item, doc_url, level + 1)
                 html += item_html
             html += "</ul>\n"
         if li:
@@ -201,16 +207,32 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url):
     for file, html in htmls.items():
         if not html:
             continue
-        items = generate_items(navbar, doc_url)
+        items = generate_items(navbar, doc_url, 0)
+        logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
+                        navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]
+                     )
+        # add navbar items from plugins
+        items_plugins_html = ""
+        for plugin in plugins_objs:
+            _items = plugin.on_add_navbar_items()
+            if not _items:
+                continue
+            items_html = '<ul class="plugins_nav_item">'
+            for item in _items:
+                items_html += "<li>{}</li>".format(item)
+            items_html += "</ul>"
+            items_plugins_html += items_html
         navbar_html = '''
             <div id="navbar">
                 {}
-            </div>'''.format(items)
+                {}
+                {}
+            </div>'''.format(logo_html, items, items_plugins_html)
         html["navbar"] = navbar_html
         htmls[file] = html
     return htmls
 
-def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
+def build(doc_src_path, plugins_objs, site_config, out_dir, log):
     '''
         "route": {
             "docs": {
@@ -276,13 +298,12 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
     # get html header item from plugins
     header_items = []
     for plugin in plugins_objs:
-        items = plugin.on_add_header_items()
+        items = plugin.on_add_html_header_items()
         if type(items) != list:
-            log.e("plugin <{}> error, on_add_header_items should return list type".format(plugin.name))
+            log.e("plugin <{}> error, on_add_html_header_items should return list type".format(plugin.name))
             return False
         if items:
             header_items.extend(items)
-        print(header_items)
     # parse all docs
     docs = site_config["route"]["docs"]
     for url, dir in docs.items():
@@ -313,7 +334,7 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
         # generate sidebar to html
         htmls = generate_sidebar_html(htmls, sidebar, dir, url)
         # generate navbar to html
-        htmls = generate_navbar_html(htmls, navbar, dir, url)
+        htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
         # consturct html page
         htmls = construct_html(htmls, header_items)
         # write to file
@@ -329,6 +350,15 @@ def parse_files(doc_src_path, plugins_objs, site_config, out_dir, log):
     if not parse_pages(doc_src_path, plugins_objs, site_config, out_dir, log):
         return False
     # parse all blogs
+    # copy assets
+    assets = site_config["route"]["assets"]
+    for target_dir, from_dir in assets.items(): 
+        in_path  = os.path.join(doc_src_path, from_dir)
+        if target_dir.startswith("/"):
+            target_dir = target_dir[1:]
+        out_path = os.path.join(out_dir, target_dir)
+        if not copy_dir(in_path, out_path):
+            return False
     return True
 
 
@@ -436,7 +466,7 @@ def main():
             plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, logger=log)
             plugins_objs.append(plugin_obj)
         # parse files
-        if not parse_files(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log):
+        if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log):
             return 1
     elif args.command == "serve":
         from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -465,7 +495,7 @@ def main():
                 # print(self.request)
  
         server = HTTPServer(host, On_Resquest)
-        print("Starting server at {}:{} ....".format(host[0], host[1]))
+        log.i("Starting server at {}:{} ....".format(host[0], host[1]))
         server.serve_forever()
     else:
         log.e("command error")
