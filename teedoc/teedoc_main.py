@@ -123,12 +123,12 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file(config["file"], doc_url)
-                item_html = '<li{}><a href="{}">{}</a>'.format(
+                item_html = '<li{}><a href="{}">{}<span class="sub_indicator"></a>'.format(
                     "" if doc_path_relative != config["file"] else ' class="active"',
                     url, config["label"]
                 )
             else:
-                item_html = '<li>{}'.format(
+                item_html = '<li><a>{}<span class="sub_indicator"></span></a>'.format(
                     config["label"]
                 )
             li = True
@@ -276,7 +276,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                     title = "{} - {}".format(html["title"], site_config["site_name"])
                 else:
                     title = site_config["site_name"]
-                header_items = "\n".join(header_items_in)
+                header_items = "\n        ".join(header_items_in)
                 files[file] = '''<!DOCTYPE html>
 <html>
     <head>
@@ -290,8 +290,14 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
     </head>
     <body>
         {}
-        {}
-        {}
+        <div id="wrapper">
+            {}
+            <div id="article">
+                <div id="content">
+                    {}
+                </div>
+            </div>
+        </div>
     </doby>
 </html>
 '''.format(",".join(html["keywords"]), html["desc"], 

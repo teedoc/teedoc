@@ -32,26 +32,71 @@ class Plugin(Plugin_Base):
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
-    
+
+        self.dark_css  = {
+            "/static/css/default/dark.css": os.path.join(self.assets_abs_path, "dark.css")
+        }
+        self.light_css = {
+            "/static/css/default/light.css": os.path.join(self.assets_abs_path, "light.css")
+        }
+        self.dark_js = {
+
+        }
+        self.light_js = {
+            
+        }
+        self.js = {
+
+        }
+        self.html_header_items = self._generate_html_header_items()
+        self.files_to_copy = {}
+        if self.config["dark"]:
+            self.files_to_copy.update(self.dark_css)
+            self.files_to_copy.update(self.dark_js)
+        if self.config["light"]:
+            self.files_to_copy.update(self.light_css)
+            self.files_to_copy.update(self.light_js)
+        self.themes_btn = '<div class="themes"></div>'
+
+
+    def _generate_html_header_items(self):
+        items = []
+        # css
+        if self.config["dark"]:
+            for url in self.dark_css:
+                item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
+                items.append(item)
+        if self.config["light"]:
+            for url in self.light_css:
+                item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
+                items.append(item)
+        # js
+        if self.config["dark"]:
+            for url in self.dark_js:
+                item = '<script src="{}"></script>'.format(url)
+                items.append(item)
+        if self.config["light"]:
+            for url in self.light_js:
+                item = '<script src="{}"></script>'.format(url)
+                items.append(item)
+        for url in self.js:
+            item = '<script src="{}"></script>'.format(url)
+            items.append(item)
+
+        return items
+        
+
     def on_add_html_header_items(self):
-        return []
+        return self.html_header_items
     
     def on_add_navbar_items(self):
+        items = [self.themes_btn]
+        # return items
+        # TODO:
         return []
     
     def on_copy_files(self):
-        items = {}
-        dark_assets = {
-            "/static/css/default/dark.css": os.path.join(self.assets_abs_path, "dark.css")
-        }
-        light_assets = {
-            "/static/css/default/light.css": os.path.join(self.assets_abs_path, "light.css")
-        }
-        if self.config["dark"]:
-            items.update(dark_assets)
-        if self.config["light"]:
-            items.update(light_assets)
-        return items
+        return self.files_to_copy
 
 if __name__ == "__main__":
     config = {
