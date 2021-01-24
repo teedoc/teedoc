@@ -32,7 +32,7 @@ def parse_site_config(doc_src_path):
         return True, ""
     if not os.path.exists(site_config_path):
         return False, "can not find site config file: {}".format(site_config_path)
-    with open(site_config_path) as f:
+    with open(site_config_path, encoding="utf-8") as f:
         try:
             site_config = json.load(f)
         except Exception as e:
@@ -86,7 +86,7 @@ def write_to_file(files_content, in_path, out_path):
                 f_path = os.path.join(os.path.dirname(f_path), "index.html")
             else:
                 f_path = "{}.html".format(os.path.splitext(f_path)[0])
-            with open(f_path, "w") as f:
+            with open(f_path, "w", encoding="utf-8") as f:
                 f.write(html)
         else:    # normal files, just copy
             with open(f_path, "wb") as f:
@@ -96,12 +96,12 @@ def write_to_file(files_content, in_path, out_path):
 
 def get_sidebar(doc_dir):
     sidebar_config_path = os.path.join(doc_dir, "sidebar.json")
-    with open(sidebar_config_path) as f:
+    with open(sidebar_config_path, encoding="utf-8") as f:
         return json.load(f)
 
 def get_navbar(doc_dir):
     sidebar_config_path = os.path.join(doc_dir, "config.json")
-    with open(sidebar_config_path) as f:
+    with open(sidebar_config_path, encoding="utf-8") as f:
         return json.load(f)['navbar']
 
 def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
@@ -166,7 +166,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
     for file, html in htmls.items():
         if not html:
             continue
-        doc_path_relative = file.replace(doc_path, "")[1:]
+        doc_path_relative = file.replace(doc_path, "")[1:].replace("\\", "/")
         items = generate_items(sidebar, doc_path_relative, doc_url)
         sidebar_html = '''
             <div id="sidebar">
@@ -354,7 +354,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
     # parse all docs
     docs = site_config["route"]["docs"]
     for url, dir in docs.items():
-        dir = os.path.abspath(os.path.join(doc_src_path, dir))
+        dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
         log.i("parse doc: {}, url:{}".format(dir, url))
         # get sidebar config
         try:

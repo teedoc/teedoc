@@ -21,12 +21,12 @@
                 "position": "right",
                 "items": [
                     {
-                        "url": "/develop/en",
-                        "label": "English"
-                    },
-                    {
                         "url": "/develop/zh",
                         "label": "中文"
+                    },
+                    {
+                        "url": "/develop/en",
+                        "label": "English"
                     }
                 ]
             }

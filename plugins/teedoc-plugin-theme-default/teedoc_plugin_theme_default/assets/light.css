@@ -76,10 +76,10 @@ a:visited {
     background-size: 1.25rem 1.25rem;
     height: 1.25rem;
     width: 1.25rem;
-    -ms-transform: rotate(45deg);
-    -moz-transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-    transform: rotate(45deg);
+    -ms-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
 }
 #sidebar .sub_indicator_collapsed {
     -ms-transform: rotate(0deg);
