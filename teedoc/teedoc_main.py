@@ -134,40 +134,52 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
         url = "{}/{}.html".format(doc_url, url)
         return url
 
-    def generate_items(config, doc_path_relative, doc_url):
+    def generate_items(config, doc_path_relative, doc_url, level=0):
         html = ""
         li = False
         is_dir = "items" in config
+        active = False
+        li_item_html = ""
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file(config["file"], doc_url)
-                item_html = '<li{}><a href="{}"><span>{}</span><span class="{}"></span></a>'.format(
-                    "" if doc_path_relative != config["file"] else ' class="active"',
+                active = doc_path_relative == config["file"]
+                li_item_html = '<li class="{}"><a href="{}"><span class="label">{}</span><span class="{}"></span></a>'.format(
+                    "active" if active else "not_active",
                     url, config["label"],
                     "sub_indicator" if is_dir else ""
                 )
             else:
-                item_html = '<li><a><span>{}</span><span class="{}"></span></a>'.format(
+                li_item_html = '<li class="not_active"><a><span class="label">{}</span><span class="{}"></span></a>'.format(
                     config["label"], "sub_indicator" if is_dir else ""
                 )
             li = True
-            html += item_html
         if is_dir:
-            html += "<ul>\n"
+            dir_html = ""
+            _active = False
             for item in config["items"]:
-                item_html = generate_items(item, doc_path_relative, doc_url)
-                html += item_html
-            html += "</ul>\n"
+                item_html, _active_sub = generate_items(item, doc_path_relative, doc_url, level + 1)
+                _active |= _active_sub
+                dir_html += item_html
+            active |= _active
+            if _active:
+                li_item_html = li_item_html.replace("not_active", 'active_parent')
+            elif not active:
+                li_item_html = li_item_html.replace("sub_indicator", "sub_indicator sub_indicator_collapsed")
+            html += li_item_html
+            html += '<ul class="{}">\n{}</ul>\n'.format("show" if active else "", dir_html)
+        else:
+            html += li_item_html
         if li:
             html += "</li>\n"
-        return html
+        return html, active
 
 
     for file, html in htmls.items():
         if not html:
             continue
         doc_path_relative = file.replace(doc_path, "")[1:].replace("\\", "/")
-        items = generate_items(sidebar, doc_path_relative, doc_url)
+        items, _ = generate_items(sidebar, doc_path_relative, doc_url)
         sidebar_html = '''
             <div id="sidebar">
                 {}

@@ -52,34 +52,44 @@ a:visited {
 #sidebar li > a {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
-}
-#sidebar li > a + ul {
+    padding: 0;
 }
 #sidebar a:hover {
     cursor: pointer;
 }
 #sidebar .active > a, #navbar .active > a{
-    background-color: #e8e8e8;
+    background-color: #f1f1f1;
     border-radius: 5px;
     color: #009688;
 }
+#sidebar li > a > .label {
+    padding: 10px;
+}
 
-#sidebar li>a:hover, #navbar li>a:hover{
-    background-color: #e8e8e8;
+#sidebar li > a:hover, #navbar li > a:hover, #sidebar li.active_parent > a:hover{
+    background-color: #d8d8d8;
     border-radius: 5px;
     transition: 0.4s;
 }
 #sidebar .sub_indicator {
     transition: transform 0.4s linear;
     background: url("/static/image/theme_default/indicator.svg");
-    background-size: 1.25rem 1.25rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    align-self: center;
     height: 1.25rem;
     width: 1.25rem;
     -ms-transform: rotate(-45deg);
     -moz-transform: rotate(-45deg);
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
+    transition: 0.2s;
+}
+#sidebar .sub_indicator:hover,
+#sidebar li.not_active > a:hover > .sub_indicator,
+#sidebar li.active > a:hover > .sub_indicator {
+    height: 1.6em;
+    width: 1.6em;
 }
 #sidebar .sub_indicator_collapsed {
     -ms-transform: rotate(0deg);
@@ -88,10 +98,27 @@ a:visited {
     transform: rotate(0deg);
 }
 #sidebar ul {
-    transition: 0.4s;
-}
-#sidebar ul .collapsed {
+    /* transition: 0.4s;  */ /* js instead*/
     display: none;
+}
+#sidebar > ul {
+    display: block;
+}
+#sidebar ul .show{
+    /* display: block; */ /* js instead, just reserve this item*/
+}
+#sidebar ul .active_parent {
+    display: block;
+}
+#sidebar ul .active_parent > ul{
+    display: block;
+}
+#sidebar ul.collapsed, #sidebar ul .active_parent > ul.collapsed{
+    /* display: none; */  /* js instead, just reserve this item*/
+}
+#sidebar ul .active_parent > a{
+    background-color: #f1f1f1;
+    border-radius: 5px;
 }
 
 #article {

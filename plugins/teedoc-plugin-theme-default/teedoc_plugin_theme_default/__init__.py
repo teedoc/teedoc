@@ -43,10 +43,10 @@ class Plugin(Plugin_Base):
 
         }
         self.light_js = {
-            "/static/js/theme_default/light.js": os.path.join(self.assets_abs_path, "light.js")
         }
         self.js = {
-            "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js")
+            "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
+            "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
         self.images = {
             "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg")
