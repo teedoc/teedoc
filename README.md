@@ -9,8 +9,19 @@ documentation generate tool from markdown and jupyter notebook to html
 
 Only support `Python3`
 
+### Install
+
 ```
 pip install teedoc
+```
+
+### Get template
+
+```
+git clone https://github.com/Neutree/teedoc
+```
+
+```
 cd example/teedoc_site
 teedoc install
 teedoc build
