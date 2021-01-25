@@ -30,6 +30,11 @@ class Plugin(Plugin_Base):
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
+        self._extention = [
+            "toc",
+            "fenced-code-blocks"
+        ]
+        self.parser = markdown2.Markdown(extras = self._extention)
         
 
     def on_parse_files(self, files):
@@ -45,19 +50,19 @@ class Plugin(Plugin_Base):
             return result
         self.logger.d("-- plugin <{}> parse {} files".format(self.name, len(files)))
         # self.logger.d("files: {}".format(files))
-        markdown = markdown2.Markdown()
+        
         for file in files:
             ext = os.path.splitext(file)[1].lower()
             if ext.endswith("md"):
                 with open(file, encoding="utf-8") as f:
                     content = f.read().strip()
-                    html = markdown.convert(content)
-                    #TODO:
+                    html = self.parser.convert(content)
                     result["htmls"][file] = {
                         "title": "",
                         "desc": "",
                         "keywords": [],
-                        "body": html
+                        "body": html,
+                        "toc": html.toc_html
                     }
             else:
                 result["htmls"][file] = None

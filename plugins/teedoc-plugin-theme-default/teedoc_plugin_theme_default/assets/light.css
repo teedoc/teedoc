@@ -73,6 +73,9 @@ a:visited {
 #sidebar {
     width: 300px;
 }
+#sidebar > div {
+    position: sticky;
+}
 #sidebar ul {
     padding-inline-start: 20px;
 }
@@ -166,4 +169,27 @@ a:visited {
 #article #content {
     max-width: 60%;
     margin: auto;
+}
+
+#article {
+    display: flex;
+}
+#article #content {
+
+}
+#article #toc {
+    background-color: white;
+    position: sticky;
+    width: 25%;
+}
+#article #toc > div {
+    position: sticky;
+    top: 5%;
+    overflow: auto;
+}
+#content {
+
+}
+#content img {
+    max-width: 100%;
 }

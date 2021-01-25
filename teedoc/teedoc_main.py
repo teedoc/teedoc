@@ -1,10 +1,13 @@
 import argparse
-from .logger import Logger
+import sys
+try:
+    from .logger import Logger
+except Exception:
+    from logger import Logger
 import os, sys
 import json
 import subprocess
 import shutil
-
 
 def get_content_type_by_path(file_path):
     ext = os.path.splitext(file_path)[1][1:].lower()
@@ -320,6 +323,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                 "desc": "",
                 "keywords": [],
                 "body": "",
+                "toc": "",
                 "sidebar": "",
                 "navbar": ""
             }
@@ -353,6 +357,11 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                 <div id="content">
                     {}
                 </div>
+                <div id="toc">
+                    <div>
+                        {}
+                    </div>
+                </div>
             </div>
         </div>
     </doby>
@@ -361,7 +370,8 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                         header_items, title,
                         html["navbar"],
                         html["sidebar"],
-                        html["body"])
+                        html["body"],
+                        html["toc"])
         return files
 
     # ---start---
@@ -582,6 +592,7 @@ def main():
                 # print(self.request)
  
         server = HTTPServer(host, On_Resquest)
+        log.i("root dir: {}".format(out_dir))
         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
         server.serve_forever()
     else:
