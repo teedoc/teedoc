@@ -213,37 +213,48 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
                 }
     '''
     def generate_items(config, doc_url, level):
-        html = ""
         li = False
-        if "label" in config:
-            if "url" in config and config["url"] != None and config["url"] != "null":
+        active_item = None
+        have_label = "label" in config
+        li_html = ""
+        active = False
+        if have_label and "url" in config and config["url"] != None and config["url"] != "null":
+            if not config["url"].startswith("http"):
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
-                item_html = '<li class="{}"><a href="{}">{}</a>'.format(
-                    "" if doc_url != config["url"] else 'active',
-                    config["url"], config["label"]
-                )
-            else:
-                item_html = '<li>{}'.format(
-                    config["label"]
-                )
+            active = doc_url == config["url"]
+            if active:
+                active_item = config
             li = True
-            html += item_html
+        sub_items_ul_html = ""
         if "items" in config:
-            html += '<ul >\n'
+            active_item = None
+            sub_items_html = ""
             for item in config["items"]:
-                item_html = generate_items(item, doc_url, level + 1)
-                html += item_html
-            html += "</ul>\n"
-        if li:
-            html += "</li>\n"
-        return html
+                item_html, _active_item = generate_items(item, doc_url, level + 1)
+                if _active_item:
+                    active_item = _active_item
+                sub_items_html += item_html
+            sub_items_ul_html = "<ul>{}</ul>".format(sub_items_html)
+        if not li:
+            li_html = '<li class="sub_items"><a>{}{}</a>{}\n'.format("{}".format(config["label"]) if have_label else "",
+                                active_item["label"] if active_item else "",
+                                sub_items_ul_html
+                        )
+        else:
+            li_html = '<li class="{}"><a {} href="{}">{}</a>{}'.format(
+                "active" if active else '',
+                'target="{}"'.format(config["target"]) if "target" in config else "",
+                config["url"], config["label"], sub_items_ul_html
+            )
+        html = '{}</li>\n'.format(li_html)
+        return html, active_item
     
     def generate_lef_right_items(config, doc_url):
         left = '<ul id="nav_left">\n'
         right = '<ul id="nav_right">\n'
         for item in config["items"]:
-            html = generate_items(item, doc_url, 0)
+            html, _ = generate_items(item, doc_url, 0)
             if "position" in item and item["position"] == "right":
                 right += html
             else:

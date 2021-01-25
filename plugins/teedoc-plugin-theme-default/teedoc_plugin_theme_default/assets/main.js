@@ -1,9 +1,9 @@
 
 window.onload = function(){
-    $("#sidebar ul .show").slideDown(200);
 }
 
 $(document).ready(function(){
+    $("#sidebar ul .show").slideDown(200);
     registerSidebarClick();
 });
 

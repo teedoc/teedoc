@@ -18,6 +18,13 @@
                 "position": "left"
             },
             {
+                "url": "https://github.com/neutree/teedoc",
+                "label": "github",
+                "target": "_blank",
+                "position": "right"
+            },
+            {
+                "label": "Language: ",
                 "position": "right",
                 "items": [
                     {
