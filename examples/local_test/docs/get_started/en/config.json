@@ -1,0 +1,42 @@
+{
+    "navbar": {
+        "title": "teedoc",
+        "logo": {
+            "alt": "teedoc logo",
+            "src": "/static/image/logo.jpg"
+        },
+        "home_url": "/en",
+        "items": [
+            {
+                "url": "/get_started/en",
+                "label": "Install",
+                "position": "left"
+            },
+            {
+                "url": "/develop/en",
+                "label": "Develop",
+                "position": "left"
+            },
+            {
+                "url": "https://github.com/neutree/teedoc",
+                "label": "github",
+                "target": "_blank",
+                "position": "right"
+            },
+            {
+                "label": "Language: ",
+                "position": "right",
+                "items": [
+                    {
+                        "url": "/get_started/zh",
+                        "label": "中文"
+                    },
+                    {
+                        "url": "/get_started/en",
+                        "label": "English"
+                    }
+                ]
+            }
+        ]
+    }
+}

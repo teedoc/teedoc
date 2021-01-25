@@ -1,4 +1,4 @@
-from logger import Fake_Logger
+from .logger import Fake_Logger
 import os
 
 class Plugin_Base:
