@@ -85,9 +85,11 @@ a:visited {
     transform: rotate(-45deg);
     transition: 0.2s;
 }
+
 #sidebar .sub_indicator:hover,
-#sidebar li.not_active > a:hover > .sub_indicator,
-#sidebar li.active > a:hover > .sub_indicator {
+#sidebar li.no_link > a:hover > .sub_indicator,
+#sidebar li.no_link > a.sub_indicator:hover,
+#sidebar li.no_link > a.sub_indicator{
     height: 1.6em;
     width: 1.6em;
 }

@@ -144,13 +144,13 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file(config["file"], doc_url)
                 active = doc_path_relative == config["file"]
-                li_item_html = '<li class="{}"><a href="{}"><span class="label">{}</span><span class="{}"></span></a>'.format(
+                li_item_html = '<li class="{} with_link"><a href="{}"><span class="label">{}</span><span class="{}"></span></a>'.format(
                     "active" if active else "not_active",
                     url, config["label"],
                     "sub_indicator" if is_dir else ""
                 )
             else:
-                li_item_html = '<li class="not_active"><a><span class="label">{}</span><span class="{}"></span></a>'.format(
+                li_item_html = '<li class="not_active no_link"><a><span class="label">{}</span><span class="{}"></span></a>'.format(
                     config["label"], "sub_indicator" if is_dir else ""
                 )
             li = True
