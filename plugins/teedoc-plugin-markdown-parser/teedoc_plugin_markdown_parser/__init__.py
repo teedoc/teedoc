@@ -66,6 +66,7 @@ class Plugin(Plugin_Base):
             if ext.endswith("md"):
                 with open(file, encoding="utf-8") as f:
                     content = f.read().strip()
+                    self.parser._toc_html = ""
                     html = self.parser.convert(content)
                     if "title" in html.metadata:
                         title = html.metadata["title"]
