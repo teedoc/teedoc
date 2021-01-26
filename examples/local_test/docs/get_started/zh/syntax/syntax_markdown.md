@@ -102,7 +102,7 @@ print("hello")
 
 这里没有放视频， 所以是空白, 放入正确的视频就可以播放了
 
-<video src="https://****.com/***.mp4" controls="controls" preload="auto">your brower not support play video</video>
+<video src="" controls="controls" preload="auto">your brower not support play video</video>
 
 
 ## iframe 嵌入网页

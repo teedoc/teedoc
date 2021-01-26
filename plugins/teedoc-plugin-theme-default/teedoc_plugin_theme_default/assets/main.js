@@ -35,5 +35,8 @@ function registerSidebarClick(){
             return false;
         }
     });
+    $("#menu").bind("click", function(e){
+        $("#sidebar_wrapper").toggle();
+    });
 }
 

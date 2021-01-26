@@ -51,7 +51,8 @@ class Plugin(Plugin_Base):
             "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
         self.images = {
-            "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg")
+            "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg"),
+            "/static/image/theme_default/menu.svg": os.path.join(self.assets_abs_path, "menu.svg")
         }
         self.html_header_items = self._generate_html_header_items()
         self.files_to_copy = {}

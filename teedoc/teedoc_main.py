@@ -184,8 +184,10 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
         doc_path_relative = file.replace(doc_path, "")[1:].replace("\\", "/")
         items, _ = generate_items(sidebar, doc_path_relative, doc_url)
         sidebar_html = '''
-            <div id="sidebar">
-                {}
+            <div id="sidebar_wrapper">
+                <div id="sidebar">
+                    {}
+                </div>
             </div>'''.format(items)
         html["sidebar"] = sidebar_html
         htmls[file] = html
@@ -361,6 +363,10 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
         {}
         <div id="wrapper">
             {}
+            <div id="menu_wrapper">
+                <div id="menu">
+                </div>
+            </div>
             <div id="article">
                 <div id="content">
                     <h1>{}</h1>

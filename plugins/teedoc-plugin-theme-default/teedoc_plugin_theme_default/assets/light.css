@@ -140,6 +140,9 @@ td {
 #navbar a.site_title{
     padding: 0;
 }
+#navbar a.site_title:hover{
+    background-color: transparent;
+}
 #navbar .site_logo {
     max-height: 60px;
 }
@@ -179,9 +182,16 @@ td {
 
 
 /* sidebar */
+#sidebar_wrapper {
+
+}
 #sidebar {
     width: 300px;
     min-width: 200px;
+    position: sticky;
+    top: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 #sidebar > div {
     position: sticky;
@@ -272,22 +282,23 @@ td {
     background-color: #f1f1f1;
     border-radius: 5px;
 }
-
+#menu {
+    background: url(/static/image/theme_default/menu.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+    transition: 0.2s;
+    cursor: pointer;
+    position: sticky;
+    top: 1em;
+}
 
 /* article */
 #article {
-    width: 100%;
-}
-#article #content {
-    max-width: 60%;
-    margin: auto;
-}
-
-#article {
     display: flex;
-}
-#article #content {
-
+    width: 100%;
+    justify-content: space-evenly;
 }
 #article #toc {
     background-color: white;
@@ -311,7 +322,8 @@ td {
 
 /* article content */
 #content {
-
+    max-width: 50em;
+    width: 65%;
 }
 #content img {
     max-width: 100%;
@@ -359,10 +371,19 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
 
 
 /* footer article */
+.footnotes {
+    margin-top: 5em;
+}
 #article_footer {
     height: 15em;
     margin-top: 5em;
 }
 
 
+@media screen and (max-width: 900px) {
+    #article #toc{
+        display: none;
+        width: 0;
+    }
+}
 
