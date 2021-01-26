@@ -37,12 +37,14 @@ class Plugin(Plugin_Base):
             "/static/css/theme_default/dark.css": os.path.join(self.assets_abs_path, "dark.css")
         }
         self.light_css = {
+            "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
             "/static/css/theme_default/light.css": os.path.join(self.assets_abs_path, "light.css")
         }
         self.dark_js = {
 
         }
         self.light_js = {
+            "/static/css/theme_default/prism.min.js": os.path.join(self.assets_abs_path, "prism.min.js")
         }
         self.js = {
             "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),

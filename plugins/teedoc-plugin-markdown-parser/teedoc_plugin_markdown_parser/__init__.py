@@ -32,7 +32,17 @@ class Plugin(Plugin_Base):
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self._extention = [
             "toc",
-            "fenced-code-blocks"
+            "metadata",
+            "fenced-code-blocks",
+            "highlightjs-lang",
+            "break-on-newline",
+            "code-friendly",
+            "cuddled-lists",
+            "footnotes",
+            "strike",
+            "spoiler",
+            "tables",
+            "task_list"
         ]
         self.parser = markdown2.Markdown(extras = self._extention)
         
@@ -57,12 +67,30 @@ class Plugin(Plugin_Base):
                 with open(file, encoding="utf-8") as f:
                     content = f.read().strip()
                     html = self.parser.convert(content)
+                    if "title" in html.metadata:
+                        title = html.metadata["title"]
+                    else:
+                        title = ""
+                    if "keywords" in html.metadata:
+                        keywords = html.metadata["keywords"].split(",")
+                    else:
+                        keywords = []
+                    if "tags" in html.metadata:
+                        tags = html.metadata["tags"].split(",")
+                    else:
+                        tags = []
+                    if "desc" in html.metadata:
+                        desc = html.metadata["desc"]
+                    else:
+                        desc = []
                     result["htmls"][file] = {
-                        "title": "",
-                        "desc": "",
-                        "keywords": [],
+                        "title": title,
+                        "desc": desc,
+                        "keywords": keywords,
+                        "tags": tags,
                         "body": html,
-                        "toc": html.toc_html
+                        "toc": html.toc_html if html.toc_html else "",
+                        "metadata": html.metadata
                     }
             else:
                 result["htmls"][file] = None

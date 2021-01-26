@@ -7,7 +7,7 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
-install_requires = []
+install_requires = ["markdown2 >= 2.4.0"]
 packages = find_packages()
 print("packages:", packages)
 

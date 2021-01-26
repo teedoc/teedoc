@@ -27,6 +27,10 @@
             ]
         },
         {
+            "label": "markdown 语法",
+            "file": "syntax/syntax_markdown.md"
+        },
+        {
             "label": "更多样例",
             "items":[
                 {

@@ -1,7 +1,6 @@
 
 ---
-
-封面：
+标题: LoRa 重要知识
 关键词： LoRa 知识 概念 参数
 简介：LoRa: Long Range的缩写，是一种基于线性调制扩频技术（CSS: chirp spread spectrum)的一种扩频调制技术，应用于低功耗远距离低速率通信
 

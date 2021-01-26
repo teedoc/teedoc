@@ -322,10 +322,12 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                 "title": "",
                 "desc": "",
                 "keywords": [],
+                "tags": [],
                 "body": "",
                 "toc": "",
                 "sidebar": "",
                 "navbar": ""
+                "metadata": {}
             }
         '''
         files = {}
@@ -334,10 +336,16 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                 files[file] = None
             else:
                 if html["title"]:
-                    title = "{} - {}".format(html["title"], site_config["site_name"])
+                    page_title = "{} - {}".format(html["title"], site_config["site_name"])
+                    article_title = html["title"]
                 else:
-                    title = site_config["site_name"]
+                    page_title = site_config["site_name"]
+                    article_title = ""
                 header_items = "\n        ".join(header_items_in)
+                tags_html = ""
+                for tag in html["tags"]:
+                    tags_html += '<li>{}</li>\n'.format(tag)
+                tags_html = '<ul>{}</ul>'.format(tags_html)
                 files[file] = '''<!DOCTYPE html>
 <html>
     <head>
@@ -355,7 +363,13 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
             {}
             <div id="article">
                 <div id="content">
+                    <h1>{}</h1>
+                    <div id="article_tags">
+                        {}
+                    </div>
                     {}
+                    <div id="article_footer">
+                    </div>
                 </div>
                 <div id="toc">
                     <div>
@@ -366,10 +380,12 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
         </div>
     </doby>
 </html>
-'''.format(",".join(html["keywords"]), html["desc"], 
-                        header_items, title,
+'''.format(     ",".join(html["keywords"]), html["desc"], 
+                        header_items, page_title,
                         html["navbar"],
                         html["sidebar"],
+                        article_title,
+                        tags_html,
                         html["body"],
                         html["toc"])
         return files
