@@ -23,6 +23,9 @@ a:visited {
 #sidebar li > a:hover, #sidebar li.active_parent > a:hover, #navbar li > a:hover, #navbar .sub_items > a:hover {
     background-color: #2d2d2d;
 }
+#sidebar ul .active_parent > a {
+    background-color: #232323;
+}
 #article #toc {
     background-color: #1b1b1b;
 }
@@ -38,7 +41,7 @@ blockquote {
 }
 blockquote.spoiler {
     border-left: 5px solid #FF9800;
-    background-color: #FFC107;
+    background-color: #6e5200;
     color: white;
 }
 td {
@@ -50,5 +53,11 @@ th {
     background-color: #0f5943;
     color: white;
     border: 2px solid #006f4f;
+}
+sup a {
+    background-color: #2d2d2d;
+}
+a:hover {
+    background-color: #424242;
 }
 

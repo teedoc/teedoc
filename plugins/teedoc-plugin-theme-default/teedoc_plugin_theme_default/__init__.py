@@ -82,14 +82,14 @@ class Plugin(Plugin_Base):
     def _generate_html_header_items(self):
         items = []
         # css
+        for url in self.css:
+            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
+            items.append(item)
         if self.config["dark"]:
             for url in self.dark_css:
                 item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
                 items.append(item)
         for url in self.light_css:
-            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
-            items.append(item)
-        for url in self.css:
             item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
             items.append(item)
         # header_js

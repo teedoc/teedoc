@@ -78,7 +78,7 @@ blockquote {
 }
 blockquote.spoiler {
     border-left: 5px solid #FF9800;
-    background-color: #FFC107;
+    background-color: #ffd65b;
 }
 *::-webkit-scrollbar {
     width : 10px;
