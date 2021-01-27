@@ -97,8 +97,8 @@ sup a {
     font-size: 1.1em;
     background-color: #f1f1f1;
     padding: 4px;
-    border-left: 1px solid #009688;
-    border-right: 1px solid #009688;
+    border-left: 1px solid #4caf7d;
+    border-right: 1px solid #4caf7d;
 }
 table {
     border-collapse: collapse;
@@ -125,6 +125,9 @@ th {
 td {
     background-color: #fbfbfb;
     border: 2px solid #f1f1f1;
+}
+code {
+    color: #4caf7d;
 }
 
 /* wrapper */
@@ -269,7 +272,7 @@ td {
 #sidebar .active > a, #navbar .active > a{
     background-color: #f1f1f1;
     border-radius: 5px;
-    color: #009688;
+    color: #4caf7d;
 }
 #sidebar li > a > .label {
     padding: 10px;
@@ -353,7 +356,7 @@ td {
     position: sticky;
     top: 15%;
     overflow: auto;
-    border-left: 2px solid #009688;
+    border-left: 2px solid #4caf7d;
 }
 
 
@@ -379,7 +382,7 @@ td {
     margin: 5px;
     padding: 8px;
     border-radius: 5px;
-    background-color: #46c19d;
+    background-color: #4caf7d;
     color: white;
     font-size: 0.9em;
 }
@@ -426,11 +429,10 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     border-radius: 100%;
     padding: 2px;
     background-color: #f1f1f1;
-    box-shadow: 0px 0px 20px #e6e6e6;
+    box-shadow: 8px 8px 20px #d0d0d0;
 }
 #to_top:hover {
-    background-color: #f1f1f1;
-    box-shadow: 8px 8px 20px #d0d0d0;
+    box-shadow: 0px 0px 20px #e6e6e6;
 }
 
 

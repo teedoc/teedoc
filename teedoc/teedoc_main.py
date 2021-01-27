@@ -323,7 +323,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
         }
     '''
     
-    def construct_html(htmls, header_items_in, footer_items_in):
+    def construct_html(htmls, header_items_in, js_items_in):
         '''
             @htmls  {
                 "title": "",
@@ -349,7 +349,9 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                     page_title = site_config["site_name"]
                     article_title = ""
                 header_items = "\n        ".join(header_items_in)
-                footer_items = "\n".join(footer_items_in)
+                # footer_items = "\n".join(footer_items_in)
+                footer_items = ""
+                js_items = "\n".join(js_items_in)
                 tags_html = ""
                 for tag in html["tags"]:
                     tags_html += '<li>{}</li>\n'.format(tag)
@@ -381,6 +383,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                     </div>
                     {}
                     <div id="article_footer">
+                    {}
                     </div>
                 </div>
                 <div id="toc">
@@ -401,24 +404,25 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                         article_title,
                         tags_html,
                         html["body"],
+                        footer_items,
                         html["toc"],
-                        footer_items)
+                        js_items)
         return files
 
     # ---start---
     # get html header item from plugins
     header_items = []
-    footer_items = []
+    js_items = []
     for plugin in plugins_objs:
         items = plugin.on_add_html_header_items()
-        footers = plugin.on_add_html_footer_items()
-        if type(items) != list or type(footers) != list:
+        _js_items = plugin.on_add_html_js_items()
+        if type(items) != list or type(_js_items) != list:
             log.e("plugin <{}> error, on_add_html_header_items should return list type".format(plugin.name))
             return False
         if items:
             header_items.extend(items)
-        if footers:
-            footer_items.extend(footers)
+        if _js_items:
+            js_items.extend(_js_items)
     # parse all docs
     docs = site_config["route"]["docs"]
     for url, dir in docs.items():
@@ -456,7 +460,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
         # generate navbar to html
         htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
         # consturct html page
-        htmls = construct_html(htmls, header_items, footer_items)
+        htmls = construct_html(htmls, header_items, js_items)
         # write to file
         if url.startswith("/"):
             url = url[1:]

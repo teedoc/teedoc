@@ -38,7 +38,7 @@ class Plugin_Base:
     def on_add_html_header_items(self):
         return []
     
-    def on_add_html_footer_items(self):
+    def on_add_html_js_items(self):
         return []
     
     def on_add_navbar_items(self):

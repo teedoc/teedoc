@@ -3,7 +3,7 @@
         "title": "teedoc",
         "logo": {
             "alt": "teedoc logo",
-            "src": "/static/image/logo.jpg"
+            "src": "/static/image/logo.png"
         },
         "home_url": "/en",
         "items": [

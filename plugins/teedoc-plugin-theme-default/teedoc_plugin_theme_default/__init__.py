@@ -16,8 +16,7 @@ class Plugin(Plugin_Base):
     name = "theme-default"
     desc = "default theme for teedoc"
     defautl_config = {
-        "light": True,
-        "dark":  True
+        "light": True
     }
 
     def __init__(self, config = {}, doc_src_path = ".", logger = None):
@@ -47,7 +46,7 @@ class Plugin(Plugin_Base):
         self.css = {
             "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
         }
-        self.js = {
+        self.header_js = {
         }
         self.footer_js = {
             "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
@@ -66,16 +65,18 @@ class Plugin(Plugin_Base):
         if self.config["dark"]:
             self.files_to_copy.update(self.dark_css)
             self.files_to_copy.update(self.dark_js)
-        if self.config["light"]:
-            self.files_to_copy.update(self.light_css)
-            self.files_to_copy.update(self.light_js)
+        self.files_to_copy.update(self.light_css)
+        self.files_to_copy.update(self.light_js)
         self.files_to_copy.update(self.css)
-        self.files_to_copy.update(self.js)
+        self.files_to_copy.update(self.header_js)
         self.files_to_copy.update(self.footer_js)
         self.files_to_copy.update(self.images)
-        self.themes_btn = '<a id="themes" class="light"></a>'
+        if self.config["dark"]:
+            self.themes_btn = '<a id="themes" class="light"></a>'
+        else:
+            self.themes_btn = ""
 
-        self.html_footer_items = self._generate_html_footer_items()
+        self.html_js_items = self._generate_html_js_items()
 
 
     def _generate_html_header_items(self):
@@ -85,28 +86,26 @@ class Plugin(Plugin_Base):
             for url in self.dark_css:
                 item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
                 items.append(item)
-        if self.config["light"]:
-            for url in self.light_css:
-                item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
-                items.append(item)
+        for url in self.light_css:
+            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
+            items.append(item)
         for url in self.css:
             item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
             items.append(item)
-        # js
-        for url in self.js:
+        # header_js
+        for url in self.header_js:
             item = '<script src="{}"></script>'.format(url)
             items.append(item)
         if self.config["dark"]:
             for url in self.dark_js:
                 item = '<script src="{}"></script>'.format(url)
                 items.append(item)
-        if self.config["light"]:
-            for url in self.light_js:
-                item = '<script src="{}"></script>'.format(url)
-                items.append(item)
+        for url in self.light_js:
+            item = '<script src="{}"></script>'.format(url)
+            items.append(item)
         return items
 
-    def _generate_html_footer_items(self):
+    def _generate_html_js_items(self):
         items = []
         for url in self.footer_js:
             item = '<script src="{}"></script>'.format(url)
@@ -117,8 +116,8 @@ class Plugin(Plugin_Base):
     def on_add_html_header_items(self):
         return self.html_header_items
     
-    def on_add_html_footer_items(self):
-        return self.html_footer_items
+    def on_add_html_js_items(self):
+        return self.html_js_items
     
     def on_add_navbar_items(self):
         items = [self.themes_btn]

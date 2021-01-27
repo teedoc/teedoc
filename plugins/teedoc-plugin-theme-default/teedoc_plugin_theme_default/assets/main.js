@@ -100,12 +100,12 @@ function setTheme(theme){
     if(theme=="dark"){
         obj.removeClass("light");
         obj.addClass("dark");
-        removejscssfile("/static/css/theme_default/light.css", "css");
         addCss("/static/css/theme_default/dark.css");
+        // removejscssfile("/static/css/theme_default/light.css", "css");
     }else{
         obj.removeClass("dark");
         obj.addClass("light");
-        addCss("/static/css/theme_default/light.css");
+        // addCss("/static/css/theme_default/light.css");
         removejscssfile("/static/css/theme_default/dark.css", "css");
     }
     localStorage.setItem("theme", theme);
