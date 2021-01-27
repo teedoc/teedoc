@@ -38,6 +38,9 @@ class Plugin_Base:
     def on_add_html_header_items(self):
         return []
     
+    def on_add_html_footer_items(self):
+        return []
+    
     def on_add_navbar_items(self):
         '''
             @return list items(navbar item, e.g. "<a href=></a>")

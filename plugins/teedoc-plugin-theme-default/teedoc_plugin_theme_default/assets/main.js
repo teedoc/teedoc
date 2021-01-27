@@ -1,4 +1,14 @@
 
+(function () {
+    var elements = document.getElementsByTagName("pre");
+    for(var i=0; i<elements.length; ++i){
+        elements[i].classList.add("language-none");
+        elements[i].classList.add("line-numbers");
+    }
+    // $('pre').addClass("language-none");
+    // $('pre').addClass("line-numbers").css("white-space", "pre-wrap");
+}());
+
 window.onload = function(){
 }
 
@@ -49,5 +59,54 @@ function registerSidebarClick(){
     $("#navbar_menu_btn").bind("click", function(e){
         $("#navbar_items").toggle();
     });
+    var theme = getTheme();
+    setTheme(theme);
+    $("#themes").bind("click", function(e){
+        var obj = $("#themes");
+        if(obj.hasClass("light")){
+            setTheme("dark");
+        }else {
+            setTheme("light");
+        }
+    });
 }
 
+
+function addCss(filename) {
+    var creatHead = $('head');
+    creatHead.append('<link rel="stylesheet" href="' + filename + '" type="text/css">')
+}
+function removejscssfile(filename, filetype) {
+    var targetelement = (filetype == "js") ? "script" : (filetype == "css") ? "link" : "none"
+    var targetattr = (filetype == "js") ? "src" : (filetype == "css") ? "href" : "none"
+    var allsuspects = document.getElementsByTagName(targetelement)
+    for (var i = allsuspects.length; i >= 0; i--) {
+        if (allsuspects[i] && allsuspects[i].getAttribute(targetattr) != null && allsuspects[i].getAttribute(targetattr).indexOf(filename) != -1)
+            allsuspects[i].parentNode.removeChild(allsuspects[i])
+    }
+}
+
+
+function getTheme(){
+    var t = localStorage.getItem("theme");
+    if(!t){
+        t = "light";
+        setTheme(t);
+    }
+    return t;
+}
+function setTheme(theme){
+    var obj = $("#themes");
+    if(theme=="dark"){
+        obj.removeClass("light");
+        obj.addClass("dark");
+        removejscssfile("/static/css/theme_default/light.css", "css");
+        addCss("/static/css/theme_default/dark.css");
+    }else{
+        obj.removeClass("dark");
+        obj.addClass("light");
+        addCss("/static/css/theme_default/light.css");
+        removejscssfile("/static/css/theme_default/dark.css", "css");
+    }
+    localStorage.setItem("theme", theme);
+}

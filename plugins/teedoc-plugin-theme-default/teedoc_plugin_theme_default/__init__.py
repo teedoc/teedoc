@@ -37,23 +37,29 @@ class Plugin(Plugin_Base):
             "/static/css/theme_default/dark.css": os.path.join(self.assets_abs_path, "dark.css")
         }
         self.light_css = {
-            "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
             "/static/css/theme_default/light.css": os.path.join(self.assets_abs_path, "light.css")
         }
         self.dark_js = {
 
         }
         self.light_js = {
-            "/static/css/theme_default/prism.min.js": os.path.join(self.assets_abs_path, "prism.min.js")
+        }
+        self.css = {
+            "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
         }
         self.js = {
+        }
+        self.footer_js = {
             "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
-            "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
+            "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js"),
+            "/static/css/theme_default/prism.min.js": os.path.join(self.assets_abs_path, "prism.min.js")
         }
         self.images = {
             "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg"),
             "/static/image/theme_default/menu.svg": os.path.join(self.assets_abs_path, "menu.svg"),
-            "/static/image/theme_default/to-top.svg": os.path.join(self.assets_abs_path, "to-top.svg")
+            "/static/image/theme_default/to-top.svg": os.path.join(self.assets_abs_path, "to-top.svg"),
+            "/static/image/theme_default/light_mode.svg": os.path.join(self.assets_abs_path, "light_mode.svg"),
+            "/static/image/theme_default/dark_mode.svg": os.path.join(self.assets_abs_path, "dark_mode.svg")
         }
         self.html_header_items = self._generate_html_header_items()
         self.files_to_copy = {}
@@ -63,9 +69,13 @@ class Plugin(Plugin_Base):
         if self.config["light"]:
             self.files_to_copy.update(self.light_css)
             self.files_to_copy.update(self.light_js)
+        self.files_to_copy.update(self.css)
         self.files_to_copy.update(self.js)
+        self.files_to_copy.update(self.footer_js)
         self.files_to_copy.update(self.images)
-        self.themes_btn = '<div class="themes"></div>'
+        self.themes_btn = '<a id="themes" class="light"></a>'
+
+        self.html_footer_items = self._generate_html_footer_items()
 
 
     def _generate_html_header_items(self):
@@ -79,6 +89,9 @@ class Plugin(Plugin_Base):
             for url in self.light_css:
                 item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
                 items.append(item)
+        for url in self.css:
+            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
+            items.append(item)
         # js
         for url in self.js:
             item = '<script src="{}"></script>'.format(url)
@@ -92,16 +105,24 @@ class Plugin(Plugin_Base):
                 item = '<script src="{}"></script>'.format(url)
                 items.append(item)
         return items
+
+    def _generate_html_footer_items(self):
+        items = []
+        for url in self.footer_js:
+            item = '<script src="{}"></script>'.format(url)
+            items.append(item)
+        return items
         
 
     def on_add_html_header_items(self):
         return self.html_header_items
     
+    def on_add_html_footer_items(self):
+        return self.html_footer_items
+    
     def on_add_navbar_items(self):
         items = [self.themes_btn]
         return items
-        # TODO:
-        return []
     
     def on_copy_files(self):
         return self.files_to_copy
