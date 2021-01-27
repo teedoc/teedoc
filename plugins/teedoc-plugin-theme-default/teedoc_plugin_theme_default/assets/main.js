@@ -38,5 +38,8 @@ function registerSidebarClick(){
     $("#menu").bind("click", function(e){
         $("#sidebar_wrapper").toggle();
     });
+    $("#navbar_menu_btn").bind("click", function(e){
+        $("#navbar_items").toggle();
+    });
 }
 

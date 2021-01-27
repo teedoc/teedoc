@@ -288,13 +288,18 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
             items_plugins_html += items_html
         navbar_html = '''
             <div id="navbar">
-                <div>
+                <div id="navbar_menu">
                     {}
-                    {}
+                    <a id="navbar_menu_btn"></a>
                 </div>
-                <div>
-                    {}
-                    {}
+                <div id="navbar_items">
+                    <div>
+                        {}
+                    </div>
+                    <div>
+                        {}
+                        {}
+                    </div>
                 </div>
             </div>'''.format(logo_html, nav_left, nav_right, items_plugins_html)
         html["navbar"] = navbar_html

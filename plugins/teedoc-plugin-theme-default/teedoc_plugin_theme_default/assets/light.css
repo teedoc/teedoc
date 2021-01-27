@@ -125,12 +125,19 @@ td {
 /* navbar */
 #navbar {
     display: flex;
-    justify-content: space-between;
-    margin: 5px 10px;
+    justify-content: start;
 }
 #navbar * {
     display: flex;
     align-items: center;
+}
+#navbar_menu_btn {
+    display: none;
+}
+#navbar #navbar_items {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
 }
 #navbar a{
     margin: 5px;
@@ -183,24 +190,54 @@ td {
 
 /* sidebar */
 #sidebar_wrapper {
-
 }
 #sidebar {
-    width: 300px;
+    /* width: 300px;
     min-width: 200px;
     position: sticky;
-    top: 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-#sidebar > div {
+    top: 0;
+    overflow-x: hidden; */
+    width: 300px;
+    /* min-width: 200px; */
+    /* position: sticky; */
+    /* top: 0; */
+    /* overflow-x: hidden; */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: -webkit-sticky;
     position: sticky;
+    top: 0;
+    padding-top: var(--ifm-navbar-height);
+    /* width: var(--doc-sidebar-width); */
+    transition: opacity 50ms;
+    padding-top: 0;
 }
 #sidebar ul {
     padding-inline-start: 20px;
+    display: none;
 }
 #sidebar > ul {
     padding-inline-start: 0;
+    overflow-x: hidden;
+    padding: .5rem;
+    display: block;
+}
+#sidebar ul .show{
+    /* display: block; */ /* js instead, just reserve this item*/
+}
+#sidebar ul .active_parent {
+    display: block;
+}
+#sidebar ul .active_parent > ul{
+    display: block;
+}
+#sidebar ul.collapsed, #sidebar ul .active_parent > ul.collapsed{
+    /* display: none; */  /* js instead, just reserve this item*/
+}
+#sidebar ul .active_parent > a{
+    background-color: #f1f1f1;
+    border-radius: 5px;
 }
 #sidebar li {
     list-style: none;
@@ -236,6 +273,7 @@ td {
     background: url("/static/image/theme_default/indicator.svg");
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
     align-self: center;
     height: 1.25rem;
     width: 1.25rem;
@@ -259,45 +297,29 @@ td {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
 }
-#sidebar ul {
-    /* transition: 0.4s;  */ /* js instead*/
-    display: none;
-}
-#sidebar > ul {
-    display: block;
-}
-#sidebar ul .show{
-    /* display: block; */ /* js instead, just reserve this item*/
-}
-#sidebar ul .active_parent {
-    display: block;
-}
-#sidebar ul .active_parent > ul{
-    display: block;
-}
-#sidebar ul.collapsed, #sidebar ul .active_parent > ul.collapsed{
-    /* display: none; */  /* js instead, just reserve this item*/
-}
-#sidebar ul .active_parent > a{
-    background-color: #f1f1f1;
-    border-radius: 5px;
+#menu_wrapper {
+    width: 2%;
 }
 #menu {
     background: url(/static/image/theme_default/menu.svg);
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 5px;
     min-height: 2.5rem;
     min-width: 2.5rem;
     transition: 0.2s;
     cursor: pointer;
     position: sticky;
     top: 1em;
+    z-index: 99;
+    margin-left: 10px;
 }
 
 /* article */
 #article {
     display: flex;
-    width: 100%;
+    width: 98%;
     justify-content: space-evenly;
 }
 #article #toc {
@@ -381,6 +403,71 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
 
 
 @media screen and (max-width: 900px) {
+    #navbar {
+        display: block;
+        border-bottom: 1px solid #f1f1f1;
+        margin-bottom: 2em;
+    }
+    #navbar * {
+        display: block;
+    }
+    #navbar a.site_title {
+        display: flex;
+    }
+    #navbar_menu {
+        display: flex;
+        justify-content: space-between;
+    }
+    #navbar ul {
+        padding-left: 0;
+    }
+    #navbar_menu_btn {
+        background: url(/static/image/theme_default/menu.svg);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 1em;
+        height: 1em;
+        display: block;
+    }
+    #navbar #navbar_items {
+        display: block;
+    }
+    #navbar .sub_items ul {
+        left: 0;
+        right: auto;
+    }
+    #sidebar_wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        background-color: white;
+        box-shadow: 0 0 20px 0px #bbbbbb;
+        width: 100%;
+        z-index: 98;
+        display: none;
+    }
+    #sidebar {
+        position: relative;
+        width: 100%;
+    }
+    #menu_wrapper {
+        position: fixed;
+        right: 5em;
+        bottom: 6em;
+        z-index: 99;
+    }
+    #menu {
+        position: inherit;
+        top: auto;
+    }
+    #content {
+        /* max-width: 50em; */
+        width: 90%;
+    }
     #article #toc{
         display: none;
         width: 0;
