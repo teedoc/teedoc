@@ -37,6 +37,14 @@ function registerSidebarClick(){
     });
     $("#menu").bind("click", function(e){
         $("#sidebar_wrapper").toggle();
+        $("#to_top").toggle();
+        if($("#menu").hasClass("menu_fixed")){
+            $("#menu").removeClass("menu_fixed");
+            $("#menu").removeClass("close");
+        }else{
+            $("#menu").addClass("menu_fixed");
+            $("#menu").addClass("close");
+        }
     });
     $("#navbar_menu_btn").bind("click", function(e){
         $("#navbar_items").toggle();

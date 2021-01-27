@@ -389,6 +389,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                 </div>
             </div>
         </div>
+        <a id="to_top" href="#"></a>
     </doby>
 </html>
 '''.format(     ",".join(html["keywords"]), html["desc"], 

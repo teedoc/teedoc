@@ -222,6 +222,8 @@ td {
     overflow-x: hidden;
     padding: .5rem;
     display: block;
+    padding-bottom: 3em;
+    padding-top: 3em;
 }
 #sidebar ul .show{
     /* display: block; */ /* js instead, just reserve this item*/
@@ -366,7 +368,7 @@ td {
     border-radius: 5px;
     background-color: #46c19d;
     color: white;
-    font-size: 0.8em;
+    font-size: 0.9em;
 }
 
 
@@ -389,6 +391,33 @@ div.code-toolbar > .toolbar a, div.code-toolbar > .toolbar button, div.code-tool
 div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.code-toolbar > .toolbar button:hover, div.code-toolbar > .toolbar button:focus, div.code-toolbar > .toolbar span:hover, div.code-toolbar > .toolbar span:focus {
     color: #a9ffe0;
     text-decoration: none;
+}
+
+/* back to top button */
+
+#to_top {
+    transition: transform 0.4s linear;
+    background: url("/static/image/theme_default/to-top.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    align-self: center;
+    position: fixed;
+    bottom: 3em;
+    right: 3em;
+    height: 3rem;
+    width: 3rem;
+    cursor: pointer;
+    transition: 0.2s;
+    z-index: 99;
+    border-radius: 100%;
+    padding: 2px;
+    background-color: #f1f1f1;
+    box-shadow: 0px 0px 20px #e6e6e6;
+}
+#to_top:hover {
+    background-color: #f1f1f1;
+    box-shadow: 8px 8px 20px #d0d0d0;
 }
 
 
@@ -455,14 +484,25 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
         width: 100%;
     }
     #menu_wrapper {
-        position: fixed;
-        right: 5em;
-        bottom: 6em;
         z-index: 99;
     }
-    #menu {
-        position: inherit;
-        top: auto;
+    #menu.menu_fixed {
+        position: fixed;
+        right: 1em;
+        top: 0;
+    }
+    #menu.close {
+        background: url(/static/image/theme_default/indicator.svg);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 5px;
+        min-height: 2.5rem;
+        min-width: 2.5rem;
+        -ms-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -webkit-transform: rotate(-45deg);
+        transform: rotate(-45deg);
     }
     #content {
         /* max-width: 50em; */
