@@ -34,7 +34,9 @@
                 "dark": true,
                 "env":{
                     "main_color": "#4caf7d"
-                }
+                },
+                "css": "/static/css/custom.css",
+                "js": "/static/js/custom.js"
             }
         }
     }

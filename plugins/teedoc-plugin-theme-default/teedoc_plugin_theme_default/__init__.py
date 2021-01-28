@@ -113,6 +113,9 @@ class Plugin(Plugin_Base):
         for url in self.light_css:
             item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
             items.append(item)
+        if "css" in self.config:
+            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(self.config["css"])
+            items.append(item)
         # header_js
         for url in self.header_js:
             item = '<script src="{}"></script>'.format(url)
@@ -130,6 +133,9 @@ class Plugin(Plugin_Base):
         items = []
         for url in self.footer_js:
             item = '<script src="{}"></script>'.format(url)
+            items.append(item)
+        if "js" in self.config:
+            item = '<script src="{}"></script>'.format(self.config["js"])
             items.append(item)
         return items
 
