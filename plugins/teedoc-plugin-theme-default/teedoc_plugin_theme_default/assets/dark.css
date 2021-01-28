@@ -77,4 +77,10 @@ a:hover {
     background-color: #404040;
 }
 
+@media screen and (max-width: 900px) {
+    #sidebar_wrapper {
+        background-color: #1b1b1b;
+    }
+}
+
 

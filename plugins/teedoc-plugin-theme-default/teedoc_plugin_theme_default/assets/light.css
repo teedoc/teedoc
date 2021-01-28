@@ -570,6 +570,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     }
     #navbar #navbar_items {
         display: block;
+        padding-right: 0;
     }
     #navbar .sub_items ul {
         left: 0;
