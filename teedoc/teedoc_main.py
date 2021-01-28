@@ -107,6 +107,11 @@ def get_navbar(doc_dir):
     with open(sidebar_config_path, encoding="utf-8") as f:
         return json.load(f)['navbar']
 
+def get_footer(doc_dir):
+    sidebar_config_path = os.path.join(doc_dir, "config.json")
+    with open(sidebar_config_path, encoding="utf-8") as f:
+        return json.load(f)['footer']
+
 def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
     '''
         @htmls  {
@@ -306,6 +311,109 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
+def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
+    '''
+        @doc_path  doc path, contain config.json and sidebar.json
+        @doc_url   doc url, config in "route" of site_config.json
+        @htmls  {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html,
+                                “sidebar": "",
+                                "navbar": ""
+                                }
+                }
+        @return {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html，
+                                "sidebar": "",
+                                "navbar": "",
+                                "footer": ""
+                                }
+                }
+    '''
+    def generate_items(config, doc_url, level):
+        li = False
+        active_item = None
+        have_label = "label" in config
+        li_html = ""
+        active = False
+        if have_label and "url" in config and config["url"] != None and config["url"] != "null":
+            if not config["url"].startswith("http"):
+                if not config["url"].startswith("/"):
+                    config["url"] = "/{}".format(config["url"])
+            active = doc_url == config["url"]
+            if active:
+                active_item = config
+            li = True
+        sub_items_ul_html = ""
+        if "items" in config:
+            active_item = None
+            sub_items_html = ""
+            for item in config["items"]:
+                item_html, _active_item = generate_items(item, doc_url, level + 1)
+                if _active_item:
+                    active_item = _active_item
+                sub_items_html += item_html
+            sub_items_ul_html = "<ul>{}</ul>".format(sub_items_html)
+        if not li:
+            li_html = '<li class="sub_items"><a>{}{}</a>{}\n'.format("{}".format(config["label"]) if have_label else "",
+                                active_item["label"] if active_item else "",
+                                sub_items_ul_html
+                        )
+        else:
+            li_html = '<li class="{}"><a {} href="{}">{}</a>{}'.format(
+                "active" if active else '',
+                'target="{}"'.format(config["target"]) if "target" in config else "",
+                config["url"], config["label"], sub_items_ul_html
+            )
+        html = '{}</li>\n'.format(li_html)
+        return html, active_item
+    
+    def generate_footer_items(config, doc_url):
+        left = '<ul>\n'
+        middle = '<ul>\n'
+        right = '<ul>\n'
+        for item in config["items"]:
+            html, _ = generate_items(item, doc_url, 0)
+            if "position" in item:
+                if item["position"] == "right":
+                    right += html
+                elif item["position"] == "left":
+                    left += html
+                else:
+                    middle += html
+            else:
+                middle += html
+        left += "</ul>\n"
+        right += "</ul>\n"
+        return left, middle, right
+
+    for file, html in htmls.items():
+        if not html:
+            continue
+        footer_left, footer_middle, footer_right = generate_footer_items(footer, doc_url)
+        footer_html = '''
+            <div id="footer">
+                <div id="footer_left">
+                    {}
+                </div>
+                <div id="footer_middle">
+                    {}
+                </div>
+                <div id="footer_right">
+                    {}
+                </div>
+            </div>'''.format(footer_left, footer_middle, footer_right)
+        html["footer"] = footer_html
+        htmls[file] = html
+    return htmls
+
 def construct_html(htmls, header_items_in, js_items_in, site_config):
     '''
         @htmls  {
@@ -317,7 +425,8 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
             "toc": "",
             "sidebar": "",
             "navbar": ""
-            "metadata": {}
+            "metadata": {},
+            "footer": ""
         }
     '''
     files = {}
@@ -332,10 +441,9 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
                 page_title = site_config["site_name"]
                 article_title = ""
             header_items = "\n        ".join(header_items_in)
-            # footer_items = "\n".join(footer_items_in)
-            footer_items = ""
             js_items = "\n".join(js_items_in)
             tags_html = ""
+            footer_html = html["footer"] if "footer" in html else ""
             for tag in html["tags"]:
                 tags_html += '<li>{}</li>\n'.format(tag)
             tags_html = '<ul>{}</ul>'.format(tags_html)
@@ -371,15 +479,15 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
                         article_title,
                         tags_html,
                         html["body"],
-                        footer_items,
+                        footer_html,
                         html["toc"] if "toc" in html else "",
                 )
             else: # not "sidebar" in html
                 body_html = '''
                 <div id="wrapper">
-                    <div id="page_content">{}</div>
-                    <div id="footer"></div>
-                </div>'''.format(html["body"], footer_items)
+                    <div id="page_content"><div>{}</div></div>
+                    <div id="page_footer">{}</div>
+                </div>'''.format(html["body"], footer_html)
 
             files[file] = '''<!DOCTYPE html>
 <html>
@@ -428,6 +536,10 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
                 log.e("parse config.json navbar fail: {}".format(e))
                 return False
             navbar = None
+        try:
+            footer = get_footer(dir)
+        except Exception as e:
+            footer = None
         files = get_files(dir)
         # call plugins to parse files
         result_htmls = None
@@ -450,6 +562,8 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
         # generate navbar to html
         if navbar:
             htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
+        if footer:
+            htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
         # consturct html page
         htmls = construct_html(htmls, header_items, js_items, site_config)
         # write to file
