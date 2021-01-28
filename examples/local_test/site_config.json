@@ -31,7 +31,10 @@
         "teedoc-plugin-theme-default":{
             "from": "../../plugins/teedoc-plugin-theme-default",
             "config": {
-                "dark": true
+                "dark": true,
+                "env":{
+                    "main_color": "#4caf7d"
+                }
             }
         }
     }

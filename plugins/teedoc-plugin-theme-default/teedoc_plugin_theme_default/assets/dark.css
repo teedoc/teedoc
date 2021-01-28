@@ -22,7 +22,7 @@ a:visited {
 }
 #sidebar .active > a, #navbar .active > a {
     background-color: #2d2d2d;
-    color: #4caf7d;
+    color: ${main_color};
 }
 #sidebar li > a:hover, #sidebar li.active_parent > a:hover, #navbar li > a:hover, #navbar .sub_items > a:hover {
     background-color: #2d2d2d;

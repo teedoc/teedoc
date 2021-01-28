@@ -85,8 +85,8 @@ sup a {
     font-size: 1.1em;
     background-color: #f1f1f1;
     padding: 4px;
-    border-left: 1px solid #4caf7d;
-    border-right: 1px solid #4caf7d;
+    border-left: 1px solid ${main_color};
+    border-right: 1px solid ${main_color};
 }
 table {
     border-collapse: collapse;
@@ -115,7 +115,7 @@ td {
     border: 2px solid #f1f1f1;
 }
 code {
-    color: #4caf7d;
+    color: ${main_color};
 }
 
 /* wrapper */
@@ -271,7 +271,7 @@ code {
 #sidebar .active > a, #navbar .active > a{
     background-color: #f1f1f1;
     border-radius: 5px;
-    color: #4caf7d;
+    color: ${main_color};
     transition: 0.4s;
 }
 #sidebar li > a > .label {
@@ -361,7 +361,7 @@ code {
     position: sticky;
     top: 15%;
     overflow: auto;
-    border-left: 2px solid #4caf7d;
+    border-left: 2px solid ${main_color};
 }
 
 /* add numbers for toc */
@@ -425,7 +425,7 @@ code {
     margin: 5px;
     padding: 8px;
     border-radius: 5px;
-    background-color: #4caf7d;
+    background-color: ${main_color};
     color: white;
     font-size: 0.9em;
 }
@@ -491,7 +491,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     margin-top: 5em;
     display: flex;
     background-color: #f7f7f7;
-    border-top: 1px solid #4caf7d;
+    border-top: 1px solid ${main_color};
     padding: 1em;
 }
 #page_footer {
@@ -499,7 +499,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     margin-top: 5em;
     display: flex;
     background-color: #f7f7f7;
-    border-top: 1px solid #4caf7d;
+    border-top: 1px solid ${main_color};
     padding: 1em;
 }
 #footer {

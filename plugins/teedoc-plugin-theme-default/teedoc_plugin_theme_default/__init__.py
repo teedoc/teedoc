@@ -1,4 +1,7 @@
+from genericpath import exists
 import os, sys
+import tempfile
+import shutil
 import markdown2
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
@@ -38,13 +41,26 @@ class Plugin(Plugin_Base):
         self.light_css = {
             "/static/css/theme_default/light.css": os.path.join(self.assets_abs_path, "light.css")
         }
+        self.css = {
+            "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
+        }
+        # replace variable in css with value
+        if "env" in config and len(config['env']) > 0:
+            vars = config["env"]
+            self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_theme_default")
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir)
+            os.makedirs(self.temp_dir)
+            print(self.dark_css)
+            self.dark_css  = self._update_file_var(self.dark_css, vars, self.temp_dir)
+            print(self.dark_css)
+            self.light_css = self._update_file_var(self.light_css, vars, self.temp_dir)
+            self.css       = self._update_file_var(self.css, vars, self.temp_dir)
+        # js files
         self.dark_js = {
 
         }
         self.light_js = {
-        }
-        self.css = {
-            "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
         }
         self.header_js = {
             "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
@@ -67,8 +83,8 @@ class Plugin(Plugin_Base):
             self.files_to_copy.update(self.dark_css)
             self.files_to_copy.update(self.dark_js)
         self.files_to_copy.update(self.light_css)
-        self.files_to_copy.update(self.light_js)
         self.files_to_copy.update(self.css)
+        self.files_to_copy.update(self.light_js)
         self.files_to_copy.update(self.header_js)
         self.files_to_copy.update(self.footer_js)
         self.files_to_copy.update(self.images)
@@ -79,6 +95,12 @@ class Plugin(Plugin_Base):
 
         self.html_js_items = self._generate_html_js_items()
 
+    def __del__(self):
+        if os.path.exists(self.temp_dir):
+            try:
+                shutil.rmtree(self.temp_dir)
+            except Exception:
+                pass
 
     def _generate_html_header_items(self):
         items = []
@@ -112,6 +134,18 @@ class Plugin(Plugin_Base):
             item = '<script src="{}"></script>'.format(url)
             items.append(item)
         return items
+
+    def _update_file_var(self, files, vars, temp_dir):
+        new_dict = {}
+        for url, path in files.items():
+            with open(path, encoding='utf-8') as f:
+                for k, v in vars.items():
+                    content = f.read().replace("${}{}{}".format("{", k.strip(), "}"), v)
+                    temp_path = os.path.join(temp_dir, os.path.basename(path))
+                    with open(temp_path, "w", encoding='utf-8') as fw:
+                        fw.write(content)
+                    new_dict[url] = temp_path
+        return new_dict
         
 
     def on_add_html_header_items(self):
