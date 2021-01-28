@@ -98,6 +98,13 @@ class Plugin(Plugin_Base):
         result['ok'] = True
         return result
     
+    def on_parse_pages(self, files):
+        print(files)
+        result = self.on_parse_files(files)
+        print(result)
+        return result
+
+    
     def on_add_html_header_items(self):
         items = []
         items.append('<meta name="markdown-generator" content="teedoc-plugin-markdown-parser">')

@@ -306,75 +306,48 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
-def build(doc_src_path, plugins_objs, site_config, out_dir, log):
+def construct_html(htmls, header_items_in, js_items_in, site_config):
     '''
-        "route": {
-            "docs": {
-                "/get_started/zh": "docs/get_started/zh",
-                "/get_started/en": "docs/get_started/en",
-                "/develop/zh": "docs/develop/zh",
-                "/develop/en": "docs/develop/en"
-            },
-            "pages": {
-                "/": "pages/index/zh",
-                "/en": "pages/index/en"
-            },
-            "/blog": "blog"
+        @htmls  {
+            "title": "",
+            "desc": "",
+            "keywords": [],
+            "tags": [],
+            "body": "",
+            "toc": "",
+            "sidebar": "",
+            "navbar": ""
+            "metadata": {}
         }
     '''
-    
-    def construct_html(htmls, header_items_in, js_items_in):
-        '''
-            @htmls  {
-                "title": "",
-                "desc": "",
-                "keywords": [],
-                "tags": [],
-                "body": "",
-                "toc": "",
-                "sidebar": "",
-                "navbar": ""
-                "metadata": {}
-            }
-        '''
-        files = {}
-        for file, html in htmls.items():
-            if not html:
-                files[file] = None
+    files = {}
+    for file, html in htmls.items():
+        if not html:
+            files[file] = None
+        else:
+            if html["title"]:
+                page_title = "{} - {}".format(html["title"], site_config["site_name"])
+                article_title = html["title"]
             else:
-                if html["title"]:
-                    page_title = "{} - {}".format(html["title"], site_config["site_name"])
-                    article_title = html["title"]
-                else:
-                    page_title = site_config["site_name"]
-                    article_title = ""
-                header_items = "\n        ".join(header_items_in)
-                # footer_items = "\n".join(footer_items_in)
-                footer_items = ""
-                js_items = "\n".join(js_items_in)
-                tags_html = ""
-                for tag in html["tags"]:
-                    tags_html += '<li>{}</li>\n'.format(tag)
-                tags_html = '<ul>{}</ul>'.format(tags_html)
-                files[file] = '''<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="keywords" content="{}">
-        <meta name="description" content="{}">
-        <meta name="generator" content="teedoc">
-        {}
-        <title>{}</title>
-    </head>
-    <body>
-        {}
+                page_title = site_config["site_name"]
+                article_title = ""
+            header_items = "\n        ".join(header_items_in)
+            # footer_items = "\n".join(footer_items_in)
+            footer_items = ""
+            js_items = "\n".join(js_items_in)
+            tags_html = ""
+            for tag in html["tags"]:
+                tags_html += '<li>{}</li>\n'.format(tag)
+            tags_html = '<ul>{}</ul>'.format(tags_html)
+            if "sidebar" in html:
+                menu_html = '''<div id="menu_wrapper">
+                                    <div id="menu">
+                                    </div>
+                                </div>'''
+                body_html = '''
         <div id="wrapper">
             {}
-            <div id="menu_wrapper">
-                <div id="menu">
-                </div>
-            </div>
+            {}
             <div id="article">
                 <div id="content">
                     <h1>{}</h1>
@@ -392,22 +365,120 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                     </div>
                 </div>
             </div>
-        </div>
-        <a id="to_top" href="#"></a>
-    </body>
-    {}
-</html>
-'''.format(     ",".join(html["keywords"]), html["desc"], 
-                        header_items, page_title,
-                        html["navbar"],
+        </div>'''.format(
                         html["sidebar"],
+                        menu_html,
                         article_title,
                         tags_html,
                         html["body"],
                         footer_items,
-                        html["toc"],
-                        js_items)
-        return files
+                        html["toc"] if "toc" in html else "",
+                )
+            else: # not "sidebar" in html
+                body_html = '''
+                <div id="wrapper">
+                    <div id="page_content">{}</div>
+                    <div id="footer"></div>
+                </div>'''.format(html["body"], footer_items)
+
+            files[file] = '''<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="{}">
+    <meta name="description" content="{}">
+    <meta name="generator" content="teedoc">
+    {}
+    <title>{}</title>
+</head>
+<body>
+    {}
+    {}
+    <a id="to_top" href="#"></a>
+</body>
+{}
+</html>
+'''.format(",".join(
+                    html["keywords"]),
+                    html["desc"], 
+                    header_items,
+                    page_title,
+                    html["navbar"] if "navbar" in html else "",
+                    body_html,
+                    js_items
+            )
+    return files
+
+def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar):
+    for url, dir in routes.items():
+        dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
+        log.i("parse doc: {}, url:{}".format(dir, url))
+        # get sidebar config
+        if sidebar:
+            try:
+                sidebar = get_sidebar(dir)
+            except Exception as e:
+                log.e("parse sidebar.json fail: {}".format(e))
+                return False
+        try:
+            navbar = get_navbar(dir)
+        except Exception as e:
+            if not allow_no_navbar:
+                log.e("parse config.json navbar fail: {}".format(e))
+                return False
+            navbar = None
+        files = get_files(dir)
+        # call plugins to parse files
+        result_htmls = None
+        for plugin in plugins_objs:
+            # parse file content
+            result = plugin.__getattribute__(plugin_func)(files)
+            if result:
+                if not result['ok']:
+                    log.e("plugin <{}> parse files error: {}".format(plugin.name, result['msg']))
+                    return False
+                else:
+                    result_htmls = result['htmls'] # will cover the before
+        if not result_htmls:
+            log.e("parse files error")
+            return False
+        htmls = result_htmls
+        # generate sidebar to html
+        if sidebar:
+            htmls = generate_sidebar_html(htmls, sidebar, dir, url)
+        # generate navbar to html
+        if navbar:
+            htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
+        # consturct html page
+        htmls = construct_html(htmls, header_items, js_items, site_config)
+        # write to file
+        if url.startswith("/"):
+            url = url[1:]
+        out_path = os.path.join(out_dir, url)
+        in_path  = os.path.join(doc_src_path, dir)
+        ok, msg = write_to_file(htmls, in_path, out_path)
+        if not ok:
+            log.e("write files error: {}".format(msg))
+            return False
+    return True
+
+def build(doc_src_path, plugins_objs, site_config, out_dir, log):
+    '''
+        "route": {
+            "docs": {
+                "/get_started/zh": "docs/get_started/zh",
+                "/get_started/en": "docs/get_started/en",
+                "/develop/zh": "docs/develop/zh",
+                "/develop/en": "docs/develop/en"
+            },
+            "pages": {
+                "/": "pages/index/zh",
+                "/en": "pages/index/en"
+            },
+            "/blog": "blog"
+        }
+    '''
 
     # ---start---
     # get html header item from plugins
@@ -424,54 +495,13 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
         if _js_items:
             js_items.extend(_js_items)
     # parse all docs
-    docs = site_config["route"]["docs"]
-    for url, dir in docs.items():
-        dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
-        log.i("parse doc: {}, url:{}".format(dir, url))
-        # get sidebar config
-        try:
-            sidebar = get_sidebar(dir)
-        except Exception as e:
-            log.e("parse sidebar.json fail: {}".format(e))
-            return False
-        try:
-            navbar = get_navbar(dir)
-        except Exception as e:
-            log.e("parse config.json navbar fail: {}".format(e))
-            return False
-        files = get_files(dir)
-        # call plugins to parse files
-        result_htmls = None
-        for plugin in plugins_objs:
-            # parse file content
-            result = plugin.on_parse_files(files)
-            if not result:
-                continue
-            if not result['ok']:
-                log.e("plugin <{}> parse files error: {}".format(plugin.name, result['msg']))
-                return False
-            result_htmls = result['htmls']
-        if not result_htmls:
-            log.e("parse files error")
-            return False
-        htmls = result_htmls
-        # generate sidebar to html
-        htmls = generate_sidebar_html(htmls, sidebar, dir, url)
-        # generate navbar to html
-        htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
-        # consturct html page
-        htmls = construct_html(htmls, header_items, js_items)
-        # write to file
-        if url.startswith("/"):
-            url = url[1:]
-        out_path = os.path.join(out_dir, url)
-        in_path  = os.path.join(doc_src_path, dir)
-        ok, msg = write_to_file(htmls, in_path, out_path)
-        if not ok:
-            log.e("write files error: {}".format(msg))
-            return False
+    routes = site_config["route"]["docs"]
+    if not parse("on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar=True, allow_no_navbar=False):
+        return False
+
     # parse all pages
-    if not parse_pages(doc_src_path, plugins_objs, site_config, out_dir, log):
+    routes = site_config["route"]["pages"]
+    if not parse("on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar=False, allow_no_navbar=True):
         return False
     # parse all blogs
     # copy assets
@@ -494,27 +524,6 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
                 log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
             if not copy_file(src, dst):
                 return False
-    return True
-
-
-def parse_pages(doc_src_path, plugins_objs, site_config, out_dir, log):
-    route = site_config["route"]["pages"]
-    for url, dir in route.items():
-        dir = os.path.abspath(os.path.join(doc_src_path, dir))
-        files = get_files(dir)
-        pages = None
-        for plugin in plugins_objs:
-            pages = plugin.on_parse_pages(files)
-        if url.startswith("/"):
-            url = url[1:]
-        if not pages:
-            pages = dict.fromkeys(files)
-        out_path = os.path.join(out_dir, url)
-        in_path  = os.path.join(doc_src_path, dir)
-        ok, msg = write_to_file(pages, in_path, out_path)
-        if not ok:
-            log.e("write files error: {}".format(msg))
-            return False
     return True
 
 
@@ -621,9 +630,13 @@ def main():
                     self.send_response(404)
                 else:
                     self.send_response(200)
-                with open(file_path, "rb") as f:
-                    content = f.read()
-                content_type = get_content_type_by_path(file_path)
+                if not os.path.exists(file_path):
+                    content = b"page not found"
+                    content_type = "text/html"
+                else:
+                    with open(file_path, "rb") as f:
+                        content = f.read()
+                    content_type = get_content_type_by_path(file_path)
                 self.send_header('Content-type', content_type)
                 self.end_headers()
                 self.wfile.write(content)

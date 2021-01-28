@@ -136,6 +136,10 @@ code {
     display: flex;
 }
 
+/* page */
+#page_content {
+    width: 100%;
+}
 
 /* navbar */
 #navbar {

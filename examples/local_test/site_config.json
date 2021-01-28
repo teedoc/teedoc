@@ -10,7 +10,6 @@
         },
         "pages": {
             "/": "pages/index/zh",
-            "/zh": "pages/index/zh",
             "/en": "pages/index/en"
         },
         "assets": {

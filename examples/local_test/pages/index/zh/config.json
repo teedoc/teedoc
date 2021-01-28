@@ -28,42 +28,14 @@
                 "position": "right",
                 "items": [
                     {
-                        "url": "/get_started/zh",
+                        "url": "/",
                         "label": "中文"
                     },
                     {
-                        "url": "/get_started/en",
+                        "url": "/en",
                         "label": "English"
                     }
                 ]
-            }
-        ]
-    },
-    "footer":{
-        "items":[
-            {
-                "url": "https://github.com/neutree/teedoc",
-                "label": "github",
-                "target": "_blank",
-                "position": "left"
-            },
-            {
-                "url": "https://neucrack.com",
-                "label": "maintainer@neucrack",
-                "target": "_blank",
-                "position": "right"
-            },
-            {
-                "url": "https://beian.miit.gov.cn",
-                "label": "*ICP备********号-1",
-                "target": "_blank",
-                "position": "middle"
-            },
-            {
-                "url": "https://beian.miit.gov.cn/#/Integrated/index",
-                "label": "*公网安备**************号",
-                "target": "_blank",
-                "position": "middle"
             }
         ]
     }
