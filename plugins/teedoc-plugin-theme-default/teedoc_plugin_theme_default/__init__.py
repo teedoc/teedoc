@@ -51,9 +51,7 @@ class Plugin(Plugin_Base):
             if os.path.exists(self.temp_dir):
                 shutil.rmtree(self.temp_dir)
             os.makedirs(self.temp_dir)
-            print(self.dark_css)
             self.dark_css  = self._update_file_var(self.dark_css, vars, self.temp_dir)
-            print(self.dark_css)
             self.light_css = self._update_file_var(self.light_css, vars, self.temp_dir)
             self.css       = self._update_file_var(self.css, vars, self.temp_dir)
         # js files
