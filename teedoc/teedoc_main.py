@@ -670,7 +670,7 @@ def main():
             # install from pypi.org
             if not path or path.lower() == "pypi":
                 log.i("install plugin <{}> from pypi.org".format(plugin))
-                cmd = [site_config["executable"]["pip"], "install", plugin]
+                cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin]
                 p = subprocess.Popen(cmd, shell=False)
                 p.communicate()
                 if p.returncode != 0:

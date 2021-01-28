@@ -13,7 +13,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc-plugin-theme-default',
-    version="0.1.0",
+    version="1.0.1",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
