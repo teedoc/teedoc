@@ -490,16 +490,14 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     min-height: 10em;
     margin-top: 5em;
     display: flex;
-    background-color: #f7f7f7;
-    border-top: 1px solid ${main_color};
+    border-top: 1px solid #f1f1f1;
     padding: 1em;
 }
 #page_footer {
     min-height: 10em;
     margin-top: 5em;
     display: flex;
-    background-color: #f7f7f7;
-    border-top: 1px solid ${main_color};
+    border-top: 1px solid #f1f1f1;
     padding: 1em;
 }
 #footer {
