@@ -47,9 +47,10 @@ class Plugin(Plugin_Base):
             "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
         }
         self.header_js = {
+            "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
+            "/static/js/theme_default/pre_main.js": os.path.join(self.assets_abs_path, "pre_main.js")
         }
         self.footer_js = {
-            "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
             "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js"),
             "/static/css/theme_default/prism.min.js": os.path.join(self.assets_abs_path, "prism.min.js")
         }

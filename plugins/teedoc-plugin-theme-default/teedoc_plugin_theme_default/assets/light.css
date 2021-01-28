@@ -9,6 +9,7 @@
 html {
     color: #606975;
     background-color: white;
+    transition: 0.4s;
 }
 body {
     margin: 0;
@@ -273,6 +274,7 @@ code {
     background-color: #f1f1f1;
     border-radius: 5px;
     color: #4caf7d;
+    transition: 0.4s;
 }
 #sidebar li > a > .label {
     padding: 10px;
@@ -344,6 +346,7 @@ code {
     background-color: white;
     position: sticky;
     width: 25%;
+    transition: 0.4s;
 }
 #article #toc a{
     padding: 2px 2px;

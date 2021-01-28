@@ -16,6 +16,10 @@ a {
 a:visited {
     color: #8a8a8a;
 }
+#navbar .sub_items ul {
+    box-shadow: 0 0 9px 0px #000000;
+    background-color: #232323;
+}
 #sidebar .active > a, #navbar .active > a {
     background-color: #2d2d2d;
     color: #4caf7d;
