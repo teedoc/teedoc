@@ -1,6 +1,7 @@
 teedoc
 =====
 
+官网: [teedoc.github.io](https://teedoc.github.io/)
 
 将 `Markdown` 或者 `Jupyter Notebook` 格式的文档转换为 `HTML` 网页
 
@@ -44,6 +45,11 @@ sudo apt install python3 python3-pip
 
 ```
 pip3 install teedoc
+```
+
+使用以下命令来更新软件：
+```
+pip3 install teedoc --upgrade
 ```
 
 现在你可以在终端使用 `teedoc` 命令了

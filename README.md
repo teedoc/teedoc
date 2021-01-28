@@ -1,6 +1,7 @@
 teedoc
 ===========
 
+Official site: [teedoc.github.io](https://teedoc.github.io/)
 
 documentation generate tool from markdown and jupyter notebook to html
 
@@ -40,6 +41,11 @@ sudo apt install python3 python3-pip
 
 ```
 pip3 install teedoc
+```
+
+And upgrade with command:
+```
+pip3 install teedoc --upgrade
 ```
 
 now you can use `teedoc` command
