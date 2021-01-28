@@ -458,13 +458,17 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
             {}
             <div id="article">
                 <div id="content">
-                    <h1>{}</h1>
+                    <div id="article_title">
+                        <h1>{}</h1>
+                    </div>
                     <div id="article_tags">
                         {}
                     </div>
-                    {}
+                    <div id="article_content">
+                        {}
+                    </div>
                     <div id="article_footer">
-                    {}
+                        {}
                     </div>
                 </div>
                 <div id="toc">

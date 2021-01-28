@@ -38,6 +38,9 @@ a:visited {
     box-shadow: 8px 8px 20px #000000;
 }
 #to_top:hover {
+    box-shadow: 8px 8px 28px #000000;
+}
+#to_top:active {
     box-shadow: 0px 0px 20px #000000;
 }
 blockquote {
@@ -64,4 +67,11 @@ sup a {
 a:hover {
     background-color: #424242;
 }
+#article_footer {
+    background-color: #2d2d2d;
+}
+#footer a:hover {
+    background-color: #404040;
+}
+
 

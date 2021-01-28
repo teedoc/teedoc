@@ -45,24 +45,7 @@ h5 {
 h6 {
     font-size: 0.83em;
 }
-h1 {counter-reset:h2section;}
-h2 {counter-reset:h3section;}
-h3 {counter-reset:h4section;}
-#article h2:before
-{
-	counter-increment:h2section;
-	content:counter(h2section, upper-roman) "、";
-}
-#article h3:before 
-{
-	counter-increment:h3section;
-	content:counter(h2section, upper-roman) "." counter(h3section, upper-roman) "、";
-}
-#article h4:before 
-{
-	counter-increment:h4section;
-	content:counter(h2section, upper-roman) "." counter(h3section, upper-roman) "." counter(h4section, upper-roman) "、";
-}
+
 p {
     text-align: justify;
     letter-spacing: 0.03em;
@@ -357,7 +340,11 @@ code {
     display: flex;
 }
 #article #toc ul {
-    list-style: decimal;
+    list-style: none;
+    padding-left: 1.5em;
+}
+#article #toc > div > ul {
+    padding-left: 1em;
 }
 #article #toc > div {
     position: sticky;
@@ -366,15 +353,53 @@ code {
     border-left: 2px solid #4caf7d;
 }
 
+/* add numbers for toc */
+#toc {counter-reset: toc_l1;}
+#toc > div > ul > li {counter-reset: toc_l2;}
+#toc > div > ul > li > a:before {
+	counter-increment: toc_l1;
+	content: counter(toc_l1, upper-roman) "、";
+}
+#toc > div > ul > li > ul > li > a:before {
+	counter-increment: toc_l2;
+	content: counter(toc_l1, upper-roman) "." counter(toc_l2, upper-roman) "、";
+}
+/* add numbers for titles toc*/
+
 
 /* article content */
 #content {
     max-width: 50em;
     width: 65%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 #content img {
     max-width: 100%;
 }
+
+/* add numbers for titles */
+#article_content {counter-reset: h2section;}
+#article_content h2 {counter-reset: h3section;}
+#article_content h3 {counter-reset: h4section;}
+#article_content h2:before
+{
+	counter-increment: h2section;
+	content: counter(h2section, upper-roman) "、";
+}
+#article_content h3:before 
+{
+	counter-increment: h3section;
+	content: counter(h2section, upper-roman) "." counter(h3section, upper-roman) "、";
+}
+#article_content h4:before 
+{
+	counter-increment: h4section;
+	content: counter(h2section, upper-roman) "." counter(h3section, upper-roman) "." counter(h4section, upper-roman) "、";
+}
+/* add numbers for titles end*/
+
 #article_tags {
     margin: 0 0 30px 0;
 }
@@ -439,6 +464,9 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     box-shadow: 8px 8px 20px #d0d0d0;
 }
 #to_top:hover {
+    box-shadow: 8px 8px 28px #d0d0d0;
+}
+#to_top:active {
     box-shadow: 0px 0px 20px #e6e6e6;
 }
 
@@ -448,9 +476,48 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     margin-top: 5em;
 }
 #article_footer {
-    height: 15em;
+    min-height: 10em;
     margin-top: 5em;
+    display: flex;
+    align-items: flex-end;
+    background-color: #f7f7f7;
+    border-top: 1px solid #4caf7d;
+    padding: 1em;
 }
+#footer {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    justify-content: space-between;
+    height: 100%;
+}
+#footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#footer li {
+    padding: 0.6em;
+}
+#footer a, #footer a:visited{
+    color: #848fa0;
+    padding: 0.6em;
+}
+#footer a:hover {
+    background-color: #e6e6e6;
+}
+#footer #footer_middle {
+    text-align: center;
+    align-self: flex-end;
+    font-size: 0.9em;
+}
+#footer #footer_left {
+    text-align: left;
+}
+#footer #footer_right {
+    text-align: right;
+}
+
 
 
 @media screen and (max-width: 900px) {

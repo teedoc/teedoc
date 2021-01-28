@@ -48,6 +48,12 @@
                 "position": "left"
             },
             {
+                "url": "https://github.com/neutree/teedoc",
+                "label": "使用 teedoc 生成",
+                "target": "_blank",
+                "position": "right"
+            },
+            {
                 "url": "https://neucrack.com",
                 "label": "neucrack",
                 "target": "_blank",
