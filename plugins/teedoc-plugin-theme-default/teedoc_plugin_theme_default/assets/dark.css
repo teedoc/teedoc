@@ -72,6 +72,7 @@ a:hover {
 }
 #page_footer {
     background-color: #2d2d2d;
+    border-top: none;
 }
 #footer a:hover {
     background-color: #404040;
