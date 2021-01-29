@@ -477,7 +477,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
 #to_top {
     transition: transform 0.4s linear;
     background: url("${site_root_url}static/image/theme_default/to-top.svg");
-    background-size: contain;
+    background-size: 2em;
     background-repeat: no-repeat;
     background-position: center;
     align-self: center;
