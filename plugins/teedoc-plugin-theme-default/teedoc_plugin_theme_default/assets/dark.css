@@ -69,10 +69,11 @@ a:hover {
 }
 #article_footer {
     background-color: #2d2d2d;
+    border-top: 1px solid #2d2d2d;
 }
 #page_footer {
     background-color: #2d2d2d;
-    border-top: none;
+    border-top: 1px solid #2d2d2d;
 }
 #footer a:hover {
     background-color: #404040;

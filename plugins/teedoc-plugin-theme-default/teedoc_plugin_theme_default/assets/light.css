@@ -17,6 +17,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     min-height: 100vh;
+    letter-spacing: 0.03em;
 }
 a {
     color: #606975;
@@ -52,7 +53,6 @@ h6 {
 
 p {
     text-align: justify;
-    letter-spacing: 0.03em;
     font-size: 15px;
     line-height: 2em;
 }
@@ -492,6 +492,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     display: flex;
     border-top: 1px solid #f1f1f1;
     padding: 1em;
+    transition: 0.4s;
 }
 #page_footer {
     min-height: 10em;
@@ -499,6 +500,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     display: flex;
     border-top: 1px solid #f1f1f1;
     padding: 1em;
+    transition: 0.4s;
 }
 #footer {
     display: flex;
