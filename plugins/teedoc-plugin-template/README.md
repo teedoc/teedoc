@@ -1,4 +1,0 @@
-teedoc-plugin-template
-===========
-
-

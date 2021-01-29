@@ -272,7 +272,6 @@ code {
     background-color: #f1f1f1;
     border-radius: 5px;
     color: ${main_color};
-    transition: 0.4s;
 }
 #sidebar li > a > .label {
     padding: 10px;
@@ -385,13 +384,26 @@ code {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    line-height: 2em;
+}
+#content a, #content a:visited {
+    color: #c33a3a;
+    padding: 1px;
+}
+#content a:hover {
+    background-color: #fde1e1;
+    border-radius: 1px;
+    padding: 1px;
 }
 #content img {
     max-width: 100%;
 }
 
 /* add numbers for titles */
-#article_content {counter-reset: h2section;}
+#article_content {
+    counter-reset: h2section;
+    min-height: 50vh;
+}
 #article_content h2 {counter-reset: h3section;}
 #article_content h3 {counter-reset: h4section;}
 #article_content h2:before
