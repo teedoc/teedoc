@@ -54,6 +54,11 @@
                             "file": "more/example_docs/doc2.md"
                         }
                     ]
+                },
+                {
+                    "label": "这是一个链接",
+                    "url": "https://github.com/teedoc/teedoc",
+                    "target": "_blank"
                 }
             ]
         }
