@@ -535,14 +535,15 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     margin: 0;
 }
 #footer li {
-    padding: 0.6em;
+    padding: 0;
 }
 #footer a, #footer a:visited{
     color: #848fa0;
-    padding: 0.6em;
+    display: flex;
 }
 #footer a:hover {
     background-color: #e6e6e6;
+    border-radius: 5px;
 }
 #footer #footer_middle {
     text-align: center;
