@@ -31,13 +31,11 @@ function setTheme(theme){
     if(theme=="dark"){
         obj.removeClass("light");
         obj.addClass("dark");
-        addCss("/static/css/theme_default/dark.css");
-        // removejscssfile("/static/css/theme_default/light.css", "css");
+        addCss("${site_root_url}static/css/theme_default/dark.css");
     }else{
         obj.removeClass("dark");
         obj.addClass("light");
-        // addCss("/static/css/theme_default/light.css");
-        removejscssfile("/static/css/theme_default/dark.css", "css");
+        removejscssfile("${site_root_url}static/css/theme_default/dark.css", "css");
     }
     localStorage.setItem("theme", theme);
 }

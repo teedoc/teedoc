@@ -20,13 +20,14 @@ class Plugin(Plugin_Base):
         "parse_files": ["md"]
     }
 
-    def __init__(self, config = {}, doc_src_path = ".", logger = None):
+    def __init__(self, config, doc_src_path, site_config, logger = None):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object
         '''
         self.logger = Fake_Logger() if not logger else logger
         self.doc_src_path = doc_src_path
+        self.site_config = site_config
         self.config = Plugin.defautl_config
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
@@ -119,7 +120,7 @@ class Plugin(Plugin_Base):
             ret = re.sub(r".md", ".html", ret, re.I)
             return ret
 
-        content = re.sub(r'\[.*\]\(.*\.md\)', re_del, content, flags=re.I)
+        content = re.sub(r'\[.*?\]\(.*?\.md\)', re_del, content, flags=re.I)
         return content
 
 if __name__ == "__main__":

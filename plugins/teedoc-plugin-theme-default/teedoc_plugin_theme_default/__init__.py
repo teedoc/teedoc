@@ -22,13 +22,14 @@ class Plugin(Plugin_Base):
         "light": True
     }
 
-    def __init__(self, config = {}, doc_src_path = ".", logger = None):
+    def __init__(self, config, doc_src_path, site_config, logger = None):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object
         '''
         self.logger = Fake_Logger() if not logger else logger
         self.doc_src_path = doc_src_path
+        self.site_config = site_config
         self.config = Plugin.defautl_config
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
@@ -44,16 +45,6 @@ class Plugin(Plugin_Base):
         self.css = {
             "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
         }
-        # replace variable in css with value
-        if "env" in config and len(config['env']) > 0:
-            vars = config["env"]
-            self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_theme_default")
-            if os.path.exists(self.temp_dir):
-                shutil.rmtree(self.temp_dir)
-            os.makedirs(self.temp_dir)
-            self.dark_css  = self._update_file_var(self.dark_css, vars, self.temp_dir)
-            self.light_css = self._update_file_var(self.light_css, vars, self.temp_dir)
-            self.css       = self._update_file_var(self.css, vars, self.temp_dir)
         # js files
         self.dark_js = {
 
@@ -75,6 +66,21 @@ class Plugin(Plugin_Base):
             "/static/image/theme_default/light_mode.svg": os.path.join(self.assets_abs_path, "light_mode.svg"),
             "/static/image/theme_default/dark_mode.svg": os.path.join(self.assets_abs_path, "dark_mode.svg")
         }
+        # set site_root_url env value
+        if not "env" in config:
+            config['env'] = {}
+        config['env']["site_root_url"] = self.site_config["site_root_url"]
+        # replace variable in css with value
+        vars = config["env"]
+        self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_theme_default")
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+        os.makedirs(self.temp_dir)
+        self.dark_css  = self._update_file_var(self.dark_css, vars, self.temp_dir)
+        self.light_css = self._update_file_var(self.light_css, vars, self.temp_dir)
+        self.css       = self._update_file_var(self.css, vars, self.temp_dir)
+        self.header_js = self._update_file_var(self.header_js, vars, self.temp_dir)
+        # files to copy
         self.html_header_items = self._generate_html_header_items()
         self.files_to_copy = {}
         if self.config["dark"]:
@@ -140,16 +146,16 @@ class Plugin(Plugin_Base):
         return items
 
     def _update_file_var(self, files, vars, temp_dir):
-        new_dict = {}
         for url, path in files.items():
             with open(path, encoding='utf-8') as f:
+                content = f.read()
                 for k, v in vars.items():
-                    content = f.read().replace("${}{}{}".format("{", k.strip(), "}"), v)
-                    temp_path = os.path.join(temp_dir, os.path.basename(path))
-                    with open(temp_path, "w", encoding='utf-8') as fw:
-                        fw.write(content)
-                    new_dict[url] = temp_path
-        return new_dict
+                    content = content.replace("${}{}{}".format("{", k.strip(), "}"), v)
+                temp_path = os.path.join(temp_dir, os.path.basename(path))
+                with open(temp_path, "w", encoding='utf-8') as fw:
+                    fw.write(content)
+                files[url] = temp_path
+        return files
         
 
     def on_add_html_header_items(self):

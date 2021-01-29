@@ -7,13 +7,14 @@ class Plugin_Base:
     defautl_config = {
     }
 
-    def __init__(self, config = {}, doc_src_path = ".", logger = None):
+    def __init__(self, config, doc_src_path, site_config, logger = None):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object
         '''
         self.logger = Fake_Logger() if not logger else logger
         self.doc_src_path = doc_src_path
+        self.site_config = site_config
         
 
     def on_parse_files(self, files):

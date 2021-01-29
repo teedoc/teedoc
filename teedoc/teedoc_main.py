@@ -8,6 +8,7 @@ import os, sys
 import json
 import subprocess
 import shutil
+import re
 
 def get_content_type_by_path(file_path):
     ext = os.path.splitext(file_path)[1][1:].lower()
@@ -28,10 +29,10 @@ def get_content_type_by_path(file_path):
 def parse_site_config(doc_src_path):
     site_config_path = os.path.join(doc_src_path, "site_config.json")
     def check_site_config(config):
-        if not "route" in config or \
-           not "plugins" in config or \
-           not "executable" in config:
-           return False, "need route, plugins, executable keys, see example docs"
+        configs = ["site_name", "site_slogon", "site_root_url", "route", "executable", "plugins"]
+        for c in configs:
+            if not c in config:
+                return False, "need {} keys, see example docs".format(configs)
         return True, ""
     if not os.path.exists(site_config_path):
         return False, "can not find site config file: {}".format(site_config_path)
@@ -530,7 +531,34 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
             )
     return files
 
+def update_html_abs_path(file_htmls, root_path):
+    def re_del(c):
+        content = c[0]
+        if content.startswith("src"):
+            if content[5] == "/" and content[6] != "/":
+                content = "{}{}{}".format(content[:5], root_path[:-1], content[5:])
+        elif content.startswith("href"):
+            if content[6] == "/" and content[7] != "/": # href="/static/..."
+                content = "{}{}{}".format(content[:6], root_path[:-1], content[6:])
+        else:
+            if content[4] != "/" and content[5] == "/" and content[6] != "/": # url("/static/...")
+                content = "{}{}{}".format(content[:5], root_path[:-1], content[5:])
+            elif content[4] == "/" and content[5] != "/": # url(/static/...)
+                content = "{}{}{}".format(content[:4], root_path[:-1], content[4:])
+        return content
+
+    for path in file_htmls:
+        if not file_htmls[path]:
+            continue
+        file_htmls[path] = re.sub(r'href=".*?"', re_del, file_htmls[path])
+        file_htmls[path] = re.sub(r'src=".*?"', re_del, file_htmls[path])
+        file_htmls[path] = re.sub(r'url(.*?)', re_del, file_htmls[path])
+    return file_htmls
+
 def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar):
+    site_root_url = site_config["site_root_url"]
+    if not site_root_url.endswith("/"):
+        site_root_url = "{}/".format(site_root_url)
     for url, dir in routes.items():
         dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
         log.i("parse doc: {}, url:{}".format(dir, url))
@@ -578,6 +606,9 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
             htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
         # consturct html page
         htmls = construct_html(htmls, header_items, js_items, site_config)
+        # check abspath
+        if site_root_url != "/":
+            htmls = update_html_abs_path(htmls, site_root_url)
         # write to file
         if url.startswith("/"):
             url = url[1:]
@@ -661,13 +692,18 @@ def main():
     args = parser.parse_args()
     # doc source code root path
     doc_src_path = os.path.abspath(args.path)
-    # out_dir
-    out_dir = os.path.join(doc_src_path, "out")
     # parse site config
     ok, site_config = parse_site_config(doc_src_path)
     if not ok:
         log.e(site_config)
         return 1
+    # out_dir
+    if site_config["site_root_url"] != "/":
+        serve_dir = os.path.join(doc_src_path, "out")
+        out_dir = os.path.join(serve_dir, site_config["site_root_url"][1:])
+    else:
+        serve_dir = os.path.join(doc_src_path, "out")
+        out_dir = serve_dir
     # execute command
     if args.command == "install":
         log.i("install, source doc root path: {}".format(doc_src_path))
@@ -733,7 +769,7 @@ def main():
                 sys.path.insert(0, path)
             plugin_import_name = plugin.replace("-", "_")
             module = __import__(plugin_import_name)
-            plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, logger=log)
+            plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
             plugins_objs.append(plugin_obj)
         # parse files
         if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log):
@@ -748,7 +784,7 @@ def main():
                 file_path = self.path[1:]
                 if not file_path:
                     file_path = "index.html"
-                file_path = os.path.join(out_dir, file_path)
+                file_path = os.path.join(serve_dir, file_path)
                 if not os.path.exists(file_path) or not os.path.isfile(file_path):
                     file_path = os.path.join(file_path, "index.html")
                 if not os.path.exists(file_path):
@@ -770,7 +806,7 @@ def main():
                 # print(self.request)
  
         server = HTTPServer(host, On_Resquest)
-        log.i("root dir: {}".format(out_dir))
+        log.i("root dir: {}".format(serve_dir))
         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
         server.serve_forever()
     else:
