@@ -31,10 +31,12 @@ function setTheme(theme){
     if(theme=="dark"){
         obj.removeClass("light");
         obj.addClass("dark");
+        $("body").addClass("dark");
         addCss("${site_root_url}static/css/theme_default/dark.css");
     }else{
         obj.removeClass("dark");
         obj.addClass("light");
+        $("body").removeClass("dark");
         removejscssfile("${site_root_url}static/css/theme_default/dark.css", "css");
     }
     localStorage.setItem("theme", theme);

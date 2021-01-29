@@ -133,6 +133,13 @@ code {
 /* page */
 #page_content {
     width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+}
+#page_content > div {
+    flex-grow: 1;
+    align-self: center;
 }
 
 /* navbar */
@@ -655,7 +662,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     padding: 2px 5px;
     cursor: pointer;
 }
-.light, .dark:hover {
+#navbar .light, #navbar .dark:hover {
     background: url("${site_root_url}static/image/theme_default/light_mode.svg");
     background-size: contain;
     background-repeat: no-repeat;
@@ -663,7 +670,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     min-height: 1rem;
     min-width: 1rem;
 }
-.dark, .light:hover {
+#navbar .dark, #navbar .light:hover {
     background: url("${site_root_url}static/image/theme_default/dark_mode.svg");
     background-size: contain;
     background-repeat: no-repeat;
