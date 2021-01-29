@@ -1,5 +1,6 @@
 import os, sys
 import markdown2
+import re
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
@@ -66,6 +67,7 @@ class Plugin(Plugin_Base):
             if ext.endswith("md"):
                 with open(file, encoding="utf-8") as f:
                     content = f.read().strip()
+                    content = self._update_link(content)
                     self.parser._toc_html = ""
                     html = self.parser.convert(content)
                     if "title" in html.metadata:
@@ -109,6 +111,16 @@ class Plugin(Plugin_Base):
         items = []
         items.append('<meta name="markdown-generator" content="teedoc-plugin-markdown-parser">')
         return items
+    
+    def _update_link(self, content):
+        def re_del(c):
+            ret = c[0].replace(".md", ".html") 
+            ret = re.sub("README.md", "index.html", c[0], flags=re.I)
+            ret = re.sub(r".md", ".html", ret, re.I)
+            return ret
+
+        content = re.sub(r'\[.*\]\(.*\.md\)', re_del, content, flags=re.I)
+        return content
 
 if __name__ == "__main__":
     config = {

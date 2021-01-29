@@ -28,6 +28,9 @@ desc: teedoc 的 markdown 语法介绍和实例
 
 最多 6 级标题
 
+## 链接
+
+[teedoc 简介](../README.md)
 
 
 ## 列表
