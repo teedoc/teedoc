@@ -33,20 +33,22 @@ class Plugin(Plugin_Base):
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
-        self._extention = [
-            "toc",
-            "metadata",
-            "fenced-code-blocks",
-            "highlightjs-lang",
-            "break-on-newline",
-            "code-friendly",
-            "cuddled-lists",
-            "footnotes",
-            "strike",
-            "spoiler",
-            "tables",
-            "task_list"
-        ]
+        self._extention = {
+            "toc" : {
+                "depth": config["toc_depth"] if "toc_depth" in config else 3
+            },
+            "metadata" : None,
+            "fenced-code-blocks" : None,
+            "highlightjs-lang" : None,
+            "break-on-newline" : None,
+            "code-friendly" : None,
+            "cuddled-lists" : None,
+            "footnotes" : None,
+            "strike" : None,
+            "spoiler" : None,
+            "tables" : None,
+            "task_list" : None
+        }
         self.parser = markdown2.Markdown(extras = self._extention)
         
 

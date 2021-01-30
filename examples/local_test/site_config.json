@@ -27,6 +27,7 @@
         "teedoc-plugin-markdown-parser":{
             "from": "../../plugins/teedoc-plugin-markdown-parser",
             "config": {
+                "toc_depth": 3
             }
         },
         "teedoc-plugin-theme-default":{

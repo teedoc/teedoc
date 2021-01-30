@@ -91,11 +91,12 @@ sup a {
 table {
     border-collapse: collapse;
     border-spacing: 0;
-    display: block;
+    display: table;
     width: 100%;
     overflow: auto;
     word-break: normal;
     word-break: keep-all;
+    border-color: transparent;
 }
 tr {
     background-color: #f1f1f1;
@@ -368,6 +369,7 @@ code {
     position: sticky;
     top: 15%;
     overflow: auto;
+    height: 70vh;
     border-left: 2px solid ${main_color};
 }
 
@@ -392,6 +394,7 @@ code {
     justify-content: space-between;
     flex-direction: column;
     display: flex;
+    max-width: 100%;
 }
 #content {
     max-width: 50em;
@@ -413,6 +416,7 @@ code {
 }
 #content img {
     max-width: 100%;
+    object-fit: contain;
 }
 
 /* add numbers for titles */

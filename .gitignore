@@ -131,3 +131,5 @@ dmypy.json
 out
 .idea
 .vscode
+
+local_test2
