@@ -1,6 +1,7 @@
 import os, sys
 import markdown2
 import re
+from collections import OrderedDict
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
@@ -54,7 +55,7 @@ class Plugin(Plugin_Base):
         result = {
             "ok": False,
             "msg": "",
-            "htmls": {}
+            "htmls": OrderedDict()
         }
         # function parse md file is disabled
         if not "md" in self.config["parse_files"]:
@@ -102,9 +103,7 @@ class Plugin(Plugin_Base):
         return result
     
     def on_parse_pages(self, files):
-        print(files)
         result = self.on_parse_files(files)
-        print(result)
         return result
 
     

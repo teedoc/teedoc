@@ -9,6 +9,7 @@ import json
 import subprocess
 import shutil
 import re
+from collections import OrderedDict
 
 def get_content_type_by_path(file_path):
     ext = os.path.splitext(file_path)[1][1:].lower()
@@ -113,7 +114,63 @@ def get_footer(doc_dir):
     with open(sidebar_config_path, encoding="utf-8") as f:
         return json.load(f)['footer']
 
-def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
+def get_url_by_file(file_path, doc_url):
+    url = os.path.splitext(file_path)[0]
+    tmp = os.path.split(url)
+    if tmp[1].lower() == "readme":
+        url = "{}/index".format(tmp[0])
+        if url.startswith("/"):
+            url = url[1:]
+    url = "{}/{}.html".format(doc_url, url)
+    return url
+
+def get_sidebar_list(sidebar, doc_path, doc_url):
+    '''
+        @return {
+            "file_path": {
+                "curr": (url, label),
+                "previous": (url, label),
+                "next": (url, label),
+            }
+        }
+    '''
+    def get_items(config, doc_url, level=0):
+        '''
+            @return {
+                "file_path": {
+                    "curr": (url, label),
+                }
+            }
+        '''
+        is_dir = "items" in config
+        items = OrderedDict()
+        if "label" in config and "file" in config and config["file"] != None and config["file"] != "null":
+            url = get_url_by_file(config["file"], doc_url)
+            items[os.path.join(doc_path, config["file"])] = {
+                "curr": (url, config["label"])
+            }
+        if is_dir:
+            for item in config["items"]:
+                _items = get_sidebar_list(item, doc_path, doc_url)
+                items.update(_items)
+        return items
+
+    dict_items = get_items(sidebar, doc_url)
+    items = list(dict_items.items())
+    length = len(items)
+    for i, (path, item) in enumerate(items):
+        p = None
+        n = None
+        if i > 0:
+            p = items[i - 1][1]["curr"]
+        if i < length - 1:
+            n = items[i + 1][1]["curr"]
+        item["previous"] = p
+        item["next"] = n
+        dict_items[path]= item
+    return dict_items
+
+def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html):
     '''
         @htmls  {
                 "file1_path": {
@@ -133,16 +190,6 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
                                 }
                 }
     '''
-    def get_url_by_file(file_path, doc_url):
-        url = os.path.splitext(file_path)[0]
-        tmp = os.path.split(url)
-        if tmp[1].lower() == "readme":
-            url = "{}/index".format(tmp[0])
-            if url.startswith("/"):
-                url = url[1:]
-        url = "{}/{}.html".format(doc_url, url)
-        return url
-
     def generate_items(config, doc_path_relative, doc_url, level=0):
         html = ""
         li = False
@@ -200,9 +247,12 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url):
         sidebar_html = '''
             <div id="sidebar_wrapper">
                 <div id="sidebar">
+                    <div id="sidebar_title">
+                        {}
+                    </div>
                     {}
                 </div>
-            </div>'''.format(items)
+            </div>'''.format(sidebar_title_html, items)
         html["sidebar"] = sidebar_html
         htmls[file] = html
     return htmls
@@ -423,7 +473,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
-def construct_html(htmls, header_items_in, js_items_in, site_config):
+def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_list):
     '''
         @htmls  {
             "title": "",
@@ -439,7 +489,8 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
         }
     '''
     files = {}
-    for file, html in htmls.items():
+    items = list(htmls.items())
+    for i, (file, html) in enumerate(items):
         if not html:
             files[file] = None
         else:
@@ -457,6 +508,14 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
                 tags_html += '<li>{}</li>\n'.format(tag)
             tags_html = '<ul>{}</ul>'.format(tags_html)
             if "sidebar" in html:
+                if sidebar_list[file]["previous"]:
+                    previous_item_html = '<a href="{}"><span class="icon"></span><span>{}</span></a>'.format(sidebar_list[file]["previous"][0], sidebar_list[file]["previous"][1])
+                else:
+                    previous_item_html = ""
+                if sidebar_list[file]["next"]:
+                    next_item_html = '<a href="{}"><span>{}</span><span class="icon"></span></a>'.format(sidebar_list[file]["next"][0], sidebar_list[file]["next"][1])
+                else:
+                    next_item_html = ""
                 menu_html = '''<div id="menu_wrapper">
                                     <div id="menu">
                                     </div>
@@ -466,15 +525,25 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
             {}
             {}
             <div id="article">
-                <div id="content">
-                    <div id="article_title">
-                        <h1>{}</h1>
+                <div id="content_wrapper">
+                    <div id="content">
+                        <div id="article_title">
+                            <h1>{}</h1>
+                        </div>
+                        <div id="article_tags">
+                            {}
+                        </div>
+                        <div id="article_content">
+                            {}
+                        </div>
                     </div>
-                    <div id="article_tags">
-                        {}
-                    </div>
-                    <div id="article_content">
-                        {}
+                    <div id="previous_next">
+                        <div id="previous">
+                            {}
+                        </div>
+                        <div id="next">
+                            {}
+                        </div>
                     </div>
                     <div id="article_footer">
                         {}
@@ -492,6 +561,8 @@ def construct_html(htmls, header_items_in, js_items_in, site_config):
                         article_title,
                         tags_html,
                         html["body"],
+                        previous_item_html, 
+                        next_item_html,
                         footer_html,
                         html["toc"] if "toc" in html else "",
                 )
@@ -588,7 +659,7 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
             result = plugin.__getattribute__(plugin_func)(files)
             if result:
                 if not result['ok']:
-                    log.e("plugin <{}> parse files error: {}".format(plugin.name, result['msg']))
+                    log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
                     return False
                 else:
                     result_htmls = result['htmls'] # will cover the before
@@ -598,14 +669,17 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
         htmls = result_htmls
         # generate sidebar to html
         if sidebar:
-            htmls = generate_sidebar_html(htmls, sidebar, dir, url)
+            sidebar_list = get_sidebar_list(sidebar, dir, url)
+            htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "")
+        else:
+            sidebar_list = {}
         # generate navbar to html
         if navbar:
             htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
         if footer:
             htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
         # consturct html page
-        htmls = construct_html(htmls, header_items, js_items, site_config)
+        htmls = construct_html(htmls, header_items, js_items, site_config, sidebar_list)
         # check abspath
         if site_root_url != "/":
             htmls = update_html_abs_path(htmls, site_root_url)

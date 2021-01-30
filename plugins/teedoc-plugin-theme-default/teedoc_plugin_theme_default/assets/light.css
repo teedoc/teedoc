@@ -245,7 +245,7 @@ code {
     padding: .5rem;
     display: block;
     padding-bottom: 3em;
-    padding-top: 3em;
+    margin: 0;
 }
 #sidebar ul .show{
     /* display: block; */ /* js instead, just reserve this item*/
@@ -386,6 +386,13 @@ code {
 
 
 /* article content */
+#content_wrapper {
+    flex-grow: 1;
+    flex-grow: 1;
+    justify-content: space-between;
+    flex-direction: column;
+    display: flex;
+}
 #content {
     max-width: 50em;
     width: 65%;
@@ -393,6 +400,7 @@ code {
     flex-direction: column;
     justify-content: space-between;
     line-height: 2em;
+    margin: auto;
 }
 #content a, #content a:visited {
     color: #c33a3a;
@@ -503,12 +511,61 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
 
 
 /* footer article */
+#previous_next {
+    min-height: 3em;
+    margin-top: 2em;
+    display: flex;
+    border-top: 1px solid #f1f1f1;
+    padding: 1em;
+    transition: 0.4s;
+    display: flex;
+    justify-content: space-between;
+}
+#previous_next a{
+    padding: 1em;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    background-color: #f1f1f1;
+}
+#previous_next a:hover {
+    background-color: #dedede;
+}
+#previous_next #previous a > .icon{
+    transition: transform 0.4s linear;
+    background: url("${site_root_url}static/image/theme_default/to-top.svg");
+    background-size: 2em;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+    -ms-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    padding-right: 2em;
+    padding: 0;
+}
+#previous_next #next a > .icon{
+    transition: transform 0.4s linear;
+    background: url("${site_root_url}static/image/theme_default/to-top.svg");
+    background-size: 2em;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+    -ms-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+    padding-left: 2em;
+    padding: 0;
+}
 .footnotes {
     margin-top: 5em;
 }
 #article_footer {
     min-height: 10em;
-    margin-top: 5em;
     display: flex;
     border-top: 1px solid #f1f1f1;
     padding: 1em;
@@ -611,6 +668,9 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     #sidebar {
         position: relative;
         width: 100%;
+    }
+    #sidebar > ul {
+        padding-top: 3em;
     }
     #menu_wrapper {
         z-index: 99;

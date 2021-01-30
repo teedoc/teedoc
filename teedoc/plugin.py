@@ -1,5 +1,6 @@
 from .logger import Fake_Logger
 import os
+from collections import OrderedDict
 
 class Plugin_Base:
     name = "markdown-plugin"
@@ -31,6 +32,11 @@ class Plugin_Base:
                                  }
             }
         '''
+        # result = {
+        #     "ok": False,
+        #     "msg": "",
+        #     "htmls": OrderedDict()
+        # }
         return None
     
     def on_parse_pages(self, pages):
