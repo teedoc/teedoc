@@ -731,6 +731,7 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
                 on_err()
                 raise e
                 return False
+            log.i("generate ok")
             return True
 
         max_threads_num = multiprocessing.cpu_count()
@@ -741,8 +742,10 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
                 t = threading.Thread(target=generate, args=(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar))
                 t.setDaemon(True)
                 t.start()
+                ts.append(t)
             for t in ts:
                 t.join()
+                # log.i("{} generate ok".format(t.name))
         else:
             return generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar)
     return True

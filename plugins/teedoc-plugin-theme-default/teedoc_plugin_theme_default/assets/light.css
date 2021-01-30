@@ -58,11 +58,12 @@ p {
 }
 blockquote {
     border-left: 4px solid #46c19d;
-    margin: 0 0 0 2px;
+    margin: 0 0 1em 2px;
     padding: 1px;
     padding-left: 1em;
     background-color: #f1f1f1;
     border-radius: 0 5px 5px 0;
+    transition: 0.4s;
 }
 blockquote.spoiler {
     border-left: 5px solid #FF9800;
@@ -104,6 +105,7 @@ tr {
 }
 td, th {
     padding: 6px 13px;
+    transition: 0.4s;
 }
 th {
     font-weight: 700;
@@ -263,6 +265,7 @@ code {
 #sidebar ul .active_parent > a{
     background-color: #f1f1f1;
     border-radius: 5px;
+    transition: 0.4s;
 }
 #sidebar li {
     list-style: none;
@@ -418,6 +421,9 @@ code {
     max-width: 100%;
     object-fit: contain;
 }
+#content img::before {
+    content: "<span class==\"img_btn\"></span>";
+}
 
 /* add numbers for titles */
 #article_content {
@@ -525,12 +531,16 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     display: flex;
     justify-content: space-between;
 }
+#previous_next > div {
+    margin: 1em;
+}
 #previous_next a{
     padding: 1em;
     border-radius: 5px;
     display: flex;
     align-items: center;
     background-color: #f1f1f1;
+    justify-content: flex-start;
 }
 #previous_next a:hover {
     background-color: #dedede;
@@ -549,6 +559,9 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     transform: rotate(-90deg);
     padding-right: 2em;
     padding: 0;
+}
+#previous_next #next a {
+    justify-content: flex-end;
 }
 #previous_next #next a > .icon{
     transition: transform 0.4s linear;
@@ -679,7 +692,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     #menu_wrapper {
         z-index: 99;
     }
-    #menu.menu_fixed {
+    #menu.m_menu_fixed {
         position: fixed;
         right: 1em;
         top: 0;
@@ -705,8 +718,14 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
         display: none;
         width: 0;
     }
+    #previous_next {
+        flex-direction: column;
+    }
     #article_footer {
         background-color: transparent;
+    }
+    .m_hide {
+        display: none;
     }
     #footer {
         flex-direction: column;
