@@ -49,7 +49,6 @@ class Plugin(Plugin_Base):
             "tables" : None,
             "task_list" : None
         }
-        self.parser = markdown2.Markdown(extras = self._extention)
         
 
     def on_parse_files(self, files):
@@ -72,8 +71,9 @@ class Plugin(Plugin_Base):
                 with open(file, encoding="utf-8") as f:
                     content = f.read().strip()
                     content = self._update_link(content)
-                    self.parser._toc_html = ""
-                    html = self.parser.convert(content)
+                    parser = markdown2.Markdown(extras = self._extention)
+                    parser._toc_html = ""
+                    html = parser.convert(content)
                     if "title" in html.metadata:
                         title = html.metadata["title"]
                     else:

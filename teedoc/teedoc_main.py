@@ -10,6 +10,14 @@ import subprocess
 import shutil
 import re
 from collections import OrderedDict
+import multiprocessing
+import threading
+import math
+
+def split_list(obj, n):
+    dist = math.ceil(len(obj)/n)
+    for i in range(0, len(obj), dist):
+        yield obj[i:i+dist]
 
 def get_content_type_by_path(file_path):
     ext = os.path.splitext(file_path)[1][1:].lower()
@@ -627,6 +635,8 @@ def update_html_abs_path(file_htmls, root_path):
 
 def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar):
     site_root_url = site_config["site_root_url"]
+    global g_is_error
+    g_is_error = False
     if not site_root_url.endswith("/"):
         site_root_url = "{}/".format(site_root_url)
     for url, dir in routes.items():
@@ -650,47 +660,91 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
             footer = get_footer(dir)
         except Exception as e:
             footer = None
-        files = get_files(dir)
-        # call plugins to parse files
-        result_htmls = None
-        for plugin in plugins_objs:
-            # parse file content
-            result = plugin.__getattribute__(plugin_func)(files)
-            if result:
-                if not result['ok']:
-                    log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
+        all_files = get_files(dir)
+        def on_err():
+            global g_is_error
+            g_is_error = True
+        def is_err():
+            global g_is_error
+            return g_is_error
+        
+
+        def generate(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar):
+            try:
+                # call plugins to parse files
+                result_htmls = None
+                for plugin in plugins_objs:
+                    # parse file content
+                    result = plugin.__getattribute__(plugin_func)(files)
+                    if result:
+                        if not result['ok']:
+                            log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
+                            on_err()
+                            return False
+                        else:
+                            result_htmls = result['htmls'] # will cover the before
+                    if is_err():
+                        return False
+                if not result_htmls:
+                    log.e("parse files error")
+                    on_err()
                     return False
+                htmls = result_htmls
+                # generate sidebar to html
+                if sidebar:
+                    sidebar_list = get_sidebar_list(sidebar, dir, url)
+                    htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "")
                 else:
-                    result_htmls = result['htmls'] # will cover the before
-        if not result_htmls:
-            log.e("parse files error")
-            return False
-        htmls = result_htmls
-        # generate sidebar to html
-        if sidebar:
-            sidebar_list = get_sidebar_list(sidebar, dir, url)
-            htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "")
+                    sidebar_list = {}
+                if is_err():
+                    return False
+                # generate navbar to html
+                if navbar:
+                    htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
+                if footer:
+                    htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
+                if is_err():
+                    return False
+                # consturct html page
+                htmls = construct_html(htmls, header_items, js_items, site_config, sidebar_list)
+                if is_err():
+                    return False
+                # check abspath
+                if site_root_url != "/":
+                    htmls = update_html_abs_path(htmls, site_root_url)
+                if is_err():
+                    return False
+                # write to file
+                if url.startswith("/"):
+                    url = url[1:]
+                out_path = os.path.join(out_dir, url)
+                in_path  = os.path.join(doc_src_path, dir)
+                ok, msg = write_to_file(htmls, in_path, out_path)
+                if not ok:
+                    log.e("write files error: {}".format(msg))
+                    on_err()
+                    return False
+                if is_err():
+                    return False
+            except Exception as e:
+                log.e("generate html fail: {}".format(e))
+                on_err()
+                raise e
+                return False
+            return True
+
+        max_threads_num = multiprocessing.cpu_count()
+        if len(all_files) > 10:
+            all_files = split_list(all_files, max_threads_num)
+            ts = []
+            for files in all_files:
+                t = threading.Thread(target=generate, args=(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar))
+                t.setDaemon(True)
+                t.start()
+            for t in ts:
+                t.join()
         else:
-            sidebar_list = {}
-        # generate navbar to html
-        if navbar:
-            htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
-        if footer:
-            htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
-        # consturct html page
-        htmls = construct_html(htmls, header_items, js_items, site_config, sidebar_list)
-        # check abspath
-        if site_root_url != "/":
-            htmls = update_html_abs_path(htmls, site_root_url)
-        # write to file
-        if url.startswith("/"):
-            url = url[1:]
-        out_path = os.path.join(out_dir, url)
-        in_path  = os.path.join(doc_src_path, dir)
-        ok, msg = write_to_file(htmls, in_path, out_path)
-        if not ok:
-            log.e("write files error: {}".format(msg))
-            return False
+            return generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar)
     return True
 
 def build(doc_src_path, plugins_objs, site_config, out_dir, log):
