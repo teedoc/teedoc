@@ -508,14 +508,13 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                 tags_html += '<li>{}</li>\n'.format(tag)
             tags_html = '<ul>{}</ul>'.format(tags_html)
             if "sidebar" in html:
-                if sidebar_list[file]["previous"]:
-                    previous_item_html = '<a href="{}"><span class="icon"></span><span>{}</span></a>'.format(sidebar_list[file]["previous"][0], sidebar_list[file]["previous"][1])
-                else:
-                    previous_item_html = ""
-                if sidebar_list[file]["next"]:
-                    next_item_html = '<a href="{}"><span>{}</span><span class="icon"></span></a>'.format(sidebar_list[file]["next"][0], sidebar_list[file]["next"][1])
-                else:
-                    next_item_html = ""
+                previous_item_html = ""
+                next_item_html = ""
+                if file in sidebar_list:
+                    if sidebar_list[file]["previous"]:
+                        previous_item_html = '<a href="{}"><span class="icon"></span><span>{}</span></a>'.format(sidebar_list[file]["previous"][0], sidebar_list[file]["previous"][1])
+                    if sidebar_list[file]["next"]:
+                        next_item_html = '<a href="{}"><span>{}</span><span class="icon"></span></a>'.format(sidebar_list[file]["next"][0], sidebar_list[file]["next"][1])
                 menu_html = '''<div id="menu_wrapper">
                                     <div id="menu">
                                     </div>
