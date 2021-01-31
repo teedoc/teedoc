@@ -92,7 +92,7 @@ sup a {
 table {
     border-collapse: collapse;
     border-spacing: 0;
-    display: table;
+    display: block;
     width: 100%;
     overflow: auto;
     word-break: normal;
