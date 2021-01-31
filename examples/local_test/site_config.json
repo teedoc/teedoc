@@ -41,5 +41,6 @@
                 "js": "/static/js/custom.js"
             }
         }
-    }
+    },
+    "rebuild_changes_delay": 3
 }

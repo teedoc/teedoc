@@ -788,7 +788,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
 
     # parse all pages
     routes = site_config["route"]["pages"]
-    if not parse("on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar=False, allow_no_navbar=True):
+    if not parse("on_parse_pages", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar=False, allow_no_navbar=True):
         return False
     # parse all blogs
     # copy assets
@@ -812,6 +812,72 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
             if not copy_file(src, dst):
                 return False
     return True
+
+def files_watch(doc_src_path, log, delay_time):
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+    import time
+ 
+    class FileEventHandler(FileSystemEventHandler):
+        def __init__(self, doc_src_path):
+            FileSystemEventHandler.__init__(self)
+            self.update_files = []
+            self.doc_src_path = doc_src_path
+            self.lock = threading.Lock()
+        
+        def get_update_files(self):
+            self.lock.acquire()
+            files = self.update_files
+            if files:
+                self.update_files = []
+            self.lock.release()
+            return files
+
+        def on_moved(self, event):
+            pass
+        
+        def on_created(self, event):
+            if event.is_directory:
+                # print("directory created:{0}".format(event.src_path))
+                pass
+            else:
+                # print("file created:{0}".format(event.src_path))
+                files = [os.path.abspath(os.path.join(self.doc_src_path, event.src_path)).replace("\\", "/")]
+                self.lock.acquire()
+                self.update_files.extend(files)
+                self.update_files = list(set(self.update_files))
+                self.lock.release()
+        
+        def on_deleted(self, event):
+            pass
+        
+        def on_modified(self, event):
+            if event.is_directory:
+                # print("directory modified:{0}".format(event.src_path))
+                pass
+            else:
+                # log.d("file modified:{0}".format(event.src_path))
+                files = [os.path.abspath(os.path.join(self.doc_src_path, event.src_path)).replace("\\", "/")]
+                self.lock.acquire()
+                self.update_files.extend(files)
+                self.update_files = list(set(self.update_files))
+                self.lock.release()
+ 
+    observer = Observer()
+    handler = FileEventHandler(doc_src_path)
+    observer.schedule(handler, doc_src_path, True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(delay_time)
+            update_files = handler.get_update_files()
+            if update_files:
+                log.i("file changes detected:", update_files)
+                # TODO:
+    except KeyboardInterrupt:
+        observer.stop()
+        observer.join()
+
 
 
 def main():
@@ -934,7 +1000,10 @@ def main():
                 self.wfile.write(content)
                 # print(self.address_string())
                 # print(self.request)
- 
+        delay_time = int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3
+        t = threading.Thread(target=files_watch, args=(doc_src_path, log, delay_time))
+        t.setDaemon(True)
+        t.start()
         server = HTTPServer(host, On_Resquest)
         log.i("root dir: {}".format(serve_dir))
         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
