@@ -283,6 +283,8 @@ code {
     background-color: #f1f1f1;
     border-radius: 5px;
     color: ${main_color};
+}
+#sidebar .active > a {
     transition: 0.4s;
 }
 #sidebar li > a > .label {
