@@ -1,0 +1,82 @@
+/**
+    teedoc search plugin css
+    @author neucrack
+    @copyright (c) neucrack CZD666666@gmail.com with MIT License
+    @changes 2021.2.1  add basic attrributes
+ */
+
+ #search {
+    border-radius: 2em;
+    background-color: #f1f1f1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+ }
+ #search .icon {
+    transition: transform 0.4s linear;
+    background: url("${site_root_url}static/image/search/search.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    align-self: center;
+    min-height: 1.8rem;
+    min-width: 1.8rem;
+    transition: 0.2s;
+}
+#search .placeholder {
+    padding: 0 1em;
+    color: #a5a5a5;
+}
+#search_wrapper {
+    display: none;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.73);
+    z-index: 100;
+}
+#search_wrapper .close {
+    background: url("${site_root_url}static/image/search/close.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 5px;
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+    z-index: 100;
+    position: fixed;
+    top: 3em;
+    right: 3em;
+    cursor: pointer;
+}
+#search_wrapper #search_title > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+#search_wrapper input {
+    height: 60px;
+    width: 60%;
+    border: none;
+    border-radius: 5px;
+    margin: 0;
+    text-align: center;
+    color: #222222;
+    font-size: 1.2em;
+    display: inline-block;
+    box-shadow: 0 4px 12px 0 #e8e8e8;
+}
+#search_wrapper #search_content {
+    display: flex;
+    flex-direction: column;
+    width: 65%;
+    height: 100%;
+    background-color: white;
+    margin: auto;
+    padding: 1em;
+}
+
+

@@ -40,6 +40,11 @@
                 "css": "/static/css/custom.css",
                 "js": "/static/js/custom.js"
             }
+        },
+        "teedoc-plugin-search":{
+            "from": "../../plugins/teedoc-plugin-search",
+            "config": {
+            }
         }
     },
     "rebuild_changes_delay": 3

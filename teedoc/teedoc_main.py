@@ -356,7 +356,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
             _items = plugin.on_add_navbar_items()
             if not _items:
                 continue
-            items_html = '<ul id="nav_plugins">'
+            items_html = '<ul class="nav_plugins">'
             for item in _items:
                 items_html += "<li>{}</li>".format(item)
             items_html += "</ul>"
