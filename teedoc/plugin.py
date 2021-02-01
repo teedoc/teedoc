@@ -65,3 +65,17 @@ class Plugin_Base:
         '''
         return {}
 
+    def on_htmls(self, htmls_files, htmls_pages):
+        '''
+            update htmls, may not all html, just partially
+            "htmls": {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html,
+                                "url": "",
+                                "raw": ""
+                                }
+        '''
+        pass

@@ -3,6 +3,7 @@ import os, sys
 import tempfile
 import shutil
 import markdown2
+import json
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
@@ -34,6 +35,11 @@ class Plugin(Plugin_Base):
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+        self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_search")
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+        os.makedirs(self.temp_dir)
+        self.temp_index_json_path = os.path.join(self.temp_dir, "index.json")
 
         self.css = {
             "/static/css/search/style.css": os.path.join(self.assets_abs_path, "style.css"),
@@ -45,16 +51,15 @@ class Plugin(Plugin_Base):
             "/static/image/search/close.svg": os.path.join(self.assets_abs_path, "close.svg"),
             "/static/image/search/search.svg": os.path.join(self.assets_abs_path, "search.svg"),
         }
+        self.generated_index_json = {
+            "/static/index/index.json": self.temp_index_json_path
+        }
         # set site_root_url env value
         if not "env" in config:
             config['env'] = {}
         config['env']["site_root_url"] = self.site_config["site_root_url"]
         # replace variable in css with value
         vars = config["env"]
-        self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_search")
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
-        os.makedirs(self.temp_dir)
         self.css       = self._update_file_var(self.css, vars, self.temp_dir)
         # files to copy
         self.html_header_items = self._generate_html_header_items()
@@ -62,9 +67,14 @@ class Plugin(Plugin_Base):
         self.files_to_copy.update(self.css)
         self.files_to_copy.update(self.footer_js)
         self.files_to_copy.update(self.images)
+        self.files_to_copy.update(self.generated_index_json)
         self.search_btn = '<a id="search"><span class="icon"></span><span class="placeholder">Search</span></a>'
 
         self.html_js_items = self._generate_html_js_items()
+        self.content = {
+            "articles": {},
+            "pages": {}
+        }
 
     def __del__(self):
         if os.path.exists(self.temp_dir):
@@ -113,6 +123,28 @@ class Plugin(Plugin_Base):
     
     def on_copy_files(self):
         return self.files_to_copy
+
+    def on_htmls(self, htmls_files, htmls_pages):
+        '''
+            update htmls, may not all html, just partially
+            "htmls": {
+                "file1_path": {
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html,
+                                "url": "",
+                                "raw": ""
+                                }
+        '''
+        for file, html in htmls_files.items():
+            self.content["articles"][html["url"]] = html["raw"]
+        for file, html in htmls_pages.items():
+            self.content["pages"][html["url"]] = html["raw"]
+        with open(self.temp_index_json_path, "w", encoding="utf-8") as f:
+            json.dump(self.content, f, ensure_ascii=False)
+
+
 
 if __name__ == "__main__":
     config = {

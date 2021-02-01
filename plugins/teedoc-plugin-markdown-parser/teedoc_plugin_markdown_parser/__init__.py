@@ -97,7 +97,8 @@ class Plugin(Plugin_Base):
                         "tags": tags,
                         "body": html,
                         "toc": html.toc_html if html.toc_html else "",
-                        "metadata": html.metadata
+                        "metadata": html.metadata,
+                        "raw": content
                     }
             else:
                 result["htmls"][file] = None

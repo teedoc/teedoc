@@ -28,7 +28,7 @@ teedoc
 
 ## 使用方法
 
-需要先安装`Python3` （仅仅支持 `Python3`）
+需要先安装`Python3` （仅仅支持 `Python3.7`及更高版本）
 
 比如在`Ubuntu`上：
 ```

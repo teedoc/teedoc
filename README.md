@@ -27,7 +27,7 @@ documentation generate tool from markdown and jupyter notebook to html
 
 ## Usage
 
-Install `Python3` first, only support `Python3`
+Install `Python3` first, **only support `Python3.7` or higher version**
 
 e.g. on `Ubuntu`:
 ```

@@ -13,7 +13,7 @@ from collections import OrderedDict
 import multiprocessing
 import threading
 import math
-from queue import Queue
+from queue import Queue, Empty
 
 def split_list(obj, n):
     dist = math.ceil(len(obj)/n)
@@ -82,7 +82,7 @@ def get_files(dir_path):
             f_list = get_files(path)
             result.extend(f_list)
         else:
-            result.append(path)
+            result.append(path.replace("\\", "/"))
     return result
 
 def write_to_file(files_content, in_path, out_path):
@@ -636,7 +636,34 @@ def update_html_abs_path(file_htmls, root_path):
         file_htmls[path] = re.sub(r'url(.*?)', re_del, file_htmls[path])
     return file_htmls
 
+def add_url_item(htmls, url, dir, site_root_url):
+    '''
+        will remove empty html items, only reture valid html items
+        @htmls {
+            "file_path":{
+            }
+        }
+        
+        @return {
+            "file_path":{
+                "url": "/****"
+            }
+        }
+    '''
+    htmls_valid = {}
+    for file_path in htmls:
+        if not htmls[file_path]:
+            continue
+        if not url:
+            url_path = '{}{}'.format(site_root_url[:-1], file_path.replace(dir, ""))
+        else:
+            url_path = "{}{}{}".format(site_root_url, url, file_path.replace(dir, ""))
+        htmls_valid[file_path] = htmls[file_path]
+        htmls_valid[file_path]["url"] = url_path
+    return htmls_valid
+
 def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
+    queue = Queue()
     site_root_url = site_config["site_root_url"]
     global g_is_error
     g_is_error = False
@@ -679,7 +706,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
             return g_is_error
         
 
-        def generate(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar):
+        def generate(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue):
             try:
                 # call plugins to parse files
                 result_htmls = None
@@ -716,12 +743,12 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 if is_err():
                     return False
                 # consturct html page
-                htmls = construct_html(htmls, header_items, js_items, site_config, sidebar_list)
+                htmls_str = construct_html(htmls, header_items, js_items, site_config, sidebar_list)
                 if is_err():
                     return False
                 # check abspath
                 if site_root_url != "/":
-                    htmls = update_html_abs_path(htmls, site_root_url)
+                    htmls_str = update_html_abs_path(htmls_str, site_root_url)
                 if is_err():
                     return False
                 # write to file
@@ -729,13 +756,16 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                     url = url[1:]
                 out_path = os.path.join(out_dir, url)
                 in_path  = os.path.join(doc_src_path, dir)
-                ok, msg = write_to_file(htmls, in_path, out_path)
+                ok, msg = write_to_file(htmls_str, in_path, out_path)
                 if not ok:
                     log.e("write files error: {}".format(msg))
                     on_err()
                     return False
                 if is_err():
                     return False
+                # add url, add "url" keyword for htmls
+                htmls = add_url_item(htmls, url, dir, site_root_url)
+                queue.put(htmls)
             except Exception as e:
                 log.e("generate html fail: {}".format(e))
                 on_err()
@@ -749,7 +779,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
             all_files = split_list(all_files, max_threads_num)
             ts = []
             for files in all_files:
-                t = threading.Thread(target=generate, args=(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar))
+                t = threading.Thread(target=generate, args=(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue))
                 t.setDaemon(True)
                 t.start()
                 ts.append(t)
@@ -757,8 +787,13 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 t.join()
                 # log.i("{} generate ok".format(t.name))
         else:
-            return generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar)
-    return True
+            if not generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue):
+                return False
+    htmls = {}
+    for i in range(queue.qsize()):
+        _htmls = queue.get()
+        htmls.update(_htmls)
+    return True, htmls
 
 def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False):
     '''
@@ -794,23 +829,30 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=No
         js_items.append('<script type="text/javascript" src="{}static/js/live.js"></script>'.format(site_config['site_root_url']))
     # parse all docs
     routes = site_config["route"]["docs"]
-    if not parse("docs", "on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=True, allow_no_navbar=False, update_files=update_files):
+    ok, htmls_files = parse("docs", "on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
+                 sidebar=True, allow_no_navbar=False, update_files=update_files)
+    if not ok:
         return False
 
     # parse all pages
     routes = site_config["route"]["pages"]
-    if not parse("pages", "on_parse_pages", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=False, allow_no_navbar=True, update_files=update_files):
+    ok, htmls_pages = parse("pages", "on_parse_pages", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
+                 sidebar=False, allow_no_navbar=True, update_files=update_files)
+    if not ok:
         return False
     # parse all blogs
+
+    # send all htmls to plugins
+    for plugin in plugins_objs:
+        plugin.on_htmls(htmls_files = htmls_files, htmls_pages = htmls_pages)
+
     # copy assets
     assets = site_config["route"]["assets"]
     for target_dir, from_dir in assets.items(): 
         in_path  = os.path.join(doc_src_path, from_dir)
         if target_dir.startswith("/"):
             target_dir = target_dir[1:]
-        out_path = os.path.join(out_dir, target_dir)
+        out_path = os.path.join(out_dir, target_dir).replace("\\", "/")
         if update_files:
             for file in update_files:
                 if file.startswith(in_path):
@@ -926,10 +968,10 @@ def main():
         return 1
     # out_dir
     if site_config["site_root_url"] != "/":
-        serve_dir = os.path.join(doc_src_path, "out")
-        out_dir = os.path.join(serve_dir, site_config["site_root_url"][1:])
+        serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
+        out_dir = os.path.join(serve_dir, site_config["site_root_url"][1:]).replace("\\", "/")
     else:
-        serve_dir = os.path.join(doc_src_path, "out")
+        serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
         out_dir = serve_dir
     if args.command in ["build", "serve"]:
         # init plugins
@@ -1072,13 +1114,15 @@ def main():
             log.i("root dir: {}".format(serve_dir))
             log.i("Starting server at {}:{} ....".format(host[0], host[1]))
             server.serve_forever()
-            from http import server
 
         t2 = threading.Thread(target=server_loop, args=(host, log))
         t2.setDaemon(True)
         t2.start()
         while 1:
-            files = queue.get()
+            try:
+                files = queue.get(timeout=1)
+            except Empty:
+                continue
             if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
                 return 1
         t.join()
@@ -1092,5 +1136,7 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
+    print(sys.platform)
     ret = main()
     sys.exit(ret)

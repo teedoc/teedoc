@@ -5,7 +5,7 @@ sys.path.append(curr_path)
 from teedoc_main import main
 
 site_path = "examples/local_test"
-sys.argv.append("-p")
+sys.argv.append("-d")
 sys.argv.append(site_path)
 sys.argv.append("build")
 
