@@ -1051,7 +1051,7 @@ def main():
             def log_request(self, code='-', size='-'):
                 if isinstance(code, HTTPStatus):
                     code = code.value
-                if code == 304 or code == 200:
+                if code == 304 or code == 200 or code == 301:
                     return
                 self.log_message('"%s" %s %s',
                                 self.requestline, str(code), str(size))
