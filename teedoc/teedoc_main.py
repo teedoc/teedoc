@@ -13,6 +13,7 @@ from collections import OrderedDict
 import multiprocessing
 import threading
 import math
+from queue import Queue
 
 def split_list(obj, n):
     dist = math.ceil(len(obj)/n)
@@ -42,6 +43,8 @@ def parse_site_config(doc_src_path):
         for c in configs:
             if not c in config:
                 return False, "need {} keys, see example docs".format(configs)
+        if not site_config['site_root_url'].endswith("/"):
+            site_config['site_root_url'] = "{}/".format(site_config['site_root_url'])
         return True, ""
     if not os.path.exists(site_config_path):
         return False, "can not find site config file: {}".format(site_config_path)
@@ -633,15 +636,23 @@ def update_html_abs_path(file_htmls, root_path):
         file_htmls[path] = re.sub(r'url(.*?)', re_del, file_htmls[path])
     return file_htmls
 
-def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar):
+def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
     site_root_url = site_config["site_root_url"]
     global g_is_error
     g_is_error = False
-    if not site_root_url.endswith("/"):
-        site_root_url = "{}/".format(site_root_url)
     for url, dir in routes.items():
         dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
-        log.i("parse doc: {}, url:{}".format(dir, url))
+        if update_files:
+            all_files = []
+            for modify_file in update_files:
+                if modify_file.startswith(dir):
+                    all_files.append(modify_file)
+            if len(all_files) == 0:
+                return True
+            log.i("update file:", all_files)
+        else:
+            all_files = get_files(dir)
+        log.i("parse {}: {}, url:{}".format(name, dir, url))
         # get sidebar config
         if sidebar:
             try:
@@ -660,7 +671,6 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
             footer = get_footer(dir)
         except Exception as e:
             footer = None
-        all_files = get_files(dir)
         def on_err():
             global g_is_error
             g_is_error = True
@@ -750,7 +760,7 @@ def parse(plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_
             return generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar)
     return True
 
-def build(doc_src_path, plugins_objs, site_config, out_dir, log):
+def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False):
     '''
         "route": {
             "docs": {
@@ -766,8 +776,6 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
             "/blog": "blog"
         }
     '''
-
-    # ---start---
     # get html header item from plugins
     header_items = []
     js_items = []
@@ -781,14 +789,19 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
             header_items.extend(items)
         if _js_items:
             js_items.extend(_js_items)
+    # preview_mode js file
+    if preview_mode:
+        js_items.append('<script type="text/javascript" src="{}static/js/live.js"></script>'.format(site_config['site_root_url']))
     # parse all docs
     routes = site_config["route"]["docs"]
-    if not parse("on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar=True, allow_no_navbar=False):
+    if not parse("docs", "on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
+                 sidebar=True, allow_no_navbar=False, update_files=update_files):
         return False
 
     # parse all pages
     routes = site_config["route"]["pages"]
-    if not parse("on_parse_pages", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar=False, allow_no_navbar=True):
+    if not parse("pages", "on_parse_pages", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
+                 sidebar=False, allow_no_navbar=True, update_files=update_files):
         return False
     # parse all blogs
     # copy assets
@@ -798,29 +811,45 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log):
         if target_dir.startswith("/"):
             target_dir = target_dir[1:]
         out_path = os.path.join(out_dir, target_dir)
-        if not copy_dir(in_path, out_path):
-            return False
-    # copy files from pulgins
-    for plugin in plugins_objs:
-        files = plugin.on_copy_files()
-        for dst,src in files.items():
-            if dst.startswith("/"):
-                dst = dst[1:]
-            dst = os.path.join(out_dir, dst)
-            if not os.path.isabs(src):
-                log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
-            if not copy_file(src, dst):
+        if update_files:
+            for file in update_files:
+                if file.startswith(in_path):
+                    log.i("update assets file: {}".format(file))
+                    in_path = file.replace(in_path+"/", "")
+                    out_path = os.path.join(out_path, in_path)
+                    log.i("copy", file, out_path)
+                    copy_file(file, out_path)
+        else:
+            if not copy_dir(in_path, out_path):
                 return False
+    # copy files from pulgins
+    if not update_files:
+        for plugin in plugins_objs:
+            files = plugin.on_copy_files()
+            for dst,src in files.items():
+                if dst.startswith("/"):
+                    dst = dst[1:]
+                dst = os.path.join(out_dir, dst)
+                if not os.path.isabs(src):
+                    log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
+                if not copy_file(src, dst):
+                    return False
+        # preview mode js
+        if preview_mode:
+            js_out_dir = os.path.join(out_dir, "static/js")
+            curr_dir_path = os.path.dirname(os.path.abspath(__file__))
+            copy_file(os.path.join(curr_dir_path, "static", "js", "live.js"), os.path.join(js_out_dir, "live.js"))
     return True
 
-def files_watch(doc_src_path, log, delay_time):
+def files_watch(doc_src_path, log, delay_time, queue):
     from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler
+    from watchdog.events import RegexMatchingEventHandler
     import time
  
-    class FileEventHandler(FileSystemEventHandler):
+    class FileEventHandler(RegexMatchingEventHandler):
         def __init__(self, doc_src_path):
-            FileSystemEventHandler.__init__(self)
+            ignore = "{}/out/.*".format(doc_src_path)
+            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*"])
             self.update_files = []
             self.doc_src_path = doc_src_path
             self.lock = threading.Lock()
@@ -873,7 +902,7 @@ def files_watch(doc_src_path, log, delay_time):
             update_files = handler.get_update_files()
             if update_files:
                 log.i("file changes detected:", update_files)
-                # TODO:
+                queue.put(update_files)
     except KeyboardInterrupt:
         observer.stop()
         observer.join()
@@ -881,13 +910,14 @@ def files_watch(doc_src_path, log, delay_time):
 
 
 def main():
-    log = Logger(level="d")
+    log = Logger(level="i")
     parser = argparse.ArgumentParser(description="teedoc, a doc generator, generate html from markdown and jupyter notebook")
-    parser.add_argument("-p", "--path", default=".", help="doc source root path" )
+    parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
+    parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support" )
     parser.add_argument("command", choices=["install", "build", "serve"])
     args = parser.parse_args()
     # doc source code root path
-    doc_src_path = os.path.abspath(args.path)
+    doc_src_path = os.path.abspath(args.dir)
     # parse site config
     ok, site_config = parse_site_config(doc_src_path)
     if not ok:
@@ -900,6 +930,28 @@ def main():
     else:
         serve_dir = os.path.join(doc_src_path, "out")
         out_dir = serve_dir
+    if args.command in ["build", "serve"]:
+        # init plugins
+        plugins = list(site_config['plugins'].keys())
+        plugins_objs = []
+        log.i("plugins: {}".format(plugins))
+        for plugin, info in site_config['plugins'].items():
+            try:
+                plugin_config = info['config']
+            except Exception:
+                plugin_config = {}
+            # import plugin from local source code
+            path = info["from"]
+            if not os.path.isabs(path):
+                path = os.path.abspath(os.path.join(doc_src_path, path))
+            if os.path.exists(path):
+                sys.path.insert(0, path)
+            plugin_import_name = plugin.replace("-", "_")
+            module = __import__(plugin_import_name)
+            plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
+            plugins_objs.append(plugin_obj)
+    else:
+        plugins_objs = []
     # execute command
     if args.command == "install":
         log.i("install, source doc root path: {}".format(doc_src_path))
@@ -948,36 +1000,22 @@ def main():
         os.chdir(curr_path)
         log.i("all plugins install complete")
     elif args.command == "build":
-        # init plugins
-        plugins = list(site_config['plugins'].keys())
-        plugins_objs = []
-        log.i("plugins: {}".format(plugins))
-        for plugin, info in site_config['plugins'].items():
-            try:
-                plugin_config = info['config']
-            except Exception:
-                plugin_config = {}
-            # import plugin from local source code
-            path = info["from"]
-            if not os.path.isabs(path):
-                path = os.path.abspath(os.path.join(doc_src_path, path))
-            if os.path.exists(path):
-                sys.path.insert(0, path)
-            plugin_import_name = plugin.replace("-", "_")
-            module = __import__(plugin_import_name)
-            plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
-            plugins_objs.append(plugin_obj)
         # parse files
-        if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log):
+        if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
             return 1
     elif args.command == "serve":
-        from http.server import HTTPServer, BaseHTTPRequestHandler
+        from http.server import HTTPServer, SimpleHTTPRequestHandler
+        from http import HTTPStatus
 
         host = ('0.0.0.0', 2333)
         
-        class On_Resquest(BaseHTTPRequestHandler):
+        class On_Resquest(SimpleHTTPRequestHandler):
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs, directory=serve_dir)
+
             def do_GET(self):
-                file_path = self.path[1:]
+                file_path = self.path[1:].split("?")[0]
                 if not file_path:
                     file_path = "index.html"
                 file_path = os.path.join(serve_dir, file_path)
@@ -1000,14 +1038,48 @@ def main():
                 self.wfile.write(content)
                 # print(self.address_string())
                 # print(self.request)
+
+            def do_HEAD(self):
+                f = self.send_head()
+                if f:
+                    f.close()
+            
+            def log_request(self, code='-', size='-'):
+                if isinstance(code, HTTPStatus):
+                    code = code.value
+                if code == 304 or code == 200:
+                    return
+                self.log_message('"%s" %s %s',
+                                self.requestline, str(code), str(size))
+                            
+            def log_message(self, format, *args):
+                sys.stderr.write("%s - - [%s] %s\n" %
+                                (self.address_string(),
+                                self.log_date_time_string(),
+                                format%args))
+
+        queue = Queue(maxsize=50)
         delay_time = int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3
-        t = threading.Thread(target=files_watch, args=(doc_src_path, log, delay_time))
+        t = threading.Thread(target=files_watch, args=(doc_src_path, log, delay_time, queue))
         t.setDaemon(True)
         t.start()
-        server = HTTPServer(host, On_Resquest)
-        log.i("root dir: {}".format(serve_dir))
-        log.i("Starting server at {}:{} ....".format(host[0], host[1]))
-        server.serve_forever()
+        def server_loop(host, log):
+            server = HTTPServer(host, On_Resquest)
+            log.i("root dir: {}".format(serve_dir))
+            log.i("Starting server at {}:{} ....".format(host[0], host[1]))
+            server.serve_forever()
+            from http import server
+
+        t2 = threading.Thread(target=server_loop, args=(host, log))
+        t2.setDaemon(True)
+        t2.start()
+        while 1:
+            files = queue.get()
+            if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=args.preview):
+                return 1
+        t.join()
+        t2.join()
+
     else:
         log.e("command error")
         return 1

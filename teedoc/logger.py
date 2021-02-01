@@ -29,7 +29,9 @@ class Logger:
         coloredlogs.DEFAULT_FIELD_STYLES = {'asctime': {'color': 'green'}, 'hostname': {'color': 'magenta'},
                                     'levelname': {'color': 'green', 'bold': True}, 'request_id': {'color': 'yellow'},
                                     'name': {'color': 'blue'}, 'programname': {'color': 'cyan'},
-                                    'threadName': {'color': 'magenta'}}
+                                    'threadName': {'color': 'magenta'},
+                                    'filename': {'color': 'white'},
+                                    'lineno': {'color': 'white'}}
         level_styles = {
             'debug': {
                 'color': "white"

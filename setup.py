@@ -7,7 +7,8 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
-install_requires = [ "coloredlogs"
+install_requires = [ "coloredlogs",
+                     "watchdog"
                    ]
 packages = find_packages()
 print("packages:", packages)
