@@ -21,7 +21,7 @@ documentation generate tool from markdown and jupyter notebook to html
 - [x] Multiple version support
 - [ ] Search support
 - [x] SEO friendly
-- [ ] Real-time preview file changes
+- [x] Real-time preview file changes
 - [ ] Blog support
 
 
@@ -72,7 +72,6 @@ teedoc install
 * Build `HTML` pages and start a `HTTP` server
 
 ```
-teedoc build
 teedoc serve
 ```
 
@@ -80,6 +79,14 @@ After show `Starting server at 0.0.0.0:2333 ....`
 
 Open brower visit: [http://127.0.0.1:2333](http://127.0.0.1:2333)
 
+
+or only build
+
+```
+teedoc build
+```
+
+then you can find website in `out` directory
 
 ## More see [teedoc.github.io](https://teedoc.github.io/)
 

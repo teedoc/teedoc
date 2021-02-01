@@ -22,7 +22,7 @@ teedoc
 - [x] 多版本支持（实现方法同多语言）
 - [ ] 搜索支持
 - [x] SEO 友好
-- [ ] 实时预览更改
+- [x] 实时预览更改
 - [ ] 博客支持
 
 
@@ -76,13 +76,18 @@ teedoc install
 * 构建 `HTML` 页面并起一个`HTTP`服务
 
 ```
-teedoc build
 teedoc serve
 ```
 
 在显示 `Starting server at 0.0.0.0:2333 ....` 后，就可以了
 
 打开浏览器访问: [http://127.0.0.1:2333](http://127.0.0.1:2333)
+
+或者仅仅构建文档
+```
+teedoc build
+```
+在`out`目录下可以看到生成的网站
 
 
 ## 更多请到 [teedoc.github.io](https://teedoc.github.io/)
