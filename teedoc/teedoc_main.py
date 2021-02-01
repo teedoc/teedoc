@@ -913,7 +913,7 @@ def main():
     log = Logger(level="i")
     parser = argparse.ArgumentParser(description="teedoc, a doc generator, generate html from markdown and jupyter notebook")
     parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
-    parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support" )
+    parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support for build command, serve command always True" )
     parser.add_argument("command", choices=["install", "build", "serve"])
     args = parser.parse_args()
     # doc source code root path
@@ -1007,6 +1007,9 @@ def main():
         from http.server import HTTPServer, SimpleHTTPRequestHandler
         from http import HTTPStatus
 
+        if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
+            return 1
+
         host = ('0.0.0.0', 2333)
         
         class On_Resquest(SimpleHTTPRequestHandler):
@@ -1075,7 +1078,7 @@ def main():
         t2.start()
         while 1:
             files = queue.get()
-            if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=args.preview):
+            if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
                 return 1
         t.join()
         t2.join()
