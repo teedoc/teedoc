@@ -914,6 +914,7 @@ def main():
     parser = argparse.ArgumentParser(description="teedoc, a doc generator, generate html from markdown and jupyter notebook")
     parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
     parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support for build command, serve command always True" )
+    parser.add_argument("-t", "--delay", type=int, default=-1, help="automatically rebuild and refresh page delay time")
     parser.add_argument("command", choices=["install", "build", "serve"])
     args = parser.parse_args()
     # doc source code root path
@@ -1062,7 +1063,7 @@ def main():
                                 format%args))
 
         queue = Queue(maxsize=50)
-        delay_time = int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3
+        delay_time = (int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3) if int(args.delay) < 0 else int(args.delay)
         t = threading.Thread(target=files_watch, args=(doc_src_path, log, delay_time, queue))
         t.setDaemon(True)
         t.start()
