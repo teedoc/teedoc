@@ -7,12 +7,13 @@ $(document).ready(function(){
         search_index = data;
     }
     downloadJson("${site_root_url}static/search_index/index.json", onDownloadOk);
+    var input_hint = $("#search .input_hint").html();
     $("body").append('<div id="search_wrapper">\
         <div>\
             <div id="search_content">\
                 <div id="search_title">\
                     <div>\
-                        <input id="search_input" placeholder="Search"/>\
+                        <input id="search_input" placeholder="'+ input_hint +'"/>\
                     </div>\
                 </div>\
                 <div id="search_result">\

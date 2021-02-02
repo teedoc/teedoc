@@ -48,7 +48,7 @@ class Plugin_Base:
     def on_add_html_js_items(self):
         return []
     
-    def on_add_navbar_items(self):
+    def on_add_navbar_items(self, new_config):
         '''
             @return list items(navbar item, e.g. "<a href=></a>")
         '''

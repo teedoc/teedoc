@@ -16,7 +16,7 @@ from teedoc import Fake_Logger
 
 
 class Plugin(Plugin_Base):
-    name = "theme-default"
+    name = "teedoc-plugin-theme-default"
     desc = "default theme for teedoc"
     defautl_config = {
         "light": True
@@ -164,7 +164,7 @@ class Plugin(Plugin_Base):
     def on_add_html_js_items(self):
         return self.html_js_items
     
-    def on_add_navbar_items(self):
+    def on_add_navbar_items(self, new_config):
         items = [self.themes_btn]
         return items
     

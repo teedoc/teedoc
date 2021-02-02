@@ -15,7 +15,7 @@ from teedoc import Fake_Logger
 
 
 class Plugin(Plugin_Base):
-    name = "markdown-parser"
+    name = "teedoc-plugin-markdown-parser"
     desc = "markdown parser plugin for teedoc"
     defautl_config = {
         "parse_files": ["md"]

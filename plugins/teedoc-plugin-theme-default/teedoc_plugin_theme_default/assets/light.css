@@ -95,7 +95,6 @@ table {
     display: block;
     width: 100%;
     overflow: auto;
-    word-break: normal;
     word-break: keep-all;
     border-color: transparent;
 }
@@ -431,6 +430,7 @@ code {
 #article_content {
     counter-reset: h2section;
     min-height: 50vh;
+    word-break: break-word;
 }
 #article_content h2 {counter-reset: h3section;}
 #article_content h3 {counter-reset: h4section;}
@@ -611,7 +611,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     margin: 0;
 }
 #footer li {
-    padding: 0;
+    padding: 0.2em;
 }
 #footer a, #footer a:visited{
     color: #848fa0;

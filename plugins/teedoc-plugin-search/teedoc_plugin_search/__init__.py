@@ -18,7 +18,7 @@ from teedoc import Fake_Logger
 
 
 class Plugin(Plugin_Base):
-    name = "search"
+    name = "teedoc-plugin-search"
     desc = "search support for teedoc"
     defautl_config = {
     }
@@ -66,7 +66,6 @@ class Plugin(Plugin_Base):
         self.files_to_copy.update(self.css)
         self.files_to_copy.update(self.footer_js)
         self.files_to_copy.update(self.images)
-        self.search_btn = '<a id="search"><span class="icon"></span><span class="placeholder">Search</span></a>'
 
         self.html_js_items = self._generate_html_js_items()
         self.content = {
@@ -115,8 +114,22 @@ class Plugin(Plugin_Base):
     def on_add_html_js_items(self):
         return self.html_js_items
     
-    def on_add_navbar_items(self):
-        items = [self.search_btn]
+    def on_add_navbar_items(self, new_config):
+        '''
+            @config config cover self.config
+        '''
+        search_hint = "Search"
+        search_input_hint = "Keywords separated by space"
+        if "search_hint" in new_config:
+            search_hint = new_config["search_hint"]
+        elif "search_hint" in self.config:
+            search_hint = self.config["search_hint"]
+        if "input_hint" in new_config:
+            search_input_hint = new_config["input_hint"]
+        elif "input_hint" in self.config:
+            search_input_hint = self.config["input_hint"]
+        search_btn = '<a id="search"><span class="icon"></span><span class="placeholder">{}</span><span class="input_hint">{}</span></a>'.format(search_hint, search_input_hint)
+        items = [search_btn]
         return items
     
     def on_copy_files(self):

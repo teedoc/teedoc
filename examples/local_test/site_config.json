@@ -44,6 +44,7 @@
         "teedoc-plugin-search":{
             "from": "../../plugins/teedoc-plugin-search",
             "config": {
+                "search_hint": "Search"
             }
         }
     },

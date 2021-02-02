@@ -72,5 +72,13 @@
                 "position": "middle"
             }
         ]
+    },
+    "plugins": {
+        "teedoc-plugin-search":{
+            "config": {
+                "search_hint": "搜索",
+                "input_hint": "输入关键词，多关键词空格隔开"
+            }
+        }
     }
 }

@@ -120,6 +120,11 @@ def get_navbar(doc_dir):
     with open(sidebar_config_path, encoding="utf-8") as f:
         return json.load(f)['navbar']
 
+def get_plugins_config(doc_dir):
+    sidebar_config_path = os.path.join(doc_dir, "config.json")
+    with open(sidebar_config_path, encoding="utf-8") as f:
+        return json.load(f)['plugins']
+
 def get_footer(doc_dir):
     sidebar_config_path = os.path.join(doc_dir, "config.json")
     with open(sidebar_config_path, encoding="utf-8") as f:
@@ -157,7 +162,7 @@ def get_sidebar_list(sidebar, doc_path, doc_url):
         items = OrderedDict()
         if "label" in config and "file" in config and config["file"] != None and config["file"] != "null":
             url = get_url_by_file_rel(config["file"], doc_url)
-            items[os.path.join(doc_path, config["file"])] = {
+            items[os.path.join(doc_path, config["file"]).replace("\\", "/")] = {
                 "curr": (url, config["label"])
             }
         if is_dir:
@@ -268,7 +273,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
         htmls[file] = html
     return htmls
 
-def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
+def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins_new_config):
     '''
         @doc_path  doc path, contain config.json and sidebar.json
         @doc_url   doc url, config in "route" of site_config.json
@@ -353,7 +358,11 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
         # add navbar items from plugins
         items_plugins_html = ""
         for plugin in plugins_objs:
-            _items = plugin.on_add_navbar_items()
+            if plugin.name in plugins_new_config:
+                new_config = plugins_new_config[plugin.name]["config"]
+            else:
+                new_config = {}
+            _items = plugin.on_add_navbar_items(new_config)
             if not _items:
                 continue
             items_html = '<ul class="nav_plugins">'
@@ -705,6 +714,10 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 return False
             navbar = None
         try:
+            plugins_new_config = get_plugins_config(dir)
+        except Exception as e:
+            plugins_new_config = {}
+        try:
             footer = get_footer(dir)
         except Exception as e:
             footer = None
@@ -716,7 +729,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
             return g_is_error
         
 
-        def generate(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue):
+        def generate(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue, plugins_new_config):
             try:
                 # call plugins to parse files
                 result_htmls = None
@@ -747,7 +760,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                     return False
                 # generate navbar to html
                 if navbar:
-                    htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
+                    htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs, plugins_new_config)
                 if footer:
                     htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
                 if is_err():
@@ -790,7 +803,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
             all_files = split_list(all_files, max_threads_num)
             ts = []
             for files in all_files:
-                t = threading.Thread(target=generate, args=(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue))
+                t = threading.Thread(target=generate, args=(files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue, plugins_new_config))
                 t.setDaemon(True)
                 t.start()
                 ts.append(t)
@@ -798,7 +811,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 t.join()
                 # log.i("{} generate ok".format(t.name))
         else:
-            if not generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue):
+            if not generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue, plugins_new_config):
                 return False
     htmls = {}
     for i in range(queue.qsize()):
