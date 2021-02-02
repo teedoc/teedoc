@@ -125,7 +125,7 @@ def get_footer(doc_dir):
     with open(sidebar_config_path, encoding="utf-8") as f:
         return json.load(f)['footer']
 
-def get_url_by_file(file_path, doc_url):
+def get_url_by_file_rel(file_path, doc_url):
     url = os.path.splitext(file_path)[0]
     tmp = os.path.split(url)
     if tmp[1].lower() == "readme":
@@ -156,7 +156,7 @@ def get_sidebar_list(sidebar, doc_path, doc_url):
         is_dir = "items" in config
         items = OrderedDict()
         if "label" in config and "file" in config and config["file"] != None and config["file"] != "null":
-            url = get_url_by_file(config["file"], doc_url)
+            url = get_url_by_file_rel(config["file"], doc_url)
             items[os.path.join(doc_path, config["file"])] = {
                 "curr": (url, config["label"])
             }
@@ -209,7 +209,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
         li_item_html = ""
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
-                url = get_url_by_file(config["file"], doc_url)
+                url = get_url_by_file_rel(config["file"], doc_url)
                 active = doc_path_relative == config["file"]
                 li_item_html = '<li class="{} with_link"><a href="{}"><span class="label">{}</span><span class="{}"></span></a>'.format(
                     "active" if active else "not_active",
@@ -638,15 +638,20 @@ def update_html_abs_path(file_htmls, root_path):
 
 def add_url_item(htmls, url, dir, site_root_url):
     '''
-        will remove empty html items, only reture valid html items
+        will remove empty html items, only return valid html items
         @htmls {
             "file_path":{
+                "title": ""
+                "body": ""
+                "raw": ""
             }
         }
         
         @return {
-            "file_path":{
-                "url": "/****"
+            "url":{
+                "title": ""
+                "body": ""
+                "raw": ""
             }
         }
     '''
@@ -655,11 +660,14 @@ def add_url_item(htmls, url, dir, site_root_url):
         if not htmls[file_path]:
             continue
         if not url:
-            url_path = '{}{}'.format(site_root_url[:-1], file_path.replace(dir, ""))
+            url_path = site_root_url[:-1]
         else:
-            url_path = "{}{}{}".format(site_root_url, url, file_path.replace(dir, ""))
-        htmls_valid[file_path] = htmls[file_path]
-        htmls_valid[file_path]["url"] = url_path
+            url_path = "{}{}".format(site_root_url, url)
+        file_path_rel = file_path.replace(dir, "")
+        if file_path_rel.startswith("/"):
+            file_path_rel = file_path_rel[1:]
+        url_path = get_url_by_file_rel(file_path_rel, url_path)
+        htmls_valid[url_path] = htmls[file_path]
     return htmls_valid
 
 def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
@@ -668,6 +676,8 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
     global g_is_error
     g_is_error = False
     for url, dir in routes.items():
+        if not url.startswith(site_root_url):
+            url = "{}{}".format(site_root_url[:-1], url)
         dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
         if update_files:
             all_files = []
@@ -763,9 +773,10 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                     return False
                 if is_err():
                     return False
-                # add url, add "url" keyword for htmls
+                # add url, add "url" keyword for htmls, will remove empty html items
                 htmls = add_url_item(htmls, url, dir, site_root_url)
-                queue.put(htmls)
+                if len(htmls) > 0:
+                    queue.put((url, htmls))
             except Exception as e:
                 log.e("generate html fail: {}".format(e))
                 on_err()
@@ -791,8 +802,11 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 return False
     htmls = {}
     for i in range(queue.qsize()):
-        _htmls = queue.get()
-        htmls.update(_htmls)
+        url, _htmls = queue.get()
+        url = "{}{}".format(site_root_url, url)
+        if not url in htmls:
+            htmls[url] = {}
+        htmls[url].update(_htmls)
     return True, htmls
 
 def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False):
