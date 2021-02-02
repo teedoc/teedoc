@@ -2,12 +2,49 @@ window.onload = function(){
 }
 
 $(document).ready(function(){
+    var waiting_search = false;
     var search_index = null;
-    function onDownloadOk(data){
+    var search_content = {
+        "curr": null,
+        "others":{}
+    }
+    function onDownloadOk(data, arg1, arg2){
         search_index = data;
+        var pathname   = window.location.pathname;
+        var curr_url   = null;
+        var others_url = [];
+        for(var url in search_index){
+            if(pathname.indexOf(url) != -1){
+                curr_url = url;
+            }else{
+                others_url.push(url);
+            }
+        }
+        if(search_index[curr_url]){
+            downloadJson(search_index[curr_url], onIndexDownloadOk, curr_url, true);
+        }
+        for(var i in others_url){
+            url = others_url[i];
+            downloadJson(search_index[url], onIndexDownloadOk, url, false);
+        }
+    }
+    function onIndexDownloadOk(data, url, is_curr){
+        if(is_curr){
+            search_content["curr"] = data;
+        }else{
+            search_content["others"][url] = data;
+        }
+        if(waiting_search == true){
+            waiting_search = false;
+            onSearch();
+        }
     }
     downloadJson("${site_root_url}static/search_index/index.json", onDownloadOk);
-    var input_hint = $("#search .input_hint").html();
+    var input_hint = $("#search_input_hint").html();
+    var loading_hint = $("#search_loading_hint").html();
+    var download_err_hint = $("#search_download_err_hint").html();
+    var other_docs_result_hint = $("#search_other_docs_result_hint").html();
+    var curr_doc_result_hint = $("#search_curr_doc_result_hint").html();
     $("body").append('<div id="search_wrapper">\
         <div>\
             <div id="search_content">\
@@ -31,27 +68,27 @@ $(document).ready(function(){
         $("#wrapper").removeClass("blur");
         $("#navbar").removeClass("blur");
     });
-    $("#search_input").bind("input propertychange", function(){
+    $("#search_input").bind("input propertychange", onSearch);
+    function onSearch(){
+        $("#search_result").empty();
+        $("#search_result").append('<ul id="search_curr_result"><div class="hint">'+ curr_doc_result_hint +'</div></ul>');
+        $("#search_result").append('<ul id="search_others_result"><div class="hint">'+ other_docs_result_hint +'</div></ul>');
         if(!search_index){
-            console.log("search index file not download yet");
+            $("#search_result").append('<div class="search_loading_hint">'+ loading_hint +'</div>');
+            waiting_search = true;
             return;
         }
-        var search_keywords = $(this).val();
-        // console.log(search_index);
-        var pathname   = window.location.pathname;
-        var curr_url   = null;
-        var others_url = [];
-        for(var url in search_index){
-            if(pathname.indexOf(url) != -1){
-                curr_url = url;
-            }else{
-                others_url.push(url);
-            }
+        if(!search_content["curr"] && search_content["others"].length == 0){
+            $("#search_result").append('<div class="search_loading_hint">'+ loading_hint +'</div>');
+            waiting_search = true;
+            return;
         }
-        function onCurrDoc(data){
-            // console.log(data);
-            $("#search_result").empty();
-            $("#search_result").append('<ul id="search_curr_result"></ul>');
+        var search_keywords = $("#search_input").val();
+        search_doc(search_content["curr"], "#search_curr_result");
+        for(var url in search_content["others"]){
+            search_doc(search_content["others"][url], "#search_others_result");
+        }
+        function search_doc(data, containerId){
             for(var url in data){
                 var content = data[url];
                 search_keywords = search_keywords.trim();
@@ -72,35 +109,30 @@ $(document).ready(function(){
                     find = true; 
                 }
                 if(find){
-                    $("#search_curr_result").append('<li><a href="'+ url + '"><h1>'+ (data[url]["title"]?data[url]["title"]:url) +
+                    $(containerId).append('<li><a href="'+ url + '"><h1>'+ (data[url]["title"]?data[url]["title"]:url) +
                             '</h1><div>' + find_strs + '</div></a></li>');
                 }
             }
-            // for(var i in others_url){
-            //     url = others_url[i]
-            //     console.log("other", search_index[url]);
-            // }
         }
-        // console.log("curr", search_index[curr_url]);
-        downloadJson(search_index[curr_url], onCurrDoc)
-    });
+    }
+    function downloadJson(url, callback, arg1=null, arg2=null){
+        $.ajax({
+            type: "GET",
+            url: url,
+            contentType: "application/json",
+            dataType: "json",
+            success: function(data){
+                callback(data, arg1, arg2);
+            },
+            error: function(){
+                $("#search_result").empty();
+                $("#search_result").append('<div class="search_download_err_hint">'+ download_err_hint + ': '+ url +'</div>');
+            }
+        });
+    }
 });
 
 
-function downloadJson(url, callback){
-    $.ajax({
-        type: "GET",
-        url: url,
-        contentType: "application/json",
-        dataType: "json",
-        success: function(data){
-            callback(data);
-        },
-        error: function(){
-            console.log("download index file error, request fail");
-        }
-    });
-}
 
 function search(keywords, content, show_length = 15){
     if(keywords.length <= 0){

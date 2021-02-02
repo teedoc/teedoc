@@ -120,6 +120,10 @@ class Plugin(Plugin_Base):
         '''
         search_hint = "Search"
         search_input_hint = "Keywords separated by space"
+        search_loading_hint = "Loading, wait please ..."
+        search_download_err_hint = "Download error, please check network and refresh again"
+        search_other_docs_result_hint = "Result from other docs"
+        search_curr_doc_result_hint = "Result from current doc"
         if "search_hint" in new_config:
             search_hint = new_config["search_hint"]
         elif "search_hint" in self.config:
@@ -128,7 +132,31 @@ class Plugin(Plugin_Base):
             search_input_hint = new_config["input_hint"]
         elif "input_hint" in self.config:
             search_input_hint = self.config["input_hint"]
-        search_btn = '<a id="search"><span class="icon"></span><span class="placeholder">{}</span><span class="input_hint">{}</span></a>'.format(search_hint, search_input_hint)
+        if "loading_hint" in new_config:
+            search_loading_hint = new_config["loading_hint"]
+        elif "loading_hint" in self.config:
+            search_loading_hint = self.config["loading_hint"]
+        if "download_err_hint" in new_config:
+            search_download_err_hint = new_config["download_err_hint"]
+        elif "download_err_hint" in self.config:
+            search_download_err_hint = self.config["download_err_hint"]
+        if "other_docs_result_hint" in new_config:
+            search_other_docs_result_hint = new_config["other_docs_result_hint"]
+        elif "other_docs_result_hint" in self.config:
+            search_other_docs_result_hint = self.config["other_docs_result_hint"]
+        if "curr_doc_result_hint" in new_config:
+            search_curr_doc_result_hint = new_config["curr_doc_result_hint"]
+        elif "curr_doc_result_hint" in self.config:
+            search_curr_doc_result_hint = self.config["curr_doc_result_hint"] 
+        search_btn = '''<a id="search"><span class="icon"></span><span class="placeholder">{}</span>
+                            <div id="search_hints">
+                                <span id="search_input_hint">{}</span>
+                                <span id="search_loading_hint">{}</span>
+                                <span id="search_download_err_hint">{}</span>
+                                <span id="search_other_docs_result_hint">{}</span>
+                                <span id="search_curr_doc_result_hint">{}</span>
+                            </div></a>'''.format(
+                        search_hint, search_input_hint, search_loading_hint, search_download_err_hint, search_other_docs_result_hint, search_curr_doc_result_hint)
         items = [search_btn]
         return items
     

@@ -77,7 +77,11 @@
         "teedoc-plugin-search":{
             "config": {
                 "search_hint": "搜索",
-                "input_hint": "输入关键词，多关键词空格隔开"
+                "input_hint": "输入关键词，多关键词空格隔开",
+                "loading_hint": "正在加载，请稍候。。。",
+                "download_err_hint": "下载文件失败，请刷新重试或检查网络",
+                "other_docs_result_hint": "来自其它文档的结果",
+                "curr_doc_result_hint": "当前文档搜索结果"
             }
         }
     }
