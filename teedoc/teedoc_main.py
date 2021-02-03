@@ -2,8 +2,10 @@ import argparse
 import sys
 try:
     from .logger import Logger
+    from .http_server import HTTP_Server
 except Exception:
     from logger import Logger
+    from http_server import HTTP_Server
 import os, sys
 import json
 import subprocess
@@ -1100,7 +1102,7 @@ def main():
         if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
             return 1
     elif args.command == "serve":
-        from http.server import HTTPServer, SimpleHTTPRequestHandler
+        from http.server import SimpleHTTPRequestHandler
         from http import HTTPStatus
 
         if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
@@ -1163,7 +1165,7 @@ def main():
         t.setDaemon(True)
         t.start()
         def server_loop(host, log):
-            server = HTTPServer(host, On_Resquest)
+            server = HTTP_Server(host, On_Resquest)
             log.i("root dir: {}".format(serve_dir))
             log.i("Starting server at {}:{} ....".format(host[0], host[1]))
             server.serve_forever()
