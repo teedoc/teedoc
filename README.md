@@ -1,5 +1,6 @@
 teedoc
 ===========
+[中文 README](./README_ZH.md)
 
 Official site: [teedoc.github.io](https://teedoc.github.io/)
 
@@ -19,7 +20,7 @@ documentation generate tool from markdown and jupyter notebook to html
 - [x] Multiple language support(manually translate)
 - [ ] Multiple language support(auto translate)
 - [x] Multiple version support
-- [ ] Search support
+- [x] Search support
 - [x] SEO friendly
 - [x] Real-time preview file changes
 - [ ] Blog support
