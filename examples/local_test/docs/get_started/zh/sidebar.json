@@ -1,5 +1,4 @@
 {
-    "title":"<img/>",
     "items":[
         {
             "label": "teedoc 简介",
@@ -10,13 +9,13 @@
             "file": "install/README.md"
         },
         {
+            "label": "开始写文档",
+            "file": "usage/start.md"
+        },
+        {
             "label": "插件",
             "file": "plugins/README.md",
             "items":[
-                {
-                    "label": "默认插件",
-                    "file": "plugins/defaults.md"
-                },
                 {
                     "label": "主题插件",
                     "file": "plugins/themes.md"
@@ -32,12 +31,30 @@
             "file": "syntax/syntax_markdown.md"
         },
         {
-            "label": "更多样例",
+            "label": "部署",
+            "file": "usage/deploy.md",
             "items":[
                 {
-                    "label": "使用了 teedoc 的网站",
-                    "file": "more/sites.md"
+                    "label": "部署到 github",
+                    "file": "usage/deploy_github_pages.md"
                 },
+                {
+                    "label": "使用 nginx 部署到服务器",
+                    "file": "usage/deploy_nginx.md"
+                },
+                {
+                    "label": "使用 CDN 加速网站",
+                    "file": "usage/deploy_cdn.md"
+                }
+            ]
+        },
+        {
+            "label": "使用了 teedoc 的网站",
+            "file": "usage/sites.md"
+        },
+        {
+            "label": "更多样例",
+            "items":[
                 {
                     "label": "二级子目录样例",
                     "items":[

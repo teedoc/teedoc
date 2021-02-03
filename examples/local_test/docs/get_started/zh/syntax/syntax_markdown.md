@@ -5,6 +5,9 @@ keywords: teedoc, markdown, 语法
 desc: teedoc 的 markdown 语法介绍和实例
 ---
 
+本文是使用`Markdown`编写的文档，使用`teedoc`生成的页面效果， `Markdown`文件见[这里](https://github.com/teedoc/teedoc.github.io/blob/main/docs/get_started/zh/syntax/syntax_markdown.md)
+
+
 一级标题（`#`）最好不要使用， 因为上面的`title`会自动生成一个一级标题（`<h1>`标签），一个页面最好只有一个一级标题，方便搜索引擎爬取收录
 
 `keywords` 是生成的 `html` 页面的 `keywords`， 不会显示到页面，主要提供给搜索引擎使用
@@ -109,7 +112,7 @@ print("hello")
 
 这里没有放视频， 所以是空白, 放入正确的视频就可以播放了
 
-<video src="" controls="controls" preload="auto">your brower not support play video</video>
+<video src="" controls="controls" preload="auto">your brower or site not support play video</video>
 
 
 ## iframe 嵌入网页

@@ -1,191 +1,335 @@
+---
+title: TensorFlow Linux GPU + jupyterlab 环境安装 （Docker） (Ubuntu Deepin Manjaro)
+keywords: tensorflow gpu jupyterlab docker deepin ubuntu linux 环境 安装 NVIDIA 驱动 docker
+desc: Tensorflow Linux 下 GPU + Docker 环境安装
 
 ---
-标题: LoRa 重要知识
-关键词： LoRa 知识 概念 参数
-简介：LoRa: Long Range的缩写，是一种基于线性调制扩频技术（CSS: chirp spread spectrum)的一种扩频调制技术，应用于低功耗远距离低速率通信
 
----
+> 版权声明：本文为 neucrack 的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+> 原文链接：[https://neucrack.com/p/116](https://neucrack.com/p/116)
 
-与同类技术相比，提供更长的通信距离,更低的功耗，速率比较低。
-调制是基于扩频技术，线性调制扩频（CSS）的一个变种，并具有前向纠错（FEC）特性。
-LoRa显著地提高了接受灵敏度(低至-148dBm)，与其他扩频技术一样，使用了整个信道带宽广播一个信号，从而使信道噪声和由于使用低成本晶振而引起频率偏移的不敏感性更健壮。
-LoRa可以调制信号19.5dB低于底噪声，而大多数频移键控（FSK）在底噪声上需要一个8-10dB的信号功率才可以正确调制。
 
-先直观地看一下LoRa传输时的波形,下面几张图是我实际抓到的LoRa传输时的波形
 
-![图一：cubicSDR LoRa470MHz SF12 4/5 8preamble瀑布流图](https://neucrack.com/image/1/12/3500903-fc78285d2f434924.png)
+这里使用 docker ， 安装环境更加简单（只需要装 NVIDIA 驱动，不需要装cuda，当然也不用为cuda版本烦恼）稳定～
+而且可以同时运行多个 docker，比如同时运行多个 jupyterlab 给不同人使用
 
-![图二：cubicSDR 捕获到的LoRa 470MHz SF12 4/5 时域波形图](https://neucrack.com/image/1/12/3500903-33e72130ee303b5d.PNG)
+## 安装docker
 
-![图三：LoRa瀑布图2(来源网络)](https://neucrack.com/image/1/12/3500903-485276d0e85783fc.jpg)
+安装 docker，**版本必须是19.03及以上**（可以使用`docker --version` 查看），如果版本低于这个版本，后面使用`nvidia-docker` 驱动就会失败，会提示找不到`--gpu all` 参数
 
+### 安装
 
-## 基础知识
+* 如果是Manjaro， 直接`yay -S docker`
+* 其他发行版：
 
-### （一）EIRP  ERP （e.r.p/e.i.r.p）
- EIRP即射频发射功率(dBm)+天线增益（单位dBi)-线路衰减(dB)
- ERP即射频发射功率(dBm)+天线增益（单位dBd)-线路衰减(dB)
- 其中 EIRP(dBm) = ERP(dBm)+2.15
+参见官方教程：https://docs.docker.com/install/linux/docker-ce/debian/
 
-![ERP EIRP](https://neucrack.com/image/1/12/3500903-a715a0ea486b36a4.png)
+> deepin 是基于 debian 9.0
+> 如果是 deepin 则需要修改 `sudo vim /usr/share/python-apt/templates/Deepin.info` 里面的unstable为stable
+> 并使用命令`sudo add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable"`
 
-![ERP EIRP](https://neucrack.com/image/1/12/3500903-747e6641f7790ab2.png)
+### 设置代理
 
-![ERP EIRP](https://neucrack.com/image/1/12/3500903-b0c5862e98c04a7f.png)
+如果下载慢，可能需要设置代理， 也可以不使用官方镜像，使用国内的镜像，比如 daocloud 镜像加速
 
+docker 代理设置参考： https://neucrack.com/p/286
 
-这里引出一个问题，国内在470~510MHz频段要求功率不能超过50mW [17dBm (e.r.p)]，那为什么厂商出厂都标明了芯片或者模块是20dBm呢，这不是超出了限制范围？
-芯片或模块的信号还要经过传输线和天线，总所周知，芯片到天线会有插入损耗以及线损等，然后经过天线再增益后才得到最后的空中功率值
+pull 镜像的时候可以设置代理让拉取更快， 创建容器时建议将代理去掉
 
 
-### （二）dBm dB dBi dBd mW 含义及关系和区别
+### 设置当前用户可以访问docker（非root）
 
-请自行看书或搜索学习
+参考这里： https://docs.docker.com/install/linux/linux-postinstall/
 
-如果需要看视频教程，推荐：
-视频(中文字幕):[hackrf bilibili](https://www.bilibili.com/video/av7079120/?p=3) , 视频(英文):[hackrf greatscottgadgets](http://greatscottgadgets.com/sdr/3/)
-其它视频：[LoRa youtube](https://www.youtube.com/watch?v=ePtFD3z8WwU&list=PLmL13yqb6OxdeOi97EvI8QeO8o-PqeQ0g&index=5)
+```
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker # 或者重新开启终端即可，如果未生效，可重启
+```
 
 
-### （三）链路预算
+### 常用命令
 
-首先要了解接收灵敏度和发射功率
 
-接收灵敏度值越低越好，比如-120dBm和-145dBm，-145dBm值更小，我们说接收灵敏度更好。
-而经常也会有人说最大灵敏度，这里的大不能理解为值大而知最好灵敏度，这里需要注意，表达时容易混淆。
+`docker images `: 列出镜像列表
+`docker run [options] image_name [command]`：从镜像新建一个容器
+`docker ps `: 正在运行的容器
+`docker ps -a`: 所有容器，包括没有正在运行的
+`docker rm container_name`：删除容器
+`docker rmi image_name`：删除镜像
+`docker start container_name`：启动容器
+`docker attatch container_name`：附着到容器里
+`docker exec conrainer_name [comand]`：在容器中执行命令
+`docker logs container_name`: 查看容器执行log
 
-可以简单理解成 最好接收灵敏度值绝对值+最大发射功率， 更详细解释请自行学习
-![link budget margin](https://neucrack.com/image/1/12/3500903-16ae3a51a2fc387a.png)
+`docker build -t image_name .`：从 Dockerfile 构建一个镜像
 
-比如按照[semtech的sx1276手册说明](https://www.semtech.com/products/wireless-rf/lora-transceivers/SX1276)，芯片最大功率位20dBm，最大接收灵敏度位-148dBm,所以最大链路预算为168dBm。
 
+### docker run 常用参数
 
+`-it`：启用交互式终端
+`-rm`：及时删除，不保存容器，即退出后就删除
+`--gpus all`：启用所有GPU支持
+`-p port1:port2`：宿主机和容器端口映射，port1为宿主机的端口
+`-v volume1:volume2`：宿主机和容器的磁盘映射， volume1是宿主机的文件夹，比如映射`/home/${USER}/notes`到`/tf/notes`
+`--name name`：给容器取名，如果没有这个参数，名字就是随机生成的
+`--device device:container_device`：挂在设备，比如`/dev/ttyUSB0:/dev/ttyUSB0`
+`--network=host`： 使用宿主机的网络
+`--restart`: 自动启动, 可以用这个设置开机自启, 如果run的时候忘了可以用`docker update --restart=always 容器名`来更新
+```
+no:		                     不自动重启容器. (默认value)
+on-failure:               容器发生error而退出(容器退出状态不为0)重启容器
+unless-stopped: 	在容器已经stop掉或Docker stoped/restarted的时候才重启容器
+always:                  在容器已经stop掉或Docker stoped/restarted的时候才重启容器
+```
 
-## LoRa相关基础术语和名词解释
 
-### （一）up-chirp/down-chirp 
 
-首先大家都明白调频(`FM`)和调幅(`AM`)，如下图：
-![AM FM](https://neucrack.com/image/1/12/3500903-4486aeed492a2927.gif)
-使用不同幅度或者频率来表示不同的数据（数值）。
+## 安装显卡驱动
 
-`up-chirp/down-chirp` ：这里chirp是鸟叫声的意思，也正如鸟叫声一样，`up-chirp`指频率逐渐增加的过程，`down-chirp`则相反是频率逐渐降低的过程。
-比如下图就是`up-chirp`，反之如果时间从右往左就是`down-chirp`:
-![up-chirp， 横轴时间，纵轴幅度](https://neucrack.com/image/1/12/3500903-5eae062bb04611c5.jpg)
+显卡安装部分独立写了一篇， 参考[Linux Nvidia显卡安装](https://neucrack.com/p/252)
 
-通过这种变化过程来表示一个或者多个数据（数值），
-比如最简单的`up-chirp`代表1，`down-chirp`代表0,；
-再复杂一点，从最低频率变化到最高这个过程表示1，从中间频率到最大频率然后跳变到最低频率再变化到中间频率这个过程表示2，从最高变成最低标识3等等。具体表示什么就看具体的应用和标准了。
-而LoRa就采用这种调制方式：
-![LoRa调制](https://neucrack.com/image/1/12/3500903-7b21bde3326948c5.png)
+## 安装镜像
 
-### （二）带宽（BandWidth）
+参考官方文档：https://www.tensorflow.org/install/docker
 
-带宽 BW (BandWidth): 
-表示频率最大值减去最小值的差值。
-而带宽和信号的传输速率又有着极大的关系，信道带宽与数据传输速率的关系可以奈奎斯特(Nyquist)准则与香农(Shanon)定律描述。如果忘记了可以看[这里](https://blog.csdn.net/reborn_lee/article/details/80745218)。
-所以带宽越大，速率越快,单位是Hz
+比如我这里Ubuntu：（一定看文档，可能会不一样，有更新）
 
-### （三）码片（chips）
+* 安装 [nvidia-docker](https://github.com/NVIDIA/nvidia-docker)
 
-[码片](https://baike.baidu.com/item/%E7%A0%81%E7%89%87/5934932?fr=aladdin)：通过扩频技术，将一个数据位用很多码片来表示。
+按照 `readme` 中的` installation guide` 安装即可， 比如 `Ubuntu`：
 
-### （四）符号（symbol）
+```
+# Add the package repositories
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 
-一个完整的扫频信号（sweep signal)可以被称为一个符号，如下图中需黄色虚线部分的黑色实线称为为一个符号:
-![symbol](https://neucrack.com/image/1/12/3500903-5483a5940069225d.png)
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+如果是deepin，则需要改一下系统版本
+```
+distribution="ubuntu18.04"
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+如果是 Manjaro， 只需要命令 `yay -S nvidia-docker` 即可！（如果遇到下载慢，可以使用poipo设置全局代理，参考[终端代理设置方法](https://neucrack.com/p/275)）
+
+* 测试 nvidia-docker 以及cuda能不能使用起来
+
+使用`nvidia/cuda`这个镜像，这个镜像只是用来测试，用完也可以删掉，如果没有设置代理，不想花费太多时间拉取镜像，可以不用这个镜像，直接使用`tensorflow/tensorflow:latest-gpu-py3`这个镜像或者`neucrack/tensorflow-gpu-py3-jupyterlab`(或 `daocloud.io/neucrack/tensorflow-gpu-py3-jupyterlab`)这个镜像（推荐）（在前者的基础上装了jupyterlab， 而且做了更好的用户权限管理）
+
+```
+lspci | grep -i nvidia
+docker run --gpus all --rm nvidia/cuda nvidia-smi
+```
+
+比如：
+```
+➜  ~ sudo docker run --gpus all --rm nvidia/cuda nvidia-smi
+Tue Mar 10 15:57:12 2020       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 440.64       Driver Version: 440.64       CUDA Version: 10.2     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce GTX 106...  Off  | 00000000:01:00.0  On |                  N/A |
+| 33%   39C    P0    27W / 120W |    310MiB /  6075MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
++-----------------------------------------------------------------------------+
+
+```
+
+```
+Wed Mar 11 02:04:26 2020       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 430.40       Driver Version: 430.40       CUDA Version: 10.1     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce GTX 108...  Off  | 00000000:04:00.0 Off |                  N/A |
+| 35%   41C    P5    25W / 250W |      0MiB / 11178MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  GeForce GTX 108...  Off  | 00000000:81:00.0 Off |                  N/A |
+| 39%   36C    P5    19W / 250W |      0MiB / 11178MiB |      2%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+```
+
+如果驱动版本太低，这里就会提示需要更新驱动
+
+同时注意到cuda版本是10.2，可能tensorflow只支持到10.1，如果是在宿主机上直接装tensorflow就会报错不支持，这里用docker的好处就体现了，不用理会，只需要保证驱动装好就可以了
+
+deepin 出现了错误
+```
+docker: Error response from daemon: OCI runtime create failed: container_linux.go:349: starting container process caused "process_linux.go:449: container init caused \"process_linux.go:432: running prestart hook 0 caused \\\"error running hook: exit status 1, stdout: , stderr: nvidia-container-cli: ldcache error: open failed: /sbin/ldconfig.real: no such file or directory\\\\n\\\"\"": unknown.
+```
+参考这里的解决方法：https://github.com/NVIDIA/nvidia-docker/issues/614 ，解决：
+```
+ln -s /sbin/ldconfig /sbin/ldconfig.real
+```
+
+docker 出现错误：`nvidia-container-cli: initialization error: cuda error: unknown error`
+重启系统得到解决
+
+## 运行 tensorflow with GPU
+
+
+拉取镜像，直接拉取
+```
+docker pull neucrack/tensorflow-gpu-py3-jupyterlab
+# docker pull tensorflow/tensorflow:latest-gpu-py3-jupyter
+# docker pull tensorflow/tensorflow
+# docker pull tensorflow/tensorflow:latest-gpu
+```
+国内可以使用放在 daocloud 的镜像，速度会快一些：
+```
+docker pull daocloud.io/neucrack/tensorflow-gpu-py3-jupyterlab
+```
+
+执行测试语句：
+```
+docker run --gpus all -it --rm neucrack/tensorflow-gpu-py3-jupyterlab python -c "import tensorflow as tf; print('-----version:{}, gpu:{}, 1+2={}'.format(tf.__version__, tf.test.is_gpu_available(), tf.add(1, 2).numpy()) );"
+```
+> 如果使用了daocloud，镜像名需要修改成`daocloud.io/neucrack/tensorflow-gpu-py3-jupyterlab`
+
+如果没问题，就会出现以下输出（会伴随一大堆调试信息，也可能有警告信息，可以仔细看一下）：
+```
+-----version:2.1.0, gpu:True, 1+2=3
+```
+
+## Jupyterlab
+
+```
+docker run --gpus all --name jupyterlab-gpu -it -p 8889:8889 -e USER_NAME=$USER -e USER_ID=`id -u $USER` -e GROUP_NAME=`id -gn $USER` -e GROUP_ID=`id -g $USER` -v /home/${USER}:/tf neucrack/tensorflow-gpu-py3-jupyterlab
+```
+> 如果使用了daocloud，镜像名需要修改成`daocloud.io/neucrack/tensorflow-gpu-py3-jupyterlab`
+
+
+然后就能用浏览器在`http://127.0.0.1:8889/`地址使用 `jupyterlab`了，而且目录对应了设置的`/home/${USER}`目录
+
+![jupyterlab](../../../assets/images/jupyterlab.jpg)
+![jupyterlab.png](../../../assets/images/jupyterlab_1.jpg)
+
+
+退出直接`Ctrl+C`即可
+这个容器创建后会一直存在于电脑里，可以使用`docker ps -a`查看到，下次启动使用
+```
+docker start jupyterlab_gpu
+```
+也可以附着到容器：
+```
+docker attatch jupyterlab_gpu
+```
+停止容器：
+```
+docker stop jupyterlab_gpu
+```
+
+删除容器：
+```
+docker rm jupyterlab_gpu
+```
+
+修改 user 和 root 密码, 这样就可以使用 `sudo` 命令了
+```
+docker exec -it jupyterlab_gpu /bin/bash
+passwd $USER
+passwd root
+```
+
+
+如果需要每次都重新新建一个容器，用完就删除，只需要在`run`命令后面添加一个`-rm`参数即可
+
+## 其它问题
+
+* 运行程序时提示： ResourceExhaustedError: OOM when allocating tensor with shape[784,128] 
+
+使用`nvidia-smi`查看内存使用情况
+
+tensorflow会一次性申请（几乎）所有显存：
+
+```
+➜  ~ nvidia-smi
+Fri Mar 20 09:18:48 2020       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 435.21       Driver Version: 435.21       CUDA Version: 10.1     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce GTX 108...  Off  | 00000000:04:00.0  On |                  N/A |
+|  0%   48C    P2    60W / 250W |  10726MiB / 11178MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  GeForce GTX 108...  Off  | 00000000:81:00.0 Off |                  N/A |
+|  0%   47C    P2    58W / 250W |    197MiB / 11178MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|    0      3099      G   /usr/lib/xorg/Xorg                            21MiB |
+|    0     40037      C   /usr/bin/python3                           10693MiB |
+|    1     40037      C   /usr/bin/python3                             185MiB |
++-----------------------------------------------------------------------------+
+
+```
+
+有可能是使用显存的进程太多了，可以适当退出一些进程；
+也有可能申请内存重复了 ，可以尝试重启容器解决
+
+* 一直运行没有结果
+
+重启docker 容器解决，总之遇事不决，重启解决。。
+
+* 提示`could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED`
+
+可能使用了多进程, 新的进程直接拷贝了当前进程的环境,导致错误, 解决办法是**父进程需要引入**, 在子进程中需要使用的时候单独import,而不是写到全局, 参考这里: https://abcdabcd987.com/python-multiprocessing/
+
+* `ImportError: libGL.so.1: cannot open shared object file: No such file or directory`
+
+```
+apt install libgl1-mesa-glx
+```
+
+* `Failed to get convolution algorithm. This is probably because cuDNN failed to initialize`
+
+显卡内存不足，检查是不是被其它程序占用了，如果多张显卡，可以设置环境变量`CUDA_VISIBLE_DEVICES`来设置将要使用的显卡， 比如这里共有三张显卡， 下标分别是`0`，`1`，`2`， 选择第三张卡则设置为`2`
+
+```python
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = '2'
+
+```
+
+
+## 参考
+
+* [https://blog.csdn.net/liuzk2014/article/details/83190267](https://blog.csdn.net/liuzk2014/article/details/83190267)
+* https://devtalk.nvidia.com/default/topic/1047416/linux/nvidia-driver-is-not-loaded-ubuntu-18-10-/
+
+* https://github.com/tensorflow/tensorflow/issues/394
 
-就像前面说的， 这样一个chirp信号可以用来表示一个或者多个数据（数值），在LoRa调制中，一个符号代表的数据内容长度由扩频因子决定，扩频因子含义见后面阐述。
 
-### （五）扩频因子（Spreading Factor）
 
-前面说了使用扩频技术用多个码片来代表1个数字信号中的数据位（即我们真实想传输的数据），我们将一个符号分成2^SF个单元，这个单元即为前面说的码片（chips），来表示SF个数据位（注意不是1个数据位或者1个字节），SF即扩频因子。
-> 比如一个符号可以表示`1011111`(95)，7位数据，值位95，这里一个符号代表的数据的位数就是扩频因子的值，比如上面这个95的值对应的扩频因子的值位7
-
-这里即我们用了`2^SF/SF`个码片来表示一个实际的位。如果SF越大，因为用来表示这个位数据的码片多了，抗干扰能力自然就会好很多；而由于代表每个符号的码片增加了，单位时间传输码片数量是定了的，因此需要的时间自然就增加了。
-综上，扩频因子值越小速率越高，抗干扰性越低，传输距离越近。
-在semtech的LoRa芯片中，SF取值6~12,6为特殊值
-
-![符号 扩频因子 码片](https://neucrack.com/image/1/12/3500903-23ea40e7f9d37935.png)
-
-### （六）编码率 CR (Code Rate)
-
-LoRa使用了向前纠错技术，传输的数据有一部分需要拿来纠错，在实际发送的长度为SF指定的长度中，实际传输的数据只有一部分即CR（CR的取值是一个小于1的分数，而semtech的lora的数据手册上为了简化寄存器，有几个CR值分别用1~4来表示4/5～4/8，不要弄混淆了），其它的用来纠错的数据。
-比如SF8发送了8个字节，但是由于有向前纠错技术，这8个字节中的一部分需要拿来做这个事情，比如这里CR设置4/5，其中有1/5的数据为纠错数据，实际发送的有效数据内容只有8*4/5字节，如下图：
-![code rate](https://neucrack.com/image/1/12/3500903-4d6610239238cfac.png)
- 
-所以CR值越大（4/5>4/8)，则实际一个符号中的有效数据更少，所以速率也就更低，但是鲁棒性会更好
-
-## 速率
-
-![带宽 码片速率](https://neucrack.com/image/1/12/3500903-15b8cad4652e7676.png)
-
-* 码片速度Rc:
-前面也说到，带宽和信号的传输速率有极大的关系，这里码片的传输速率和带宽（单位Hz）的值相等，即：
-`Rc= BW = |BW|chips/s`
-
-* 符号速度Rs:
-每个符号有2^SF个码片，而码片的传输速率为Rc，所以，符号传输速率Rs为：
-`Rs = Rc/2^SF = BW/2^SF`
-
-* 数据传输速率DR(或者说bit Rate)：
-`DR = Rb(bits/sec) = SF * Rs * CR = SF * (BW/2^SF) * CR`
-
-## 传输时间
-
-* 1个码片传输时间`Tc = 1/Rc = 1/BW`
-* 1个符号传输时间`Ts = 1/Rs = 2^SF/BW`
-![Ts](https://neucrack.com/image/1/12/3500903-70da7b969a84fca2.png)
-由此看出，SF每增加一个值，Ts就要是之前的两倍,如下图：
-![Ts](https://neucrack.com/image/1/12/3500903-88d436e41b8c89f9.png)
-
-* 传输时间：
-LoRa在传输过程中需要传前导码、头、以及payload
-`Tpreamble = (Npreamble+2+2+1/4) * Ts`
-其中`Npreamble`可以设置，比如本文的捕捉到的波形图中值为8.
-`Tpayload = Ts * N(payloadSymbNb)`
-![payload 符号数量](https://neucrack.com/image/1/12/3500903-915d0fecb43b0722)
-max()取最大值函数
-ceil()取整数函数
-
-然后传输时间相加`Tpreamble + Tpayload`即为传输时间
-
-这里放[一张网友手算的图](https://blog.csdn.net/qq_26602023/article/details/76026684)：
-![手算LoRa传输时间](https://neucrack.com/image/1/12/3500903-f8faa1685468bfd7)
-
-当然，有现成的计算工具，semtech官方也提供了工具
-
-* [semtech LoRa 计算器(sx1276页面)](https://www.semtech.com/uploads/documents/SX1272LoRaCalculatorSetup1_1.zip)
-
-* [在线传输时间计算工具](https://www.loratools.nl)
-
-## 实际波形分析（解码)
-
-了解了以上的知识，再回头来看看实际捕捉到的波形图（瀑布图）
-
-![图一：cubicSDR LoRa470MHz SF12 4/5 8preamble瀑布流图](https://neucrack.com/image/1/12/3500903-fc78285d2f434924.png)
-
-如上面瀑布图所示，纵轴是时间轴，横轴是频率。
-可以看到传输数据时在一周期T内频率会从某个起点均匀变化（增大或减小）直到设置的带宽的临界值，然后跳变为最小或者最大值继续变化直到频率变为起始时的频率，即前面说的`up-chirp` 或者 `down-chirp`，而实际也可以看到，除了有(2+1/4)个符号使用了`down-chirp`，其它的都是使用的`up-chirp`。
-
-在这张瀑布流图中可以清晰地看到preamble和sync word，前12+1/4个符号可以看到有清晰的规则，其中前8个up-chirp是preamble，中间两个up-chirp是sync word,外加后面（2+1/4）个down-chirp的符号， 然后后面跟的数据就是header和payload了，由于数据不像preamble那样规则这里就不分析了。
-
-## 为什么网关要用sx1301，可以用sx1276代替么
-
-1301可以同时监听8个上行通道，每个通道可以同时监听6个正交扩频因子SF7~SF12，这也就是文档中说的多大49个虚拟通道的来源，但是需要注意的是，虽然每个通道可以同时监听6个SF，但同一时刻也只能处理一个信号，比如同时来自SF7和SF12的消息也只能处理其中一个。 
-也就是说1301的上行也就能同时处理8个通道（频率范围），那可能就会想到如果我用8个SX1276是不是就可以替代1301了，事实上也是不行的，因为1301每个通道都能检测6个SF通道，虽然同一时刻只能处理其中一个，但是1276/1278是不能做到这点的，SX1276/8同一时刻只能检测一个SF信道。sx1301这个特性的好处就是因为检测到多个SF信道，因此可以很容易做速率自适应（ADR），而如果采用SX1276/78因为同时只能监听一个确定的SF的通道（即SF值和频率均确定为一个），要做到相对来说就更困难。
-
-
-
-
-## 参考资料
-
-* [mobilefish.com教学视频](https://www.youtube.com/channel/UCG5_CT_KjexxjbgNE4lVGkg/videos)(推荐)(文章中的部分截图来自这里，见截图水印）
-* [DecodingLora](https://revspace.nl/DecodingLora)(推荐)
-* https://lora-alliance.org/sites/default/files/2018-04/lorawantm_specification_-v1.1.pdf
-* http://blog.sina.com.cn/s/blog_7880d3350102wkzf.html
-* http://www.eefocus.com/communication/403484/r0
-* https://blog.csdn.net/jiangjunjie_2005/article/details/75123968
-* http://bbs.eeworld.com.cn/thread-1060636-1-1.html
-* https://wenku.baidu.com/view/390050fa6037ee06eff9aef8941ea76e58fa4a1a.html
-* https://blog.csdn.net/qq_26602023/article/details/76026684
