@@ -365,7 +365,7 @@ code {
     transition: 0.4s;
 }
 #article #toc a{
-    padding: 2px 2px;
+    padding: 0.2em 0.1em;
     display: flex;
 }
 #article #toc ul {
