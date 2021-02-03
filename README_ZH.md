@@ -7,10 +7,16 @@ teedoc
 
 ![](./assets/images/teedoc_screenshot_0.jpg)
 
+以下场景可使用`teedoc`：
+* 建文档网站，并且最好支持放多份文档，和自定义页面
+* 建`WiKi`网站
+* 建个人或者企业知识库
+* 建个人或者企业网站
 
 ## Features
 
 - [x] 使用简单， 跨平台，只依赖 `Python3`
+- [x] 部署简单， 生成的网站是全静态页面，直接拷贝到服务器或者上传到三方机构即可部署
 - [x] 书写简单，使用 Markdown 语法编写
 - [ ] Jupyter notebook 支持
 - [x] 多文档支持
@@ -26,68 +32,7 @@ teedoc
 - [ ] 博客支持
 
 
-## 使用方法
+## 开始使用吧
 
-需要先安装`Python3` （仅仅支持 `Python3.7`及更高版本）
+官网: [teedoc.github.io](https://teedoc.github.io/)
 
-比如在`Ubuntu`上：
-```
-sudo apt install python3 python3-pip
-```
-
-`Windows` 和 `macOS`请到[官网下载](https://www.python.org/downloads/)
-
-
-
-### 安装
-
-打开终端，输入：
-
-```
-pip3 install teedoc
-```
-
-使用以下命令来更新软件：
-```
-pip3 install teedoc --upgrade
-```
-
-现在你可以在终端使用 `teedoc` 命令了
-
-如果不能，请检查是不是`Python`可执行目录没有加入到环境变量 `PATH`,
-比如可能在 `~/.local/bin`
-
-
-### 构建网页
-
-* 获取文档模板工程
-
-```
-git clone https://github.com/teedoc/teedoc.github.io my_site
-```
-
-* 安装插件
-
-```
-cd my_site
-teedoc install
-```
-
-* 构建 `HTML` 页面并起一个`HTTP`服务
-
-```
-teedoc serve
-```
-
-在显示 `Starting server at 0.0.0.0:2333 ....` 后，就可以了
-
-打开浏览器访问: [http://127.0.0.1:2333](http://127.0.0.1:2333)
-
-或者仅仅构建文档
-```
-teedoc build
-```
-在`out`目录下可以看到生成的网站
-
-
-## 更多请到 [teedoc.github.io](https://teedoc.github.io/)

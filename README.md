@@ -8,9 +8,17 @@ documentation generate tool from markdown and jupyter notebook to html
 
 ![](./assets/images/teedoc_screenshot_0.jpg)
 
+`teedoc` can be used in the following scenarios:
+* Build a document website, and it is best to support multiple documents and custom pages
+* Build a `WiKi` website
+* Build personal or corporate knowledge base
+* Build personal or corporate website
+
+
 ## Features
 
 - [x] Easy to use, cross platform, only need `Python3`
+- [x] Easy to deploy, only copy generated staitc HTML files to your server or other host
 - [x] Easy to write, markdown support
 - [ ] Jupyter notebook support
 - [x] Multiple docs support
@@ -26,69 +34,7 @@ documentation generate tool from markdown and jupyter notebook to html
 - [ ] Blog support
 
 
-## Usage
+## Get Started
 
-Install `Python3` first, **only support `Python3.7` or higher version**
-
-e.g. on `Ubuntu`:
-```
-sudo apt install python3 python3-pip
-```
-
-`Windows` or `macOS` just visit [Python official site](https://www.python.org/downloads/)
-
-
-### Install
-
-```
-pip3 install teedoc
-```
-
-And upgrade with command:
-```
-pip3 install teedoc --upgrade
-```
-
-now you can use `teedoc` command
-
-if not, ensure python3 bin path in your env PATH,
-e.g. `~/.local/bin`
-
-
-### Build website
-
-* Get template site source code
-
-```
-git clone https://github.com/teedoc/teedoc.github.io my_site
-```
-
-* Install pulgins
-
-```
-cd my_site
-teedoc install
-```
-
-* Build `HTML` pages and start a `HTTP` server
-
-```
-teedoc serve
-```
-
-After show `Starting server at 0.0.0.0:2333 ....`
-
-Open brower visit: [http://127.0.0.1:2333](http://127.0.0.1:2333)
-
-
-or only build
-
-```
-teedoc build
-```
-
-then you can find website in `out` directory
-
-## More see [teedoc.github.io](https://teedoc.github.io/)
-
+Visit official site: [teedoc.github.io](https://teedoc.github.io/)
 
