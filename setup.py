@@ -4,7 +4,7 @@ import os
 curr_dir = os.path.abspath(os.path.dirname(__file__))
 readme_path = os.path.join(curr_dir, "README.md")
 
-with open(readme_path) as f:
+with open(readme_path, encoding="utf-8") as f:
      long_description = f.read()
 
 install_requires = [ "coloredlogs",
@@ -15,7 +15,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc',
-    version="1.3.5",
+    version="1.3.6",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
