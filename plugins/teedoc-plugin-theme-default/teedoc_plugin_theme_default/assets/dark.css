@@ -78,6 +78,12 @@ a:hover {
 #footer a:hover {
     background-color: #404040;
 }
+#previous_next {
+    border-top: 1px solid #525252;
+}
+#previous_next a {
+    background-color: #2d2d2d;
+}
 
 @media screen and (max-width: 900px) {
     #sidebar_wrapper {

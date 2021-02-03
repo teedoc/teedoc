@@ -18,6 +18,7 @@ body {
     justify-content: space-between;
     min-height: 100vh;
     letter-spacing: 0.03em;
+    font-family: "Microsoft YaHei",Helvetica,"Meiryo UI","Malgun Gothic","Segoe UI","Trebuchet MS",Monaco,monospace,Tahoma,STXihei,"华文细黑",STHeiti,"Helvetica Neue","Droid Sans","wenquanyi micro hei",FreeSans,Arimo,Arial,SimSun,"宋体",Heiti,"黑体",sans-serif;
 }
 a {
     color: #606975;
@@ -282,6 +283,10 @@ code {
     background-color: #f1f1f1;
     border-radius: 5px;
     color: ${main_color};
+    transition: 0.4s;
+}
+#navbar .sub_items .active > a {
+    transition: 0s;
 }
 #sidebar .active > a {
     transition: 0.4s;
@@ -336,8 +341,8 @@ code {
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 5px;
-    min-height: 2.5rem;
-    min-width: 2.5rem;
+    min-height: 2rem;
+    min-width: 2rem;
     transition: 0.2s;
     cursor: pointer;
     position: sticky;
@@ -432,8 +437,13 @@ code {
     min-height: 50vh;
     word-break: break-word;
 }
-#article_content h2 {counter-reset: h3section;}
-#article_content h3 {counter-reset: h4section;}
+#article_content h2 {
+    counter-reset: h3section;
+    line-height: 1.3em;
+}
+#article_content h3 {
+    counter-reset: h4section;
+}
 #article_content h2:before
 {
 	counter-increment: h2section;
@@ -465,9 +475,9 @@ code {
     margin: 5px;
     padding: 8px;
     border-radius: 5px;
-    background-color: ${main_color};
-    color: white;
+    color: #d5ffea;
     font-size: 0.9em;
+    background-color: ${main_color};
 }
 
 
@@ -512,13 +522,14 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     border-radius: 100%;
     padding: 2px;
     background-color: #f1f1f1;
-    box-shadow: 8px 8px 20px #d0d0d0;
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.13);
 }
 #to_top:hover {
-    box-shadow: 8px 8px 28px #d0d0d0;
+    background-size: 2.5em;
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.24);
 }
 #to_top:active {
-    box-shadow: 0px 0px 20px #e6e6e6;
+    box-shadow: 0px 0px 20px rgba(0,0,0,0.05);
 }
 
 
