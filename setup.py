@@ -15,7 +15,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc',
-    version="1.3.2",
+    version="1.3.3",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
