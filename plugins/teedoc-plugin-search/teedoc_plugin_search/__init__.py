@@ -184,6 +184,7 @@ class Plugin(Plugin_Base):
         # for file, html in htmls_pages.items():
         #     self.content["pages"][html["url"]] = html["raw"]
         docs_url = htmls_files.keys()
+        pages_url = htmls_pages.keys()
         index_content = {}
         sub_index_path = []
         generated_index_json = {}
@@ -193,7 +194,16 @@ class Plugin(Plugin_Base):
             sub_index_path.append(path)
             #   write content to sub index file
             with open(path, "w", encoding="utf-8") as f:
+                htmls_files[url]["body"] = "" # remove body, only use raw
                 json.dump(htmls_files[url], f, ensure_ascii=False)
+        for i, url in enumerate(pages_url, len(docs_url)):
+            index_content[url] = "{}static/search_index/index_{}.json".format(self.site_config["site_root_url"], i)
+            path = os.path.join(self.temp_dir, "index_{}.json".format(i))
+            sub_index_path.append(path)
+            #   write content to sub index file
+            with open(path, "w", encoding="utf-8") as f:
+                htmls_pages[url]["body"] = "" # remove body, only use raw
+                json.dump(htmls_pages[url], f, ensure_ascii=False)
         # write content to files
         #   index file
         index_path = os.path.join(self.temp_dir, "index.json")

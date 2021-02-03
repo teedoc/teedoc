@@ -15,7 +15,18 @@ $(document).ready(function(){
         var others_url = [];
         for(var url in search_index){
             if(pathname.indexOf(url) != -1){
-                curr_url = url;
+                if(!curr_url){
+                    curr_url = url;
+                }else{  // already have math item, e.g. `/get_started/zh/install/index.html /get_started/zh`
+                        // and now `/get_started/zh/install/index.html /`
+                        // choose longger one
+                    if(url.length > curr_url.length){
+                        others_url.push(curr_url);
+                        curr_url = url;
+                    }else{
+                        others_url.push(url);
+                    }
+                }
             }else{
                 others_url.push(url);
             }
@@ -100,13 +111,15 @@ $(document).ready(function(){
                 var find_strs = "";
                 for(var i in keywords){
                     var keyword = keywords[i];
-                    if(content["title"].indexOf(keyword) >= 0){
+                    if(content["title"] && content["title"].indexOf(keyword) >= 0){
                         find = true;
                     }
                 }
-                find_strs = search(keywords, content["raw"]);
-                if(find_strs.length > 0){
-                    find = true; 
+                if(content["raw"] && content["raw"].length > 0){
+                    find_strs = search(keywords, content["raw"]);
+                    if(find_strs.length > 0){
+                        find = true; 
+                    }
                 }
                 if(find){
                     $(containerId).append('<li><a href="'+ url + '"><h1>'+ (data[url]["title"]?data[url]["title"]:url) +
