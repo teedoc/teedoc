@@ -54,7 +54,6 @@ h6 {
 
 p {
     text-align: justify;
-    font-size: 15px;
     line-height: 2em;
 }
 blockquote {
@@ -118,6 +117,12 @@ td {
     border: 2px solid #f1f1f1;
 }
 code {
+    background-color: #f1f1f1;
+    padding: 0.2em;
+    border-radius: 0.2em;
+    transition: 0.4s;
+    font-family: "Microsoft YaHei",Helvetica,"Meiryo UI","Malgun Gothic","Segoe UI","Trebuchet MS",Monaco,monospace,Tahoma,STXihei,"华文细黑",STHeiti,"Helvetica Neue","Droid Sans","wenquanyi micro hei",FreeSans,Arimo,Arial,SimSun,"宋体",Heiti,"黑体",sans-serif;
+    font-size: 0.8em;
     color: ${main_color};
 }
 
@@ -367,6 +372,7 @@ code {
 #article #toc a{
     padding: 0.2em 0.1em;
     display: flex;
+    font-size: 0.9em;
 }
 #article #toc ul {
     list-style: none;
@@ -417,12 +423,12 @@ code {
 }
 #content a, #content a:visited {
     color: #c33a3a;
-    padding: 1px;
+    padding: 0.2em;
 }
 #content a:hover {
     background-color: #fde1e1;
-    border-radius: 1px;
-    padding: 1px;
+    padding: 0.2em;
+    border-radius: 0.2em;
 }
 #content img {
     max-width: 100%;

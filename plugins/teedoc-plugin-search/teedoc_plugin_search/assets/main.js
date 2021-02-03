@@ -127,6 +127,7 @@ $(document).ready(function(){
             waiting_search = true;
             return;
         }
+        $("#search_curr_result > .hint").addClass("searching");
         var search_keywords = $("#search_input").val();
         search_doc(search_content["curr"], "#search_curr_result");
         for(var url in search_content["others"]){
@@ -160,6 +161,7 @@ $(document).ready(function(){
                 }
             }
         }
+        $("#search_curr_result > .hint").removeClass("searching");
     }
     function downloadJson(url, callback, arg1=null, arg2=null){
         $.ajax({

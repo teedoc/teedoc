@@ -177,6 +177,9 @@
 #search_others_result > .hint {
     background-color: #4caf7d;
 }
+#search_curr_result  .searching {
+    background-color: #ff9800;
+}
 .highlight {
     background-color: #FFEB3B;
     border-radius: 0.2em;
