@@ -1,3 +1,32 @@
+
+jQuery.fn.highlight = function (pat) {
+    function innerHighlight(node, pat) {
+        var skip = 0;
+        if (node.nodeType == 3) {
+            var pos = node.data.toUpperCase().indexOf(pat);
+            if (pos >= 0) {
+                var spannode = document.createElement('span');
+                spannode.className = 'highlight';
+                var middlebit = node.splitText(pos);
+                var endbit = middlebit.splitText(pat.length);
+                var middleclone = middlebit.cloneNode(true);
+                spannode.appendChild(middleclone);
+                middlebit.parentNode.replaceChild(spannode, middlebit);
+                skip = 1;
+            }
+        }
+        else if (node.nodeType == 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+            for (var i = 0; i < node.childNodes.length; ++i) {
+                i += innerHighlight(node.childNodes[i], pat);
+            }
+        }
+        return skip;
+    }
+    return this.each(function () {
+        innerHighlight(this, pat.toUpperCase());
+    });
+};
+
 window.onload = function(){
 }
 
@@ -79,7 +108,11 @@ $(document).ready(function(){
         $("#wrapper").removeClass("blur");
         $("#navbar").removeClass("blur");
     });
-    $("#search_input").bind("input propertychange", onSearch);
+    $("#search_input").bind("input propertychange", function(){
+        setTimeout(() => {
+            onSearch();
+        }, 1000);
+    });
     function onSearch(){
         $("#search_result").empty();
         $("#search_result").append('<ul id="search_curr_result"><div class="hint">'+ curr_doc_result_hint +'</div></ul>');
@@ -122,7 +155,7 @@ $(document).ready(function(){
                     }
                 }
                 if(find){
-                    $(containerId).append('<li><a href="'+ url + '"><h1>'+ (data[url]["title"]?data[url]["title"]:url) +
+                    $(containerId).append('<li><a href="'+ url + '?highlight=' + search_keywords + '"><h1>'+ (data[url]["title"]?data[url]["title"]:url) +
                             '</h1><div>' + find_strs + '</div></a></li>');
                 }
             }
@@ -143,10 +176,29 @@ $(document).ready(function(){
             }
         });
     }
+    highlightKeywords();
 });
 
-
-
+function highlightKeywords(){
+    var highlight_keywords = decodeURI(getQueryVariable("highlight"));
+    if(highlight_keywords){
+        highlight_keywords = highlight_keywords.split(" ");
+        for(var i=0; i<highlight_keywords.length; ++i){
+            console.log(highlight_keywords[i]);
+            $('#content').highlight(highlight_keywords[i]);
+        }
+    }
+}
+function getQueryVariable(variable)
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+}
 function search(keywords, content, show_length = 15){
     if(keywords.length <= 0){
         return "";
