@@ -137,7 +137,10 @@ def get_url_by_file_rel(file_path, doc_url):
         url = "{}/index".format(tmp[0])
         if url.startswith("/"):
             url = url[1:]
-    url = "{}/{}.html".format(doc_url, url)
+    if(doc_url.endswith("/")):
+        url = "{}{}.html".format(doc_url, url)
+    else:
+        url = "{}/{}.html".format(doc_url, url)
     return url
 
 def get_sidebar_list(sidebar, doc_path, doc_url):
@@ -307,7 +310,9 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
             if not config["url"].startswith("http"):
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
-            active = doc_url == config["url"]
+            _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
+            _config_url = config["url"] + "/" if not config["url"].endswith("/") else config["url"]
+            active = _doc_url == _config_url
             if active:
                 active_item = config
             li = True
@@ -426,7 +431,9 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
             if not config["url"].startswith("http"):
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
-            active = doc_url == config["url"]
+            _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
+            _config_url = config["url"] + "/" if not config["url"].endswith("/") else config["url"]
+            active = _doc_url == _config_url
             if active:
                 active_item = config
             li = True

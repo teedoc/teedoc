@@ -5,15 +5,15 @@
             "alt": "teedoc logo",
             "src": "/static/image/logo.png"
         },
-        "home_url": "/en",
+        "home_url": "/en/",
         "items": [
             {
-                "url": "/get_started/en",
+                "url": "/get_started/en/",
                 "label": "Install",
                 "position": "left"
             },
             {
-                "url": "/develop/en",
+                "url": "/develop/en/",
                 "label": "Develop",
                 "position": "left"
             },
@@ -28,11 +28,11 @@
                 "position": "right",
                 "items": [
                     {
-                        "url": "/get_started/zh",
+                        "url": "/get_started/zh/",
                         "label": "中文"
                     },
                     {
-                        "url": "/get_started/en",
+                        "url": "/get_started/en/",
                         "label": "English"
                     }
                 ]

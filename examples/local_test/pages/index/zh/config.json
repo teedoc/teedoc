@@ -8,12 +8,12 @@
         "home_url": "/",
         "items": [
             {
-                "url": "/get_started/zh",
+                "url": "/get_started/zh/",
                 "label": "安装使用",
                 "position": "left"
             },
             {
-                "url": "/develop/zh",
+                "url": "/develop/zh/",
                 "label": "开发",
                 "position": "left"
             },
@@ -32,7 +32,7 @@
                         "label": "中文"
                     },
                     {
-                        "url": "/en",
+                        "url": "/en/",
                         "label": "English"
                     }
                 ]

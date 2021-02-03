@@ -4,20 +4,20 @@
     "site_root_url": "/",
     "route": {
         "docs": {
-            "/get_started/zh": "docs/get_started/zh",
-            "/get_started/en": "docs/get_started/en",
-            "/develop/zh": "docs/develop/zh",
-            "/develop/en": "docs/develop/en"
+            "/get_started/zh/": "docs/get_started/zh",
+            "/get_started/en/": "docs/get_started/en",
+            "/develop/zh/": "docs/develop/zh",
+            "/develop/en/": "docs/develop/en"
         },
         "pages": {
             "/": "pages/index/zh",
-            "/en": "pages/index/en"
+            "/en/": "pages/index/en"
         },
         "assets": {
-            "/static": "static",
-            "/get_started/assets": "docs/get_started/assets"
+            "/static/": "static",
+            "/get_started/assets/": "docs/get_started/assets"
         },
-        "/blog": "blog"
+        "/blog/": "blog"
     },
     "executable": {
         "python": "python",
