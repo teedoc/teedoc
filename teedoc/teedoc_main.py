@@ -680,6 +680,25 @@ def add_url_item(htmls, url, dir, site_root_url):
     return htmls_valid
 
 def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
+    '''
+        @return {
+            "doc_url", {
+                "page_url": {
+                    "title": "",
+                    "desc": "",
+                    "keywords": "",
+                    "tasg": [],
+                    "body": "",
+                    "toc": "",
+                    "raw": "",
+                    "sidebar": "",
+                    "navbar": "",
+                    "metadata": {},
+                    "footer": ""
+                }
+            }
+        }
+    '''
     queue = Queue()
     site_root_url = site_config["site_root_url"]
     global g_is_error
@@ -694,7 +713,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 if modify_file.startswith(dir):
                     all_files.append(modify_file)
             if len(all_files) == 0:
-                return True
+                return True, {}
             log.i("update file:", all_files)
         else:
             all_files = get_files(dir)
@@ -705,13 +724,13 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 sidebar = get_sidebar(dir)
             except Exception as e:
                 log.e("parse sidebar.json fail: {}".format(e))
-                return False
+                return False, None
         try:
             navbar = get_navbar(dir)
         except Exception as e:
             if not allow_no_navbar:
                 log.e("parse config.json navbar fail: {}".format(e))
-                return False
+                return False, None
             navbar = None
         try:
             plugins_new_config = get_plugins_config(dir)
@@ -812,7 +831,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 # log.i("{} generate ok".format(t.name))
         else:
             if not generate(all_files, url, dir, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue, plugins_new_config):
-                return False
+                return False, None
     htmls = {}
     for i in range(queue.qsize()):
         url, _htmls = queue.get()
