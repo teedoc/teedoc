@@ -24,6 +24,9 @@ a:visited {
     background-color: #2d2d2d;
     color: ${main_color};
 }
+#search {
+    background-color: #2d2d2d;
+}
 #sidebar li > a:hover, #sidebar li.active_parent > a:hover, #navbar li > a:hover, #navbar .sub_items > a:hover {
     background-color: #2d2d2d;
 }
