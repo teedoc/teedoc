@@ -275,6 +275,7 @@ code {
     display: flex;
     justify-content: space-between;
     padding: 0;
+    font-size: 0.9em;
 }
 #sidebar a:hover {
     cursor: pointer;
