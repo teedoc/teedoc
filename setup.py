@@ -8,14 +8,15 @@ with open(readme_path, encoding="utf-8") as f:
      long_description = f.read()
 
 install_requires = [ "coloredlogs",
-                     "watchdog"
+                     "watchdog",
+                     "PyYaml"
                    ]
 packages = find_packages()
 print("packages:", packages)
 
 setup(
     name='teedoc',
-    version="1.3.6",
+    version="1.4.0",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 

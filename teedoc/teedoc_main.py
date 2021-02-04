@@ -7,7 +7,7 @@ except Exception:
     from logger import Logger
     from http_server import HTTP_Server
 import os, sys
-import json
+import json, yaml
 import subprocess
 import shutil
 import re
@@ -48,13 +48,7 @@ def parse_site_config(doc_src_path):
         if not site_config['site_root_url'].endswith("/"):
             site_config['site_root_url'] = "{}/".format(site_config['site_root_url'])
         return True, ""
-    if not os.path.exists(site_config_path):
-        return False, "can not find site config file: {}".format(site_config_path)
-    with open(site_config_path, encoding="utf-8") as f:
-        try:
-            site_config = json.load(f)
-        except Exception as e:
-            return False, "can not parse json file, json format error: {}".format(e)
+    site_config = load_config(doc_src_path, config_name="site_config")    
     ok, msg = check_site_config(site_config)
     if not ok:
         return False, "check site_config.json fail: {}".format(msg)
@@ -112,25 +106,37 @@ def write_to_file(files_content, in_path, out_path):
                     f.write(s.read())
     return True, ""
 
+def load_config(doc_dir, config_name="config"):
+    config_path = os.path.join(doc_dir, f"{config_name}.json")
+    if os.path.exists(config_path):
+        with open(config_path, encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except Exception as e:
+                raise Exception('\n\ncan not parse json file "{}"\njson format error: {}'.format(config_path, e))
+    config_path = os.path.join(doc_dir, f"{config_name}.yaml")
+    if not os.path.exists(config_path):
+        config_path = os.path.join(doc_dir, f"{config_name}.yml")
+    if not os.path.exists(config_path):
+        raise Exception("can not open file: {}".format(config_path))
+    with open(config_path, encoding="utf-8") as f:
+        try:
+            return yaml.load(f.read(), Loader=yaml.Loader)
+        except Exception as e:
+            raise Exception('\ncan not parse yaml file "{}"\nyaml format error: {}'.format(config_path, e))
+    
+
 def get_sidebar(doc_dir):
-    sidebar_config_path = os.path.join(doc_dir, "sidebar.json")
-    with open(sidebar_config_path, encoding="utf-8") as f:
-        return json.load(f)
+    return load_config(doc_dir, config_name="sidebar")
 
 def get_navbar(doc_dir):
-    sidebar_config_path = os.path.join(doc_dir, "config.json")
-    with open(sidebar_config_path, encoding="utf-8") as f:
-        return json.load(f)['navbar']
+    return load_config(doc_dir)["navbar"]
 
 def get_plugins_config(doc_dir):
-    sidebar_config_path = os.path.join(doc_dir, "config.json")
-    with open(sidebar_config_path, encoding="utf-8") as f:
-        return json.load(f)['plugins']
+    return load_config(doc_dir)["plugins"]
 
 def get_footer(doc_dir):
-    sidebar_config_path = os.path.join(doc_dir, "config.json")
-    with open(sidebar_config_path, encoding="utf-8") as f:
-        return json.load(f)['footer']
+    return load_config(doc_dir)["footer"]
 
 def get_url_by_file_rel(file_path, doc_url):
     url = os.path.splitext(file_path)[0]
@@ -1010,10 +1016,36 @@ def main():
     log = Logger(level="i")
     parser = argparse.ArgumentParser(description="teedoc, a doc generator, generate html from markdown and jupyter notebook")
     parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
+    parser.add_argument("-f", "--file", type=str, default="", help="file path for json2yaml or yaml2json command")
     parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support for build command, serve command always True" )
     parser.add_argument("-t", "--delay", type=int, default=-1, help="automatically rebuild and refresh page delay time")
-    parser.add_argument("command", choices=["install", "build", "serve"])
+    parser.add_argument("command", choices=["install", "build", "serve", "json2yaml", "yaml2json"])
     args = parser.parse_args()
+    # convert json or yaml file
+    if args.command == "json2yaml":
+        if not os.path.exists(args.file):
+            log.e("file {} not found".format(args.file))
+            return 1
+        with open(args.file, encoding="utf-8") as f:
+            obj = json.load(f)
+            yaml_str = yaml.dump(obj, allow_unicode=True, indent=4)
+            yaml_path = "{}.yaml".format(os.path.splitext(args.file)[0])
+            with open(yaml_path, "w", encoding="utf-8") as f2:
+                f2.write(yaml_str)
+            log.i("convert yaml from json complete, file at: {}".format(yaml_path))
+        return 0
+    elif args.command == "yaml2json":
+        if not os.path.exists(args.file):
+            log.e("file {} not found".format(args.file))
+            return 1
+        with open(args.file, encoding="utf-8") as f:
+            obj = yaml.load(f.read(), Loader=yaml.Loader)
+            json_path = "{}.json".format(os.path.splitext(args.file)[0])
+            with open(json_path, "w", encoding="utf-8") as f2:
+                json.dump(obj, f2, ensure_ascii=False, indent=4)
+            log.i("convert json from yaml complete, file at: {}".format(json_path))
+        return 0
+
     # doc source code root path
     doc_src_path = os.path.abspath(args.dir)
     # parse site config
@@ -1182,7 +1214,6 @@ def main():
                 return 1
         t.join()
         t2.join()
-
     else:
         log.e("command error")
         return 1
@@ -1191,7 +1222,5 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
-    print(sys.platform)
     ret = main()
     sys.exit(ret)
