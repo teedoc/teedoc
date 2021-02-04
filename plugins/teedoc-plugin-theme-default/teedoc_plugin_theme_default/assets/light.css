@@ -371,7 +371,7 @@ code {
 }
 #article #toc a{
     padding: 0.2em 0.1em;
-    display: flex;
+    display: block;
     font-size: 0.9em;
 }
 #article #toc ul {
