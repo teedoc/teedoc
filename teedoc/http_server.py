@@ -12,7 +12,8 @@ class HTTP_Server(HTTPServer):
         The default is to print a traceback and continue.
 
         """
-        if sys.exc_info()[0] == ConnectionAbortedError:
+        err_type = sys.exc_info()[0]
+        if err_type == ConnectionAbortedError or err_type == BrokenPipeError:
             return
         print('-'*40, file=sys.stderr)
         print('Exception occurred during processing of request from',

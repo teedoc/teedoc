@@ -430,80 +430,62 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
                 }
     '''
     def generate_items(config, doc_url, level):
-        li = False
-        active_item = None
+        have_url = "url" in config and config["url"] != None and config["url"] != "null"
         have_label = "label" in config
         li_html = ""
         active = False
-        if have_label and "url" in config and config["url"] != None and config["url"] != "null":
-            if not config["url"].startswith("http"):
+        if have_url:
+            if (not config["url"].startswith("http") and
+                not config["url"].startswith("mailto")):
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
-            _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
-            _config_url = config["url"] + "/" if not config["url"].endswith("/") else config["url"]
-            active = _doc_url == _config_url
-            if active:
-                active_item = config
-            li = True
+            have_url = True
         sub_items_ul_html = ""
         if "items" in config:
-            active_item = None
             sub_items_html = ""
             for item in config["items"]:
-                item_html, _active_item = generate_items(item, doc_url, level + 1)
-                if _active_item:
-                    active_item = _active_item
+                item_html = generate_items(item, doc_url, level + 1)
                 sub_items_html += item_html
             sub_items_ul_html = "<ul>{}</ul>".format(sub_items_html)
-        if not li:
-            li_html = '<li class="sub_items"><a>{}{}</a>{}\n'.format("{}".format(config["label"]) if have_label else "",
-                                active_item["label"] if active_item else "",
-                                sub_items_ul_html
-                        )
+        if not have_url:
+            li_html = '<li><a>{}</a>{}\n'.format(
+                        config["label"] if have_label else "",
+                        sub_items_ul_html)
         else:
-            li_html = '<li class="{}"><a {} href="{}">{}</a>{}'.format(
-                "active" if active else '',
+            li_html = '<li><a {} href="{}">{}</a>{}'.format(
                 'target="{}"'.format(config["target"]) if "target" in config else "",
                 config["url"], config["label"], sub_items_ul_html
             )
         html = '{}</li>\n'.format(li_html)
-        return html, active_item
+        return html
     
     def generate_footer_items(config, doc_url):
-        left = '<ul>\n'
-        middle = '<ul>\n'
-        right = '<ul>\n'
-        for item in config["items"]:
-            html, _ = generate_items(item, doc_url, 0)
-            if "position" in item:
-                if item["position"] == "right":
-                    right += html
-                elif item["position"] == "left":
-                    left += html
-                else:
-                    middle += html
-            else:
-                middle += html
-        left += "</ul>\n"
-        right += "</ul>\n"
-        return left, middle, right
+        top = '<ul>\n'
+        bottom = '<ul>\n'
+        for item in config["top"]:
+            html = generate_items(item, doc_url, 0)
+            top += html
+        if "bottom" in config:
+            for item in config["bottom"]:
+                html = generate_items(item, doc_url, 0)
+                bottom += html
+        top += "</ul>\n"
+        bottom += "</ul>\n"
+        return top, bottom
 
     for file, html in htmls.items():
         if not html:
             continue
-        footer_left, footer_middle, footer_right = generate_footer_items(footer, doc_url)
+        footer_top, footer_bottom = generate_footer_items(footer, doc_url)
         footer_html = '''
             <div id="footer">
-                <div id="footer_left">
+                <div id="footer_top">
                     {}
                 </div>
-                <div id="footer_middle">
+                <div id="footer_bottom">
                     {}
                 </div>
-                <div id="footer_right">
-                    {}
-                </div>
-            </div>'''.format(footer_left, footer_middle, footer_right)
+            </div>'''.format(footer_top, footer_bottom)
         html["footer"] = footer_html
         htmls[file] = html
     return htmls
@@ -547,9 +529,9 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                 next_item_html = ""
                 if file in sidebar_list:
                     if sidebar_list[file]["previous"]:
-                        previous_item_html = '<a href="{}"><span class="icon"></span><span>{}</span></a>'.format(sidebar_list[file]["previous"][0], sidebar_list[file]["previous"][1])
+                        previous_item_html = '<a href="{}"><span class="icon"></span><span class="label">{}</span></a>'.format(sidebar_list[file]["previous"][0], sidebar_list[file]["previous"][1])
                     if sidebar_list[file]["next"]:
-                        next_item_html = '<a href="{}"><span>{}</span><span class="icon"></span></a>'.format(sidebar_list[file]["next"][0], sidebar_list[file]["next"][1])
+                        next_item_html = '<a href="{}"><span class="label">{}</span><span class="icon"></span></a>'.format(sidebar_list[file]["next"][0], sidebar_list[file]["next"][1])
                 menu_html = '''<div id="menu_wrapper">
                                     <div id="menu">
                                     </div>
@@ -579,9 +561,6 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                             {}
                         </div>
                     </div>
-                    <div id="article_footer">
-                        {}
-                    </div>
                 </div>
                 <div id="toc">
                     <div>
@@ -589,7 +568,11 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                     </div>
                 </div>
             </div>
-        </div>'''.format(
+        </div>
+        <a id="to_top" href="#"></a>
+        <div id="doc_footer">
+                        {}
+                    </div>'''.format(
                         html["sidebar"],
                         menu_html,
                         article_title,
@@ -597,13 +580,14 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                         html["body"],
                         previous_item_html, 
                         next_item_html,
-                        footer_html,
                         html["toc"] if "toc" in html else "",
+                        footer_html,
                 )
             else: # not "sidebar" in html
                 body_html = '''
                 <div id="page_wrapper">
                     <div id="page_content"><div>{}</div></div>
+                    <a id="to_top" href="#"></a>
                     <div id="page_footer">{}</div>
                 </div>'''.format(html["body"], footer_html)
 
@@ -621,7 +605,6 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
 <body>
     {}
     {}
-    <a id="to_top" href="#"></a>
 </body>
 {}
 </html>
