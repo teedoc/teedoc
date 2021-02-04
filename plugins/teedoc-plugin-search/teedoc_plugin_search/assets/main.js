@@ -182,8 +182,9 @@ $(document).ready(function(){
 });
 
 function highlightKeywords(){
-    var highlight_keywords = decodeURI(getQueryVariable("highlight"));
+    var highlight_keywords = getQueryVariable("highlight");
     if(highlight_keywords){
+        var highlight_keywords = decodeURI(highlight_keywords);
         highlight_keywords = highlight_keywords.split(" ");
         for(var i=0; i<highlight_keywords.length; ++i){
             console.log(highlight_keywords[i]);
