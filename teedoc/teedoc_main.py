@@ -1028,7 +1028,7 @@ def main():
             return 1
         with open(args.file, encoding="utf-8") as f:
             obj = json.load(f)
-            yaml_str = yaml.dump(obj, allow_unicode=True, indent=4)
+            yaml_str = yaml.dump(obj, allow_unicode=True, indent=4, sort_keys=False)
             yaml_path = "{}.yaml".format(os.path.splitext(args.file)[0])
             with open(yaml_path, "w", encoding="utf-8") as f2:
                 f2.write(yaml_str)
