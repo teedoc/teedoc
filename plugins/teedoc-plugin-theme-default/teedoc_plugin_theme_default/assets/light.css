@@ -53,7 +53,7 @@ h6 {
 }
 
 p {
-    text-align: justify;
+    /* text-align: justify; */
     line-height: 2em;
 }
 blockquote {
@@ -412,7 +412,7 @@ code {
     display: flex;
     max-width: 100%;
 }
-#content {
+#content_body {
     max-width: 50em;
     width: 65%;
     display: flex;
@@ -421,20 +421,20 @@ code {
     line-height: 2em;
     margin: auto;
 }
-#content a, #content a:visited {
+#content_body a, #content_body a:visited {
     color: #c33a3a;
     padding: 0.2em;
 }
-#content a:hover {
+#content_body a:hover {
     background-color: #fde1e1;
     padding: 0.2em;
     border-radius: 0.2em;
 }
-#content img {
+#content_body img {
     max-width: 100%;
     object-fit: contain;
 }
-#content img::before {
+#content_body img::before {
     content: "<span class==\"img_btn\"></span>";
 }
 
@@ -752,7 +752,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
         -webkit-transform: rotate(-45deg);
         transform: rotate(-45deg);
     }
-    #content {
+    #content_body {
         /* max-width: 50em; */
         width: 90%;
     }

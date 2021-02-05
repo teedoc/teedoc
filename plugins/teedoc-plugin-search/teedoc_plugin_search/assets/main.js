@@ -188,7 +188,7 @@ function highlightKeywords(){
         highlight_keywords = highlight_keywords.split(" ");
         for(var i=0; i<highlight_keywords.length; ++i){
             console.log(highlight_keywords[i]);
-            $('#content').highlight(highlight_keywords[i]);
+            $('#content_body').highlight(highlight_keywords[i]);
         }
     }
 }

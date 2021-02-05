@@ -542,7 +542,7 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
             {}
             <div id="article">
                 <div id="content_wrapper">
-                    <div id="content">
+                    <div id="content_body">
                         <div id="article_title">
                             <h1>{}</h1>
                         </div>
