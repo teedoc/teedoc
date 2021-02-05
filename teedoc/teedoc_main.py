@@ -711,7 +711,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
                 if modify_file.startswith(dir):
                     all_files.append(modify_file)
             if len(all_files) == 0:
-                return True, {}
+                continue
             log.i("update file:", all_files)
         else:
             all_files = get_files(dir)
