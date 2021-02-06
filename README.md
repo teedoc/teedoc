@@ -24,6 +24,7 @@ documentation generate tool from markdown and jupyter notebook to html
 - [x] Multiple docs support
 - [x] Plugin support
 - [x] Multiple theme support(support by plugin)
+- [x] Control the style accurate to the page through css (implemented by customizing the id and class of each page)
 - [x] Multi-level directory support
 - [x] Multiple language support(manually translate)
 - [ ] Multiple language support(auto translate)

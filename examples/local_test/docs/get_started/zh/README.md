@@ -2,6 +2,8 @@
 title: teedoc
 keywords: teedoc, markdown, jupyter notebook, html, 文档生成, 替代gitbook, 网站生成, 静态网站
 desc: teedoc， 将 markdown 或者 jupyter notbook 转换成 html 静态网页
+id: zh_readme
+class: zh_readme
 ---
 
 
@@ -20,6 +22,7 @@ desc: teedoc， 将 markdown 或者 jupyter notbook 转换成 html 静态网页
 - [x] 多文档支持
 - [x] 插件支持
 - [x] 多主题支持（由插件实现）
+- [x] 通过 css 控制精确到页的样式（通过自定义每页的 id 和 class 实现）
 - [x] 多级目录支持
 - [x] 多语言支持（手动翻译）(国际化/i18n)
 - [ ] 多语言支持（自动翻译）

@@ -397,7 +397,13 @@ code {
 }
 #toc > div > ul > li > ul > li > a:before {
 	counter-increment: toc_l2;
-	content: counter(toc_l1, upper-roman) "." counter(toc_l2, upper-roman) "、";
+    content: counter(toc_l1, decimal) "." counter(toc_l2, decimal) "、";
+}
+.language_zh #toc > div > ul > li > a:before {
+    content: counter(toc_l1, simp-chinese-informal) "、";
+}
+.language_zh #toc > div > ul > li > ul > li > a:before {
+	content: counter(toc_l1, decimal) "." counter(toc_l2, decimal) "、";
 }
 /* add numbers for titles toc*/
 
@@ -458,12 +464,21 @@ code {
 #article_content h3:before 
 {
 	counter-increment: h3section;
-	content: counter(h2section, upper-roman) "." counter(h3section, upper-roman) "、";
+	content: counter(h2section, decimal) "." counter(h3section, decimal) "、";
 }
 #article_content h4:before 
 {
 	counter-increment: h4section;
-	content: counter(h2section, upper-roman) "." counter(h3section, upper-roman) "." counter(h4section, upper-roman) "、";
+	content: counter(h2section, decimal) "." counter(h3section, decimal) "." counter(h4section, decimal) "、";
+}
+.language_zh #article_content h2:before {
+    content: counter(h2section, simp-chinese-informal) "、";
+}
+.language_zh #article_content h3:before {
+	content: counter(h2section, decimal) "." counter(h3section, decimal) "、";
+}
+.language_zh #article_content h4:before {
+    content: counter(h2section, decimal) "." counter(h3section, decimal) "." counter(h4section, decimal) "、";
 }
 /* add numbers for titles end*/
 
