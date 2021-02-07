@@ -22,7 +22,7 @@ from datetime import datetime
 g_sitemap_content = {}
 def add_robots_txt(site_config, out_dir, log):
     if not "robots" in site_config:
-        return
+        site_config["robots"] = {}
     out_path = os.path.join(out_dir, "robots.txt")
     log.i("generate robots.txt")
     robots_items = site_config["robots"]
