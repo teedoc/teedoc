@@ -20,8 +20,21 @@ from datetime import datetime
 
 
 g_sitemap_content = {}
+def add_robots_txt(site_config, out_dir, log):
+    if not "robots" in site_config:
+        return
+    out_path = os.path.join(out_dir, "robots.txt")
+    log.i("generate robots.txt")
+    robots_items = site_config["robots"]
+    robots_txt = ""
+    for k, v in robots_items.items():
+        robots_txt += f"{k}: {v}\n"
+    robots_txt += "Sitemap: {}://{}/sitemap.xml\n".format(site_config["site_protocol"], site_config["site_domain"])
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(robots_txt)
 
-def generate_sitemap(update_htmls, out_path, site_domain, site_protocol):
+def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
+    log.i("generate sitemap.xml")
     sitemap_content = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
     for doc_url in update_htmls:
         htmls = update_htmls[doc_url]
@@ -942,7 +955,7 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=No
     # generate sitemap.xml
     if not update_files: # only generate when build all
         sitemap_out_path = os.path.join(out_dir, "sitemap.xml")
-        generate_sitemap(htmls_files, sitemap_out_path, site_config["site_domain"], site_config["site_protocol"])
+        generate_sitemap(htmls_files, sitemap_out_path, site_config["site_domain"], site_config["site_protocol"], log)
 
     # send all htmls to plugins
     for plugin in plugins_objs:
@@ -1174,12 +1187,14 @@ def main():
         # parse files
         if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
             return 1
+        add_robots_txt(site_config, out_dir, log)
     elif args.command == "serve":
         from http.server import SimpleHTTPRequestHandler
         from http import HTTPStatus
 
         if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
             return 1
+        add_robots_txt(site_config, out_dir, log)
 
         host = ('0.0.0.0', 2333)
         
