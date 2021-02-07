@@ -27,6 +27,8 @@ def add_robots_txt(site_config, out_dir, log):
     log.i("generate robots.txt")
     robots_items = site_config["robots"]
     robots_txt = ""
+    if not "User-agent" in robots_items:
+        robots_items["User-agent"] = "*"
     for k, v in robots_items.items():
         robots_txt += f"{k}: {v}\n"
     robots_txt += "Sitemap: {}://{}/sitemap.xml\n".format(site_config["site_protocol"], site_config["site_domain"])
