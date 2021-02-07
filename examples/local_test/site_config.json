@@ -2,6 +2,8 @@
     "site_name": "teedoc",
     "site_slogon": "happy to write",
     "site_root_url": "/",
+    "site_domain": "teedoc.github.io",
+    "site_protocol": "https",
     "route": {
         "docs": {
             "/get_started/zh/": "docs/get_started/zh",

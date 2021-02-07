@@ -16,6 +16,36 @@ import multiprocessing
 import threading
 import math
 from queue import Queue, Empty
+from datetime import datetime
+
+
+g_sitemap_content = {}
+
+def generate_sitemap(update_htmls, out_path, site_domain, site_protocol):
+    sitemap_content = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
+    for doc_url in update_htmls:
+        htmls = update_htmls[doc_url]
+        for url, html in htmls.items():
+            url = "{}://{}{}".format(site_protocol, site_domain, url)
+            file_path = html['file_path']
+            last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
+            last_edit_time = str(last_edit_time).replace(" ", "T")
+            change_freq = "weekly"
+            priority = 1.0
+            sitemap_item = '''    <url>
+            <loc>{}</loc>
+            <lastmod>{}</lastmod>
+            <changefreq>{}</changefreq>
+            <priority>{}</priority>
+        </url>
+    '''.format(url, last_edit_time, change_freq, priority)
+            g_sitemap_content[url] = sitemap_item
+    for url in g_sitemap_content:
+        sitemap_content += g_sitemap_content[url]
+    sitemap_content += '</urlset>\r\n'
+    with open(out_path, "w", encoding='utf-8') as f:
+        f.write(sitemap_content)
+
 
 def split_list(obj, n):
     dist = math.ceil(len(obj)/n)
@@ -35,13 +65,15 @@ def get_content_type_by_path(file_path):
         content_type = "text/css"
     elif ext == "js":
         content_type = "application/javascript"
+    elif ext == "xml":
+        content_type = "text/xml"
 
     return content_type
 
 def parse_site_config(doc_src_path):
     site_config_path = os.path.join(doc_src_path, "site_config.json")
     def check_site_config(config):
-        configs = ["site_name", "site_slogon", "site_root_url", "route", "executable", "plugins"]
+        configs = ["site_name", "site_slogon", "site_root_url", "site_domain", "site_protocol", "route", "executable", "plugins"]
         for c in configs:
             if not c in config:
                 return False, "need {} keys, see example docs".format(configs)
@@ -661,6 +693,7 @@ def add_url_item(htmls, url, dir, site_root_url):
                 "title": ""
                 "body": ""
                 "raw": ""
+                "file_path": ""
             }
         }
     '''
@@ -677,6 +710,7 @@ def add_url_item(htmls, url, dir, site_root_url):
             file_path_rel = file_path_rel[1:]
         url_path = get_url_by_file_rel(file_path_rel, url_path)
         htmls_valid[url_path] = htmls[file_path]
+        htmls_valid[url_path]["file_path"] = file_path
     return htmls_valid
 
 def get_html_start_id_class(html, id, classes):
@@ -904,6 +938,11 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=No
     if not ok:
         return False
     # parse all blogs
+
+    # generate sitemap.xml
+    if not update_files: # only generate when build all
+        sitemap_out_path = os.path.join(out_dir, "sitemap.xml")
+        generate_sitemap(htmls_files, sitemap_out_path, site_config["site_domain"], site_config["site_protocol"])
 
     # send all htmls to plugins
     for plugin in plugins_objs:

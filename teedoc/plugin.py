@@ -68,14 +68,17 @@ class Plugin_Base:
     def on_htmls(self, htmls_files, htmls_pages):
         '''
             update htmls, may not all html, just partially
-            "htmls": {
-                "file1_path": {
+            htmls_files: {
+                "/get_started/zh":{
+                    "url":{
                                 "title": "",
                                 "desc": "",
                                 "keywords": [],
                                 "body": html,
                                 "url": "",
                                 "raw": ""
-                                }
+                          }
+                }
+            }
         '''
         pass
