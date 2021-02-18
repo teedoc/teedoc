@@ -414,9 +414,14 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
         if not html:
             continue
         nav_left, nav_right = generate_lef_right_items(navbar, doc_url)
-        logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
-                        navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]
-                     )
+        if "src" in navbar["logo"] and navbar["logo"]["src"]:
+            logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
+                            navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]
+                        )
+        else:
+            logo_html = '<a class="site_title" href="{}"><h2>{}</h2></a>'.format(
+                            navbar["home_url"], navbar["title"]
+                        )
         # add navbar items from plugins
         items_plugins_html = ""
         for plugin in plugins_objs:
