@@ -42,9 +42,15 @@ class Plugin(Plugin_Base):
         self.light_css = {
             "/static/css/theme_default/light.css": os.path.join(self.assets_abs_path, "light.css")
         }
-        self.css = {
-            "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
-        }
+        # code hilight css file
+        if "code_css" in config and config["code_css"]:
+            self.css = {}
+            self.code_css = config["code_css"]
+        else:
+            self.code_css = None
+            self.css = {
+                "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
+            }
         # js files
         self.dark_js = {
 
@@ -56,9 +62,14 @@ class Plugin(Plugin_Base):
             "/static/js/theme_default/pre_main.js": os.path.join(self.assets_abs_path, "pre_main.js")
         }
         self.footer_js = {
-            "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js"),
-            "/static/css/theme_default/prism.min.js": os.path.join(self.assets_abs_path, "prism.min.js")
+            "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
+        # code hilight js file
+        if "code_js" in config and config["code_js"]:
+            self.code_js = config["code_js"]
+        else:
+            self.code_js = None
+            self.footer_js["/static/css/theme_default/prism.min.js"] = os.path.join(self.assets_abs_path, "prism.min.js")
         self.images = {
             "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg"),
             "/static/image/theme_default/menu.svg": os.path.join(self.assets_abs_path, "menu.svg"),
@@ -112,6 +123,9 @@ class Plugin(Plugin_Base):
         for url in self.css:
             item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
             items.append(item)
+        if self.code_css:
+            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(self.code_css)
+            items.append(item)
         if self.config["dark"]:
             for url in self.dark_css:
                 item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
@@ -142,6 +156,9 @@ class Plugin(Plugin_Base):
             items.append(item)
         if "js" in self.config:
             item = '<script src="{}"></script>'.format(self.config["js"])
+            items.append(item)
+        if self.code_js:
+            item = '<script src="{}"></script>'.format(self.code_js)
             items.append(item)
         return items
 

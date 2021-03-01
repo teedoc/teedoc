@@ -40,7 +40,9 @@
                     "main_color": "#4caf7d"
                 },
                 "css": "/static/css/custom.css",
-                "js": "/static/js/custom.js"
+                "js": "/static/js/custom.js",
+                "code_css":  "/static/css/prism.css",
+                "code_js": "/static/js/prism.js"
             }
         },
         "teedoc-plugin-search":{

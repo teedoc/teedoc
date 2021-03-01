@@ -15,6 +15,14 @@ cd teedoc
 pip install -r requirements.txt
 ```
 
+```shell
+sudo apt install python3 python3-pip
+cd teedoc
+pip3 install -r requirements.txt
+python3 teedoc/teedoc_main.py  -p examples/teedoc_site serve
+```
+
+
 
 
 ## 运行源码
