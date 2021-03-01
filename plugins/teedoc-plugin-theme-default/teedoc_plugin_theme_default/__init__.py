@@ -43,11 +43,11 @@ class Plugin(Plugin_Base):
             "/static/css/theme_default/light.css": os.path.join(self.assets_abs_path, "light.css")
         }
         # code hilight css file
-        if "code_hilight_css" in config and config["code_hilight_css"]:
+        if "code_highlight_css" in config and config["code_highlight_css"]:
             self.css = {}
-            self.code_hilight_css = config["code_hilight_css"]
+            self.code_highlight_css = config["code_highlight_css"]
         else:
-            self.code_hilight_css = None
+            self.code_highlight_css = None
             self.css = {
                 "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
             }
@@ -65,10 +65,10 @@ class Plugin(Plugin_Base):
             "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
         # code hilight js file
-        if "code_hilight_js" in config and config["code_hilight_js"]:
-            self.code_hilight_js = config["code_hilight_js"]
+        if "code_highlight_js" in config and config["code_highlight_js"]:
+            self.code_highlight_js = config["code_highlight_js"]
         else:
-            self.code_hilight_js = None
+            self.code_highlight_js = None
             self.footer_js["/static/css/theme_default/prism.min.js"] = os.path.join(self.assets_abs_path, "prism.min.js")
         self.images = {
             "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg"),
@@ -123,8 +123,8 @@ class Plugin(Plugin_Base):
         for url in self.css:
             item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
             items.append(item)
-        if self.code_hilight_css:
-            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(self.code_hilight_css)
+        if self.code_highlight_css:
+            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(self.code_highlight_css)
             items.append(item)
         if self.config["dark"]:
             for url in self.dark_css:
@@ -157,8 +157,8 @@ class Plugin(Plugin_Base):
         if "js" in self.config:
             item = '<script src="{}"></script>'.format(self.config["js"])
             items.append(item)
-        if self.code_hilight_js:
-            item = '<script src="{}"></script>'.format(self.code_hilight_js)
+        if self.code_highlight_js:
+            item = '<script src="{}"></script>'.format(self.code_highlight_js)
             items.append(item)
         return items
 

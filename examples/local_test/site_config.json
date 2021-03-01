@@ -41,8 +41,8 @@
                 },
                 "css": "/static/css/custom.css",
                 "js": "/static/js/custom.js",
-                "code_css":  "/static/css/prism.css",
-                "code_js": "/static/js/prism.js"
+                "code_highlight_css":  "/static/css/prism.css",
+                "code_highlight_js": "/static/js/prism.js"
             }
         },
         "teedoc-plugin-search":{
