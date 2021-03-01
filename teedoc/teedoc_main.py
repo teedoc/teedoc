@@ -414,9 +414,14 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
         if not html:
             continue
         nav_left, nav_right = generate_lef_right_items(navbar, doc_url)
-        logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
-                        navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]
-                     )
+        if "src" in navbar["logo"] and navbar["logo"]["src"]:
+            logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
+                            navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]
+                        )
+        else:
+            logo_html = '<a class="site_title" href="{}"><h2>{}</h2></a>'.format(
+                            navbar["home_url"], navbar["title"]
+                        )
         # add navbar items from plugins
         items_plugins_html = ""
         for plugin in plugins_objs:
@@ -1070,7 +1075,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
 
 def main():
     log = Logger(level="i")
-    parser = argparse.ArgumentParser(description="teedoc, a doc generator, generate html from markdown and jupyter notebook")
+    parser = argparse.ArgumentParser(prog="teedoc", description="teedoc, a doc generator, generate html from markdown and jupyter notebook\nrun 'teedoc install && teedoc serve'")
     parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
     parser.add_argument("-f", "--file", type=str, default="", help="file path for json2yaml or yaml2json command")
     parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support for build command, serve command always True" )
@@ -1280,5 +1285,12 @@ def main():
 
 
 if __name__ == "__main__":
+    python_version = sys.version_info
+    if python_version.major < 3 or python_version.minor < 7:
+        print('''only support python 3.7 or higher, now python version: {}.{}, please upgrade
+or use miniconda to create a virtual env by:
+                                            "conda create -n 3.9 python=3.9"
+                                            "conda activate 3.9"'''.format(python_version.major, python_version.minor))
+        sys.exit(1)
     ret = main()
     sys.exit(ret)
