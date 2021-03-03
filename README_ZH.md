@@ -1,6 +1,9 @@
 teedoc
 =====
 
+[![License](https://img.shields.io/github/license/teedoc/teedoc?color=red&label=开源协议)](./LICENSE) [![PyPI](https://img.shields.io/pypi/v/teedoc?label=版本)](https://pypi.org/project/teedoc/#history) ![PyPI - Downloads](https://img.shields.io/pypi/dm/teedoc?color=brightgreen&label=下载次数) ![GitHub Repo stars](https://img.shields.io/github/stars/teedoc/teedoc?style=social&label=收藏)
+
+
 官网: [teedoc.github.io](https://teedoc.github.io/)
 
 将 `Markdown` 或者 `Jupyter Notebook` 格式的文档转换为 `HTML` 网页

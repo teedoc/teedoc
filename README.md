@@ -2,6 +2,8 @@ teedoc
 ===========
 [中文 README](./README_ZH.md)
 
+[![License](https://img.shields.io/github/license/teedoc/teedoc?color=red)](./LICENSE) [![PyPI](https://img.shields.io/pypi/v/teedoc)](https://pypi.org/project/teedoc/#history) ![PyPI - Downloads](https://img.shields.io/pypi/dm/teedoc?color=brightgreen) ![GitHub Repo stars](https://img.shields.io/github/stars/teedoc/teedoc?style=social)
+
 Official site: [teedoc.github.io](https://teedoc.github.io/)
 
 documentation generate tool from markdown and jupyter notebook to html
