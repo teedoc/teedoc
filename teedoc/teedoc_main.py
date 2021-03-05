@@ -407,7 +407,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                                 }
                 }
     '''
-    def generate_items(config, doc_url, page_url, level):
+    def generate_items(config, doc_url, page_url, level=0, parent_item_type="link"):
         active_item = None
         have_label = "label" in config
         have_url = "url" in config and config["url"] != None and config["url"] != "null"
@@ -420,9 +420,14 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
             _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
-            _config_url = config["url"] + "/" if not config["url"].endswith("/") else config["url"]
-            if _doc_url == "/" and _config_url == "/":
-                if page_url == "/index.html": # only active home page
+            _config_url = config["url"] + "/" if (not config["url"].endswith(".html") and not config["url"].endswith("/")) else config["url"]
+            # print(parent_item_type, _doc_url, _config_url, page_url)
+            if _doc_url == "/":
+                if page_url == "/index.html" and _config_url == "/":       # / / /index.html
+                    active = True
+                elif _config_url == page_url:      # / /store.html /store.html
+                    active = True
+                elif parent_item_type == "selection" and _doc_url == _config_url: # / / /store.html
                     active = True
             else:
                 active = _doc_url == _config_url
@@ -433,14 +438,16 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
             active_item = None
             sub_items_html = ""
             for item in config["items"]:
-                item_html, _active_item = generate_items(item, doc_url, page_url, level + 1)
+                item_html, _active_item = generate_items(item, doc_url, page_url, level = level + 1, parent_item_type = item_type)
                 if _active_item:
                     active_item = _active_item
                 sub_items_html += item_html
             sub_items_ul_html = "<ul>{}</ul>".format(sub_items_html)
         if item_type == "list":
-            li_html = '<li class="sub_items"><a>{}</a>{}\n'.format("{}".format(config["label"]) if have_label else "",
-                                sub_items_ul_html
+            li_html = '<li class="sub_items {}"><a>{}</a>{}\n'.format(
+                            "active_parent" if active_item else "",
+                            "{}".format(config["label"]) if have_label else "",
+                            sub_items_ul_html
                         )
         elif item_type == "selection":
             li_html = '<li class="sub_items {}"><a {} href="{}">{}{}</a>{}'.format(
@@ -462,7 +469,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
         left = '<ul id="nav_left">\n'
         right = '<ul id="nav_right">\n'
         for item in config["items"]:
-            html, _ = generate_items(item, doc_url, page_url, 0)
+            html, _ = generate_items(item, doc_url, page_url, level = 0)
             if "position" in item and item["position"] == "right":
                 right += html
             else:
