@@ -407,7 +407,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                                 }
                 }
     '''
-    def generate_items(config, doc_url, level):
+    def generate_items(config, doc_url, page_url, level):
         active_item = None
         have_label = "label" in config
         have_url = "url" in config and config["url"] != None and config["url"] != "null"
@@ -421,7 +421,11 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                     config["url"] = "/{}".format(config["url"])
             _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
             _config_url = config["url"] + "/" if not config["url"].endswith("/") else config["url"]
-            active = _doc_url == _config_url
+            if _doc_url == "/" and _config_url == "/":
+                if page_url == "/index.html": # only active home page
+                    active = True
+            else:
+                active = _doc_url == _config_url
             if active:
                 active_item = config
         sub_items_ul_html = ""
@@ -429,7 +433,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
             active_item = None
             sub_items_html = ""
             for item in config["items"]:
-                item_html, _active_item = generate_items(item, doc_url, level + 1)
+                item_html, _active_item = generate_items(item, doc_url, page_url, level + 1)
                 if _active_item:
                     active_item = _active_item
                 sub_items_html += item_html
@@ -454,11 +458,11 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
         html = '{}</li>\n'.format(li_html)
         return html, active_item
     
-    def generate_lef_right_items(config, doc_url):
+    def generate_lef_right_items(config, doc_url, page_url):
         left = '<ul id="nav_left">\n'
         right = '<ul id="nav_right">\n'
         for item in config["items"]:
-            html, _ = generate_items(item, doc_url, 0)
+            html, _ = generate_items(item, doc_url, page_url, 0)
             if "position" in item and item["position"] == "right":
                 right += html
             else:
@@ -470,7 +474,9 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
     for file, html in htmls.items():
         if not html:
             continue
-        nav_left, nav_right = generate_lef_right_items(navbar, doc_url)
+        # get file file url
+        url = get_url_by_file_rel(file.replace(doc_path, "")[1:], doc_url)
+        nav_left, nav_right = generate_lef_right_items(navbar, doc_url, url)
         if "src" in navbar["logo"] and navbar["logo"]["src"]:
             logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
                             navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]

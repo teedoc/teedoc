@@ -9,6 +9,11 @@
         "home_url": "/",
         "items": [
             {
+                "url": "/",
+                "label": "首页",
+                "position": "left"
+            },
+            {
                 "url": "/get_started/zh/",
                 "label": "安装使用",
                 "position": "left"
