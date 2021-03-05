@@ -166,6 +166,7 @@ code {
     justify-content: space-between;
     width: 100%;
     padding-right: 1em;
+    word-break: keep-all;
 }
 #navbar a{
     margin: 5px;
@@ -199,10 +200,12 @@ code {
 #navbar .sub_items ul {
     display: block;
     position: absolute;
-    right: 0;
+    left: 0;
     box-shadow: 0 0 9px 0px #dadada;
     border-radius: 5px;
     padding: 0;
+    width: max-content;
+    min-width: 100%;
     background-color: white;
     visibility: hidden;
     margin-top: -5px;
@@ -212,8 +215,7 @@ code {
     visibility: visible;
 }
 #navbar .sub_items ul li {
-    display: inline-block;
-    width: 100%;
+    display: block;
 }
 
 

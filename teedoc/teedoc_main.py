@@ -275,7 +275,10 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file_rel(config["file"], doc_url)
-                active = doc_path_relative == config["file"]
+                if config["file"].startswith("./"):
+                    active = doc_path_relative == config["file"][2:]
+                else:
+                    active = doc_path_relative == config["file"]
                 li_item_html = '<li class="{} with_link"><a href="{}"><span class="label">{}</span><span class="{}"></span></a>'.format(
                     "active" if active else "not_active",
                     url, config["label"],
@@ -358,12 +361,14 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                 }
     '''
     def generate_items(config, doc_url, level):
-        li = False
         active_item = None
         have_label = "label" in config
+        have_url = "url" in config and config["url"] != None and config["url"] != "null"
         li_html = ""
         active = False
-        if have_label and "url" in config and config["url"] != None and config["url"] != "null":
+        # item_type: link, list, selection
+        item_type = config["type"] if "type" in config else ("selection" if "items" in config else "link")
+        if have_label and have_url:
             if not config["url"].startswith("http"):
                 if not config["url"].startswith("/"):
                     config["url"] = "/{}".format(config["url"])
@@ -372,7 +377,6 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
             active = _doc_url == _config_url
             if active:
                 active_item = config
-            li = True
         sub_items_ul_html = ""
         if "items" in config:
             active_item = None
@@ -383,16 +387,22 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                     active_item = _active_item
                 sub_items_html += item_html
             sub_items_ul_html = "<ul>{}</ul>".format(sub_items_html)
-        if not li:
-            li_html = '<li class="sub_items"><a>{}{}</a>{}\n'.format("{}".format(config["label"]) if have_label else "",
-                                active_item["label"] if active_item else "",
+        if item_type == "list":
+            li_html = '<li class="sub_items"><a>{}</a>{}\n'.format("{}".format(config["label"]) if have_label else "",
                                 sub_items_ul_html
                         )
-        else:
-            li_html = '<li class="{}"><a {} href="{}">{}</a>{}'.format(
+        elif item_type == "selection":
+            li_html = '<li class="sub_items {}"><a {} href="{}">{}{}</a>{}'.format(
                 "active" if active else '',
                 'target="{}"'.format(config["target"]) if "target" in config else "",
-                config["url"], config["label"], sub_items_ul_html
+                config["url"] if have_url else "", config["label"], active_item["label"] if active_item else "",
+                sub_items_ul_html
+            )
+        else: # link
+            li_html = '<li class="{}"><a {} href="{}">{}</a>'.format(
+                "active" if active else '',
+                'target="{}"'.format(config["target"]) if "target" in config else "",
+                config["url"] if have_url else "", config["label"]
             )
         html = '{}</li>\n'.format(li_html)
         return html, active_item

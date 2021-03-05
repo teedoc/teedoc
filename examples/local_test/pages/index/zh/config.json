@@ -1,31 +1,121 @@
 {
     "navbar": {
-        "title": "teedoc",
+        "title": "MaixPy",
         "logo": {
-            "alt": "teedoc logo",
+            "alt": "MaixPy logo",
             "src": "/static/image/logo.png"
         },
         "home_url": "/",
         "items": [
             {
-                "url": "/get_started/zh/",
-                "label": "安装使用",
+                "label": "开源软件",
+                "position": "left",
+                "type": "list",
+                "items": [
+                    {
+                        "url": "/maixpy/zh/",
+                        "label": "Maixpy"
+                    },
+                    {
+                        "url": "/maixpy3/zh/",
+                        "label": "Maixpy3"
+                    },
+                    {
+                        "url": "/licheeos/zh/",
+                        "label": "Lichee OS"
+                    }
+                ]
+            },
+            {
+                "label": "开源硬件",
+                "position": "left",
+                "type": "list",
+                "items": [
+                    {
+                        "url": "",
+                        "label": "Maix"
+                    },
+                    {
+                        "url": "",
+                        "label": "Maix II"
+                    },
+                    {
+                        "url": "",
+                        "label": "Lichee Pi"
+                    },
+                    {
+                        "url": "",
+                        "label": "Tang"
+                    },
+                    {
+                        "url": "",
+                        "label": "Longan"
+                    }
+                ]
+            },
+            {
+                "label": "商业产品",
+                "position": "left",
+                "type": "list",
+                "items": [
+                    {
+                        "url": "",
+                        "label": "Maix Face"
+                    }
+                ]
+            },
+            {
+                "label": "平台",
+                "position": "left",
+                "type": "list",
+                "items": [
+                    {
+                        "url": "https://www.maixhub.com",
+                        "label": "Maixhub",
+                        "target": "_blank"
+                    },
+                    {
+                        "url": "https://www.maixhub.com/compile",
+                        "label": "固件在线编译",
+                        "target": "_blank"
+                    }
+                ]
+            },
+            {
+                "label": "社区",
+                "position": "left",
+                "type": "list",
+                "items": [
+                    {
+                        "url": "https://github.com/sipeed",
+                        "label": "github",
+                        "target": "_blank"
+                    },
+                    {
+                        "url": "https://bbs.sipeed.com",
+                        "label": "论坛",
+                        "target": "_blank"
+                    },
+                    {
+                        "url": "",
+                        "label": "群聊"
+                    },
+                    {
+                        "url": "",
+                        "label": "其它"
+                    }
+                ]
+            },
+            {
+                "url": "/store",
+                "label": "商城",
+                "type": "",
                 "position": "left"
             },
             {
-                "url": "/develop/zh/",
-                "label": "开发",
-                "position": "left"
-            },
-            {
-                "url": "https://github.com/neutree/teedoc",
-                "label": "github",
-                "target": "_blank",
-                "position": "right"
-            },
-            {
-                "label": "语言: ",
+                "label": "Language: ",
                 "position": "right",
+                "type": "selection",
                 "items": [
                     {
                         "url": "/",
@@ -45,13 +135,23 @@
                 "label": "链接",
                 "items": [
                     {
-                        "label": "使用 teedoc 构建",
-                        "url": "https://github.com/neutree/teedoc",
+                        "label": "Sipeed",
+                        "url": "https://www.sipeed.com",
                         "target": "_blank"
                     },
                     {
-                        "label": "Copyright © 2021 Neucrack",
-                        "url": "https://neucrack.com",
+                        "label": "BBS 论坛",
+                        "url": "https://bbs.sipeed.com/",
+                        "target": "_blank"
+                    },
+                    {
+                        "label": "Sipeed 淘宝",
+                        "url": "https://sipeed.taobao.com/",
+                        "target": "_blank"
+                    },
+                    {
+                        "label": "使用 teedoc 构建",
+                        "url": "https://github.com/neutree/teedoc",
                         "target": "_blank"
                     }
                 ]
@@ -60,29 +160,60 @@
                 "label": "源码",
                 "items": [
                     {
-                        "label": "github",
-                        "url": "https://github.com/neutree/teedoc",
+                        "label": "MaixPy3",
+                        "url": "https://github.com/sipeed/MaixPy3",
                         "target": "_blank"
                     },
                     {
-                        "label": "本网站源文件",
-                        "url": "https://github.com/teedoc/teedoc.github.io",
+                        "label": "MaixPy",
+                        "url": "https://github.com/sipeed/MaixPy",
                         "target": "_blank"
+                    },
+                    {
+                        "label": "文档源文件",
+                        "url": "https://github.com/sipeed/MaixPy_DOC",
+                        "target": "_blank"
+                    }
+                ]
+            },
+            {
+                "label": "网站统计",
+                "items": [
+                    {
+                        "label": "百度统计",
+                        "url": "https://tongji.baidu.com/web/welcome/ico?s=90c693aa2475224142e727c14a50bb49",
+                        "target": "_blank"
+                    },
+                    {
+                        "label": "网站地图",
+                        "url": "/sitemap.xml"
                     }
                 ]
             }
         ],
         "bottom": [
             {
-                "label": "*ICP备********号-1",
-                "url": "https://beian.miit.gov.cn",
+                "label": "Copyright © 2018-2021 Sipeed Ltd",
+                "url": "https://www.sipeed.com",
                 "target": "_blank"
             },
             {
-                "label": "*公网安备**************号",
-                "url": "https://beian.miit.gov.cn/#/Integrated/index",
+                "label": "粤ICP备19015433号",
+                "url": "https://beian.miit.gov.cn",
                 "target": "_blank"
             }
         ]
+    },
+    "plugins": {
+        "teedoc-plugin-search":{
+            "config": {
+                "search_hint": "搜索",
+                "input_hint": "输入关键词，多关键词空格隔开",
+                "loading_hint": "正在加载，请稍候。。。",
+                "download_err_hint": "下载文件失败，请刷新重试或检查网络",
+                "other_docs_result_hint": "来自其它文档的结果",
+                "curr_doc_result_hint": "当前文档搜索结果"
+            }
+        }
     }
 }
