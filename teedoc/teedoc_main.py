@@ -1334,7 +1334,7 @@ def main():
                 files = queue.get(timeout=1)
             except Empty:
                 continue
-            if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
+            if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
                 return 1
         t.join()
         t2.join()
