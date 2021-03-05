@@ -4,6 +4,7 @@
     "site_root_url": "/",
     "site_domain": "teedoc.github.io",
     "site_protocol": "https",
+    "config_template_dir": "./",
     "route": {
         "docs": {
             "/get_started/zh/": "docs/get_started/zh",

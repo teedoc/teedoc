@@ -95,7 +95,7 @@ def parse_site_config(doc_src_path):
         if not site_config['site_root_url'].endswith("/"):
             site_config['site_root_url'] = "{}/".format(site_config['site_root_url'])
         return True, ""
-    site_config = load_config(doc_src_path, config_name="site_config")    
+    site_config = load_config(doc_src_path, doc_src_path, config_name="site_config")    
     ok, msg = check_site_config(site_config)
     if not ok:
         return False, "check site_config.json fail: {}".format(msg)
@@ -153,39 +153,86 @@ def write_to_file(files_content, in_path, out_path):
                     f.write(s.read())
     return True, ""
 
-def load_config(doc_dir, config_name="config"):
+def update_config(old, update, level = 0):
+    new = {}
+    for key in old.keys():
+        if key == "import":
+            continue
+        if not key in update:
+            new[key] = old[key]
+            continue
+        if type(old[key]) == dict:
+            new[key] = update_config(old[key], update[key], level + 1)
+        elif type(old[key]) == list:
+            # convert list to OrderedDict
+            old_list_item = OrderedDict()
+            for i, item in enumerate(old[key]):
+                if "id" in item:
+                    old_list_item[item["id"]] = item
+                else:
+                    old_list_item[str(i)] = item\
+            # update item
+            for i, item in enumerate(update[key]):
+                if "id" in item:
+                    old_list_item[item["id"]] = item
+                else:
+                    old_list_item[f"n{i}"] = item
+            # convert back to list
+            items = []
+            for id in old_list_item:
+                items.append(old_list_item[id])
+            new[key] = items
+        else:
+            new[key] = update[key]
+    return new
+
+def load_config(doc_dir, config_template_dir, config_name="config"):
+    '''
+        @doc_dir doc diretory, abspath
+        @config_dir config template files dir, abspath
+    '''
+    config = None
     config_path = os.path.join(doc_dir, f"{config_name}.json")
     if os.path.exists(config_path):
         with open(config_path, encoding="utf-8") as f:
             try:
-                return json.load(f)
+                config = json.load(f)
             except Exception as e:
                 raise Exception('\n\ncan not parse json file "{}"\njson format error: {}'.format(config_path, e))
-    config_path = os.path.join(doc_dir, f"{config_name}.yaml")
-    if not os.path.exists(config_path):
-        config_path = os.path.join(doc_dir, f"{config_name}.yml")
-    if not os.path.exists(config_path):
-        raise Exception("can not open file: {}".format(config_path))
-    with open(config_path, encoding="utf-8") as f:
-        try:
-            return yaml.load(f.read(), Loader=yaml.Loader)
-        except Exception as e:
-            raise Exception('\ncan not parse yaml file "{}"\nyaml format error: {}'.format(config_path, e))
+    else:
+        config_path = os.path.join(doc_dir, f"{config_name}.yaml")
+        if not os.path.exists(config_path):
+            config_path = os.path.join(doc_dir, f"{config_name}.yml")
+        if not os.path.exists(config_path):
+            raise Exception("can not open file: {}".format(config_path))
+        with open(config_path, encoding="utf-8") as f:
+            try:
+                config = yaml.load(f.read(), Loader=yaml.Loader)
+            except Exception as e:
+                raise Exception('\ncan not parse yaml file "{}"\nyaml format error: {}'.format(config_path, e))
+    if "import" in config:
+        # update parent config
+        config_name = config["import"]
+        if config_name.endswith(".json") or config_name.endswith(".yaml"):
+            config_name = config_name[:5]
+        config_parent = load_config(config_template_dir, config_template_dir, config_name = config_name)
+        config = update_config(config_parent, config)
+    return config
 
-def load_doc_config(doc_dir):
-    return load_config(doc_dir)
+def load_doc_config(doc_dir, config_template_dir):
+    return load_config(doc_dir, config_template_dir)
 
-def get_sidebar(doc_dir):
-    return load_config(doc_dir, config_name="sidebar")
+def get_sidebar(doc_dir, config_template_dir):
+    return load_config(doc_dir, config_template_dir, config_name="sidebar")
 
-def get_navbar(doc_dir):
-    return load_config(doc_dir)["navbar"]
+def get_navbar(doc_dir, config_template_dir):
+    return load_config(doc_dir, config_template_dir)["navbar"]
 
-def get_plugins_config(doc_dir):
-    return load_config(doc_dir)["plugins"]
+def get_plugins_config(doc_dir, config_template_dir):
+    return load_config(doc_dir, config_template_dir)["plugins"]
 
-def get_footer(doc_dir):
-    return load_config(doc_dir)["footer"]
+def get_footer(doc_dir, config_template_dir):
+    return load_config(doc_dir, config_template_dir)["footer"]
 
 def get_url_by_file_rel(file_path, doc_url):
     url = os.path.splitext(file_path)[0]
@@ -759,7 +806,7 @@ def get_html_start_id_class(html, id, classes):
     html_start = '<html {} {}>'.format(f'id="{id}"' if id else "", 'class="{}"'.format(" ".join(classes)) if classes else "")
     return html_start
 
-def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
+def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
     '''
         @return {
             "doc_url", {
@@ -798,11 +845,11 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
         else:
             all_files = get_files(dir)
         log.i("parse {}: {}, url:{}".format(name, dir, url))
-        doc_config = load_doc_config(dir)
+        doc_config = load_doc_config(dir, config_template_dir)
         # get sidebar config
         if sidebar:
             try:
-                sidebar = get_sidebar(dir)
+                sidebar = get_sidebar(dir, config_template_dir)
             except Exception as e:
                 log.e("parse sidebar.json fail: {}".format(e))
                 return False, None
@@ -922,7 +969,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, log, out_dir, pl
         htmls[url].update(_htmls)
     return True, htmls
 
-def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False):
+def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False):
     '''
         "route": {
             "docs": {
@@ -956,14 +1003,14 @@ def build(doc_src_path, plugins_objs, site_config, out_dir, log, update_files=No
         js_items.append('<script type="text/javascript" src="{}static/js/live.js"></script>'.format(site_config['site_root_url']))
     # parse all docs
     routes = site_config["route"]["docs"]
-    ok, htmls_files = parse("docs", "on_parse_files", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
+    ok, htmls_files = parse("docs", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
                  sidebar=True, allow_no_navbar=False, update_files=update_files)
     if not ok:
         return False
 
     # parse all pages
     routes = site_config["route"]["pages"]
-    ok, htmls_pages = parse("pages", "on_parse_pages", routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
+    ok, htmls_pages = parse("pages", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
                  sidebar=False, allow_no_navbar=True, update_files=update_files)
     if not ok:
         return False
@@ -1124,6 +1171,10 @@ def main():
     if not ok:
         log.e(site_config)
         return 1
+    if "config_template_dir" in site_config:
+        config_template_dir = os.path.abspath(os.path.join(doc_src_path, site_config["config_template_dir"]))
+    else:
+        config_template_dir = doc_src_path
     # out_dir
     if site_config["site_root_url"] != "/":
         serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
@@ -1202,14 +1253,14 @@ def main():
         log.i("all plugins install complete")
     elif args.command == "build":
         # parse files
-        if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
+        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
             return 1
         add_robots_txt(site_config, out_dir, log)
     elif args.command == "serve":
         from http.server import SimpleHTTPRequestHandler
         from http import HTTPStatus
 
-        if not build(doc_src_path, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
+        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
             return 1
         add_robots_txt(site_config, out_dir, log)
 
