@@ -18,6 +18,8 @@ import math
 from queue import Queue, Empty
 from datetime import datetime
 
+class RebuildException(Exception):
+    pass
 
 g_sitemap_content = {}
 def add_robots_txt(site_config, out_dir, log):
@@ -1179,200 +1181,209 @@ def main():
                 json.dump(obj, f2, ensure_ascii=False, indent=4)
             log.i("convert json from yaml complete, file at: {}".format(json_path))
         return 0
-
-    # doc source code root path
-    doc_src_path = os.path.abspath(args.dir)
-    # parse site config
-    ok, site_config = parse_site_config(doc_src_path)
-    if not ok:
-        log.e(site_config)
-        return 1
-    if "config_template_dir" in site_config:
-        config_template_dir = os.path.abspath(os.path.join(doc_src_path, site_config["config_template_dir"]))
-    else:
-        config_template_dir = doc_src_path
-    # out_dir
-    if site_config["site_root_url"] != "/":
-        serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
-        out_dir = os.path.join(serve_dir, site_config["site_root_url"][1:]).replace("\\", "/")
-    else:
-        serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
-        out_dir = serve_dir
-    # thread num
-    max_threads_num = multiprocessing.cpu_count()
-    log.i(f"max thread number: {max_threads_num}")
-    if args.command in ["build", "serve"]:
-        # init plugins
-        plugins = list(site_config['plugins'].keys())
-        plugins_objs = []
-        log.i("plugins: {}".format(plugins))
-        for plugin, info in site_config['plugins'].items():
-            try:
-                plugin_config = info['config']
-            except Exception:
-                plugin_config = {}
-            # import plugin from local source code
-            path = info["from"]
-            if not os.path.isabs(path):
-                path = os.path.abspath(os.path.join(doc_src_path, path))
-            if os.path.exists(path):
-                sys.path.insert(0, path)
-            plugin_import_name = plugin.replace("-", "_")
-            module = __import__(plugin_import_name)
-            plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
-            plugins_objs.append(plugin_obj)
-    else:
-        plugins_objs = []
-    # execute command
-    if args.command == "install":
-        log.i("install, source doc root path: {}".format(doc_src_path))
-        log.i("plugins: {}".format(list(site_config["plugins"].keys())))
-        curr_path = os.getcwd()
-        for plugin, info in site_config['plugins'].items():
-            path = info['from']
-            # install from pypi.org
-            if not path or path.lower() == "pypi":
-                log.i("install plugin <{}> from pypi.org".format(plugin))
-                cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin]
-                p = subprocess.Popen(cmd, shell=False)
-                p.communicate()
-                if p.returncode != 0:
-                    log.e("install <{}> fail".format(plugin))
-                    return 1
-                log.i("install <{}> complete".format(plugin))
-            # install from git like: git+https://github.com/Neutree/COMTool.git#egg=comtool
-            elif path.startswith("svn") or path.startswith("git"):
-                log.i("install plugin <{}> from {}".format(plugin, path))
-                cmd = [site_config["executable"]["pip"], "install", "-e", path]
-                log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
-                p = subprocess.Popen(cmd, shell=False)
-                p.communicate()
-                if p.returncode != 0:
-                    log.e("install <{}> fail".format(plugin))
-                    return 1
-                log.i("install <{}> complete".format(plugin))
-            # install from local file system
-            else:
-                if not os.path.isabs(path):
-                    path = os.path.abspath(os.path.join(doc_src_path, path))
-                if not os.path.exists(path):
-                    log.e("{} not found".format(path))
-                    return 1
-                os.chdir(path)
-                cmd = [site_config["executable"]["pip"], "install", "."]
-                log.i("plugin path: {}".format(path))
-                log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
-                p = subprocess.Popen(cmd, shell=False)
-                p.communicate()
-                if p.returncode != 0:
-                    log.e("install <{}> fail".format(plugin))
-                    return 1
-                log.i("install <{}> complete".format(plugin))
-        os.chdir(curr_path)
-        log.i("all plugins install complete")
-    elif args.command == "build":
-        # parse files
-        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
-            return 1
-        add_robots_txt(site_config, out_dir, log)
-    elif args.command == "serve":
-        from http.server import SimpleHTTPRequestHandler
-        from http import HTTPStatus
-
-        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
-            return 1
-        add_robots_txt(site_config, out_dir, log)
-
-        host = ('0.0.0.0', 2333)
-        
-        class On_Resquest(SimpleHTTPRequestHandler):
-
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs, directory=serve_dir)
-
-            def do_GET(self):
-                file_path = self.path[1:].split("?")[0]
-                if not file_path:
-                    file_path = "index.html"
-                file_path = os.path.join(serve_dir, file_path)
-                if not os.path.exists(file_path) or not os.path.isfile(file_path):
-                    file_path = os.path.join(file_path, "index.html")
-                if not os.path.exists(file_path):
-                    file_path = os.path.join(out_dir, "404.html")
-                    self.send_response(404)
-                else:
-                    self.send_response(200)
-                if not os.path.exists(file_path):
-                    content = b"page not found"
-                    content_type = "text/html"
-                else:
-                    with open(file_path, "rb") as f:
-                        content = f.read()
-                    content_type = get_content_type_by_path(file_path)
-                self.send_header('Content-type', content_type)
-                self.end_headers()
-                self.wfile.write(content)
-                # print(self.address_string())
-                # print(self.request)
-
-            def do_HEAD(self):
-                f = self.send_head()
-                if f:
-                    f.close()
-            
-            def log_request(self, code='-', size='-'):
-                if isinstance(code, HTTPStatus):
-                    code = code.value
-                if code == 304 or code == 200 or code == 301:
-                    return
-                self.log_message('"%s" %s %s',
-                                self.requestline, str(code), str(size))
-                            
-            def log_message(self, format, *args):
-                sys.stderr.write("%s - - [%s] %s\n" %
-                                (self.address_string(),
-                                self.log_date_time_string(),
-                                format%args))
-
-        queue = Queue(maxsize=50)
-        delay_time = (int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3) if int(args.delay) < 0 else int(args.delay)
-        t = threading.Thread(target=files_watch, args=(doc_src_path, log, delay_time, queue))
-        t.setDaemon(True)
-        t.start()
-        def server_loop(host, log):
-            server = HTTP_Server(host, On_Resquest)
-            log.i("root dir: {}".format(serve_dir))
-            log.i("Starting server at {}:{} ....".format(host[0], host[1]))
-            server.serve_forever()
-
-        t2 = threading.Thread(target=server_loop, args=(host, log))
-        t2.setDaemon(True)
-        t2.start()
-        while 1:
-            try:
-                files_changed = queue.get(timeout=1)
-            except Empty:
-                continue
-            # detect config.json or site_config.json change, if changed, update all docs file along with the json file
-            files = []
-            for path in files_changed:
-                if path[:-5].endswith("site_config"):
-                    ok, site_config = parse_site_config(doc_src_path)
-                    if not ok:
-                        log.e(site_config)
-                        return 1
-                elif path[:-5].endswith("config"):
-                    dir = os.path.dirname(path)
-                    files.extend(get_files(dir))
-                else:
-                    files.append(path)
-            if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
+    t = None
+    t2 = None
+    while 1: # for rebuild all files
+        try:
+            # doc source code root path
+            doc_src_path = os.path.abspath(args.dir)
+            # parse site config
+            ok, site_config = parse_site_config(doc_src_path)
+            if not ok:
+                log.e(site_config)
                 return 1
-        t.join()
-        t2.join()
-    else:
-        log.e("command error")
-        return 1
+            if "config_template_dir" in site_config:
+                config_template_dir = os.path.abspath(os.path.join(doc_src_path, site_config["config_template_dir"]))
+            else:
+                config_template_dir = doc_src_path
+            # out_dir
+            if site_config["site_root_url"] != "/":
+                serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
+                out_dir = os.path.join(serve_dir, site_config["site_root_url"][1:]).replace("\\", "/")
+            else:
+                serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
+                out_dir = serve_dir
+            # thread num
+            max_threads_num = multiprocessing.cpu_count()
+            log.i(f"max thread number: {max_threads_num}")
+            if args.command in ["build", "serve"]:
+                # init plugins
+                plugins = list(site_config['plugins'].keys())
+                plugins_objs = []
+                log.i("plugins: {}".format(plugins))
+                for plugin, info in site_config['plugins'].items():
+                    try:
+                        plugin_config = info['config']
+                    except Exception:
+                        plugin_config = {}
+                    # import plugin from local source code
+                    path = info["from"]
+                    if not os.path.isabs(path):
+                        path = os.path.abspath(os.path.join(doc_src_path, path))
+                    if os.path.exists(path):
+                        sys.path.insert(0, path)
+                    plugin_import_name = plugin.replace("-", "_")
+                    module = __import__(plugin_import_name)
+                    plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
+                    plugins_objs.append(plugin_obj)
+            else:
+                plugins_objs = []
+            # execute command
+            if args.command == "install":
+                log.i("install, source doc root path: {}".format(doc_src_path))
+                log.i("plugins: {}".format(list(site_config["plugins"].keys())))
+                curr_path = os.getcwd()
+                for plugin, info in site_config['plugins'].items():
+                    path = info['from']
+                    # install from pypi.org
+                    if not path or path.lower() == "pypi":
+                        log.i("install plugin <{}> from pypi.org".format(plugin))
+                        cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin]
+                        p = subprocess.Popen(cmd, shell=False)
+                        p.communicate()
+                        if p.returncode != 0:
+                            log.e("install <{}> fail".format(plugin))
+                            return 1
+                        log.i("install <{}> complete".format(plugin))
+                    # install from git like: git+https://github.com/Neutree/COMTool.git#egg=comtool
+                    elif path.startswith("svn") or path.startswith("git"):
+                        log.i("install plugin <{}> from {}".format(plugin, path))
+                        cmd = [site_config["executable"]["pip"], "install", "-e", path]
+                        log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
+                        p = subprocess.Popen(cmd, shell=False)
+                        p.communicate()
+                        if p.returncode != 0:
+                            log.e("install <{}> fail".format(plugin))
+                            return 1
+                        log.i("install <{}> complete".format(plugin))
+                    # install from local file system
+                    else:
+                        if not os.path.isabs(path):
+                            path = os.path.abspath(os.path.join(doc_src_path, path))
+                        if not os.path.exists(path):
+                            log.e("{} not found".format(path))
+                            return 1
+                        os.chdir(path)
+                        cmd = [site_config["executable"]["pip"], "install", "."]
+                        log.i("plugin path: {}".format(path))
+                        log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
+                        p = subprocess.Popen(cmd, shell=False)
+                        p.communicate()
+                        if p.returncode != 0:
+                            log.e("install <{}> fail".format(plugin))
+                            return 1
+                        log.i("install <{}> complete".format(plugin))
+                os.chdir(curr_path)
+                log.i("all plugins install complete")
+            elif args.command == "build":
+                # parse files
+                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
+                    return 1
+                add_robots_txt(site_config, out_dir, log)
+                log.i("build ok")
+            elif args.command == "serve":
+                from http.server import SimpleHTTPRequestHandler
+                from http import HTTPStatus
+
+                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
+                    return 1
+                add_robots_txt(site_config, out_dir, log)
+                log.i("build ok")
+
+                host = ('0.0.0.0', 2333)
+                
+                class On_Resquest(SimpleHTTPRequestHandler):
+
+                    def __init__(self, *args, **kwargs):
+                        super().__init__(*args, **kwargs, directory=serve_dir)
+
+                    def do_GET(self):
+                        file_path = self.path[1:].split("?")[0]
+                        if not file_path:
+                            file_path = "index.html"
+                        file_path = os.path.join(serve_dir, file_path)
+                        if not os.path.exists(file_path) or not os.path.isfile(file_path):
+                            file_path = os.path.join(file_path, "index.html")
+                        if not os.path.exists(file_path):
+                            file_path = os.path.join(out_dir, "404.html")
+                            self.send_response(404)
+                        else:
+                            self.send_response(200)
+                        if not os.path.exists(file_path):
+                            content = b"page not found"
+                            content_type = "text/html"
+                        else:
+                            with open(file_path, "rb") as f:
+                                content = f.read()
+                            content_type = get_content_type_by_path(file_path)
+                        self.send_header('Content-type', content_type)
+                        self.end_headers()
+                        self.wfile.write(content)
+                        # print(self.address_string())
+                        # print(self.request)
+
+                    def do_HEAD(self):
+                        f = self.send_head()
+                        if f:
+                            f.close()
+                    
+                    def log_request(self, code='-', size='-'):
+                        if isinstance(code, HTTPStatus):
+                            code = code.value
+                        if code == 304 or code == 200 or code == 301:
+                            return
+                        self.log_message('"%s" %s %s',
+                                        self.requestline, str(code), str(size))
+                                    
+                    def log_message(self, format, *args):
+                        sys.stderr.write("%s - - [%s] %s\n" %
+                                        (self.address_string(),
+                                        self.log_date_time_string(),
+                                        format%args))
+                if not t:
+                    queue = Queue(maxsize=50)
+                    delay_time = (int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3) if int(args.delay) < 0 else int(args.delay)
+                    t = threading.Thread(target=files_watch, args=(doc_src_path, log, delay_time, queue))
+                    t.setDaemon(True)
+                    t.start()
+                    def server_loop(host, log):
+                        server = HTTP_Server(host, On_Resquest)
+                        log.i("root dir: {}".format(serve_dir))
+                        log.i("Starting server at {}:{} ....".format(host[0], host[1]))
+                        server.serve_forever()
+                    if not t2:
+                        t2 = threading.Thread(target=server_loop, args=(host, log))
+                        t2.setDaemon(True)
+                        t2.start()
+                while 1:
+                    try:
+                        files_changed = queue.get(timeout=1)
+                    except Empty:
+                        continue
+                    # detect config.json or site_config.json change, if changed, update all docs file along with the json file
+                    files = []
+                    for path in files_changed:
+                        dir = os.path.dirname(path)
+                        if path[:-5].endswith("site_config"): # site_config changed, rebuild all
+                            raise RebuildException()
+                        elif config_template_dir == dir:      # config template changed, just rebuild all
+                            raise RebuildException()
+                        elif path[:-5].endswith("config"):    # doc or pages config changed, rebuild the changed doc
+                            files.extend(get_files(dir))
+                        else:                                 # normal file, nonly rebuild this file
+                            files.append(path)
+                    if files:
+                        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
+                            return 1
+                        log.i("rebuild ok")
+                t.join()
+                t2.join()
+            else:
+                log.e("command error")
+                return 1
+        except RebuildException:
+            continue
+        break
     return 0
 
 
