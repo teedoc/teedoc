@@ -687,9 +687,15 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     margin-top: 2em;
 }
 #footer_bottom a {
-    
+    justify-content: center;
 }
 
+.md_page #page_content > div {
+    width: 65%;
+    max-width: 50em;
+    margin: auto;
+    line-height: 2em;
+}
 
 @media screen and (max-width: 900px) {
     #navbar {
@@ -785,6 +791,9 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     }
     #footer_top > ul {
         flex-direction: column;
+    }
+    .md_page #page_content > div {
+        margin: 1.5em;
     }
 }
 
