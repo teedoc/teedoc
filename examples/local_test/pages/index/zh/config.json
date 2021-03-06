@@ -1,6 +1,6 @@
 {
     "import": "config_zh",
-    "class": "md_page",
+    "class": "md_page language_zh",
     "navbar": {
         "title": "teedoc123",
         "items": [

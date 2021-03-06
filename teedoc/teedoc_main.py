@@ -159,16 +159,16 @@ def write_to_file(files_content, in_path, out_path):
     return True, ""
 
 def update_config(old, update, level = 0):
-    new = {}
-    for key in old.keys():
+    new = old.copy()
+    for key in update.keys():
         if key == "import":
             continue
-        if not key in update:
-            new[key] = old[key]
+        if not key in old:
+            new[key] = update[key]
             continue
-        if type(old[key]) == dict:
+        if type(update[key]) == dict:
             new[key] = update_config(old[key], update[key], level + 1)
-        elif type(old[key]) == list:
+        elif type(update[key]) == list:
             # convert list to OrderedDict
             old_list_item = OrderedDict()
             for i, item in enumerate(old[key]):
