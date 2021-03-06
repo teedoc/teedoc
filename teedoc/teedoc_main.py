@@ -1159,6 +1159,7 @@ def main():
     parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support for build command, serve command always True" )
     parser.add_argument("-t", "--delay", type=int, default=-1, help="automatically rebuild and refresh page delay time")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s v{}".format(__version__))
+    parser.add_argument("-i", "--index-url", type=str, default="", help="for install command, base URL of the Python Package Index (default https://pypi.org/simple). This should point to a repository compliant with PEP 503 (the simple repository API) or a local directory laid out in the same format.\ne.g. Chinese can use https://pypi.tuna.tsinghua.edu.cn/simple")
     parser.add_argument("command", choices=["install", "build", "serve", "json2yaml", "yaml2json"])
     args = parser.parse_args()
     # convert json or yaml file
@@ -1242,7 +1243,10 @@ def main():
                     # install from pypi.org
                     if not path or path.lower() == "pypi":
                         log.i("install plugin <{}> from pypi.org".format(plugin))
-                        cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin]
+                        if args.index_url:
+                            cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin, "-i", args.index_url]
+                        else:
+                            cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin]
                         p = subprocess.Popen(cmd, shell=False)
                         p.communicate()
                         if p.returncode != 0:
