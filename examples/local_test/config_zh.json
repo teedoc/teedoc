@@ -35,10 +35,12 @@
                 "position": "right",
                 "items": [
                     {
+                        "id": "zh",
                         "url": "/zh",
                         "label": "中文"
                     },
                     {
+                        "id": "en",
                         "url": "/en",
                         "label": "English"
                     }

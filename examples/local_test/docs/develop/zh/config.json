@@ -8,10 +8,12 @@
                 "position": "right",
                 "items": [
                     {
+                        "id": "zh",
                         "url": "/develop/zh",
                         "label": "中文"
                     },
                     {
+                        "id": "en",
                         "url": "/develop/en",
                         "label": "English"
                     }

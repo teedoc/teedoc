@@ -174,7 +174,10 @@ def update_config(old, update, level = 0):
             # update item
             for i, item in enumerate(update[key]):
                 if "id" in item:
-                    old_list_item[item["id"]] = item
+                    if type(old_list_item[item["id"]]) == dict:
+                        old_list_item[item["id"]] = update_config(old_list_item[item["id"]], item, level + 1)
+                    else:
+                        old_list_item[item["id"]] = item
                 else:
                     old_list_item[f"n{i}"] = item
             # convert back to list
@@ -1195,6 +1198,9 @@ def main():
     else:
         serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
         out_dir = serve_dir
+    # thread num
+    max_threads_num = multiprocessing.cpu_count()
+    log.i(f"max thread number: {max_threads_num}")
     if args.command in ["build", "serve"]:
         # init plugins
         plugins = list(site_config['plugins'].keys())
