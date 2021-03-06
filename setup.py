@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 import os
+from teedoc import __version__
 
 curr_dir = os.path.abspath(os.path.dirname(__file__))
 readme_path = os.path.join(curr_dir, "README.md")
@@ -16,7 +17,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc',
-    version="1.8.0",
+    version=__version__,
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 

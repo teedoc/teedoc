@@ -1,11 +1,14 @@
 import argparse
 import sys
+from typing import Optional
 try:
     from .logger import Logger
     from .http_server import HTTP_Server
+    from .version import __version__
 except Exception:
     from logger import Logger
     from http_server import HTTP_Server
+    from version import __version__
 import os, sys
 import json, yaml
 import subprocess
@@ -1155,6 +1158,7 @@ def main():
     parser.add_argument("-f", "--file", type=str, default="", help="file path for json2yaml or yaml2json command")
     parser.add_argument("-p", "--preview", action="store_true", default=False, help="preview mode, provide live preview support for build command, serve command always True" )
     parser.add_argument("-t", "--delay", type=int, default=-1, help="automatically rebuild and refresh page delay time")
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s v{}".format(__version__))
     parser.add_argument("command", choices=["install", "build", "serve", "json2yaml", "yaml2json"])
     args = parser.parse_args()
     # convert json or yaml file
