@@ -217,7 +217,7 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
         # update parent config
         config_name = config["import"]
         if config_name.endswith(".json") or config_name.endswith(".yaml"):
-            config_name = config_name[:5]
+            config_name = config_name[:-5]
         config_parent = load_config(config_template_dir, config_template_dir, config_name = config_name)
         config = update_config(config_parent, config)
     return config
@@ -1350,9 +1350,22 @@ def main():
         t2.start()
         while 1:
             try:
-                files = queue.get(timeout=1)
+                files_changed = queue.get(timeout=1)
             except Empty:
                 continue
+            # detect config.json or site_config.json change, if changed, update all docs file along with the json file
+            files = []
+            for path in files_changed:
+                if path[:-5].endswith("site_config"):
+                    ok, site_config = parse_site_config(doc_src_path)
+                    if not ok:
+                        log.e(site_config)
+                        return 1
+                elif path[:-5].endswith("config"):
+                    dir = os.path.dirname(path)
+                    files.extend(get_files(dir))
+                else:
+                    files.append(path)
             if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
                 return 1
         t.join()

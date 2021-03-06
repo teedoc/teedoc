@@ -59,7 +59,7 @@
             }
         }
     },
-    "rebuild_changes_delay": 3,
+    "rebuild_changes_delay": 0,
     "robots":{
         "User-agent": "*"
     }
