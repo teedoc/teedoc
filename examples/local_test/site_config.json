@@ -27,32 +27,38 @@
         "pip": "pip"
     },
     "plugins": {
-        "teedoc-plugin-markdown-parser":{
+        "teedoc-plugin-markdown-parser": {
             "from": "../../plugins/teedoc-plugin-markdown-parser",
             "config": {
                 "toc_depth": 3
             }
         },
-        "teedoc-plugin-theme-default":{
+        "teedoc-plugin-jupyter-notebook-parser": {
+            "from": "../../plugins/teedoc-plugin-jupyter-notebook-parser",
+            "config": {
+                
+            }
+        },
+        "teedoc-plugin-theme-default": {
             "from": "../../plugins/teedoc-plugin-theme-default",
             "config": {
                 "dark": true,
-                "env":{
+                "env": {
                     "main_color": "#4caf7d"
                 },
                 "css": "/static/css/custom.css",
                 "js": "/static/js/custom.js",
-                "code_highlight_css":  "/static/css/prism.css",
+                "code_highlight_css": "/static/css/prism.css",
                 "code_highlight_js": "/static/js/prism.js"
             }
         },
-        "teedoc-plugin-search":{
+        "teedoc-plugin-search": {
             "from": "../../plugins/teedoc-plugin-search",
             "config": {
                 "search_hint": "Search"
             }
         },
-        "teedoc-plugin-baidu-tongji":{
+        "teedoc-plugin-baidu-tongji": {
             "from": "../../plugins/teedoc-plugin-baidu-tongji",
             "config": {
                 "code": "90c693aa2475224142e727c14a50bb49"
@@ -60,7 +66,7 @@
         }
     },
     "rebuild_changes_delay": 0,
-    "robots":{
+    "robots": {
         "User-agent": "*"
     }
 }

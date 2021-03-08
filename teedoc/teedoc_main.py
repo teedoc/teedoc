@@ -900,7 +900,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
         def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue, plugins_new_config):
             try:
                 # call plugins to parse files
-                result_htmls = None
+                result_htmls = {}
                 for plugin in plugins_objs:
                     # parse file content
                     result = plugin.__getattribute__(plugin_func)(files)
@@ -910,13 +910,15 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                             on_err()
                             return False
                         else:
-                            result_htmls = result['htmls'] # will cover the before
+                            for key in result['htmls']:
+                                if result['htmls'][key]:
+                                    result_htmls[key] = result['htmls'][key] # will cover the before
                     if is_err():
                         return False
                 if not result_htmls:
-                    log.e("parse files error")
-                    on_err()
-                    return False
+                    log.d("parse files empty: {}".format(files))
+                    # on_err()
+                    return True
                 htmls = result_htmls
                 # generate sidebar to html
                 if sidebar:
