@@ -3,7 +3,7 @@ teedoc
 
 [中文 README](./README_ZH.md)
 
-[![License](https://img.shields.io/github/license/teedoc/teedoc?color=red)](./LICENSE) [![PyPI](https://img.shields.io/pypi/v/teedoc)](https://pypi.org/project/teedoc/#history) ![PyPI - Downloads](https://img.shields.io/pypi/dm/teedoc?color=brightgreen) ![PyPI - Downloads](https://img.shields.io/pypi/dw/teedoc?color=brightgreen) ![GitHub Repo stars](https://img.shields.io/github/stars/teedoc/teedoc?style=social)
+[![License](https://img.shields.io/github/license/teedoc/teedoc?color=red)](./LICENSE) [![PyPI](https://img.shields.io/pypi/v/teedoc)](https://pypi.org/project/teedoc/#history) ![PyPI - Downloads](https://img.shields.io/pypi/dm/teedoc?color=brightgreen) ![PyPI - Downloads](https://img.shields.io/pypi/dw/teedoc?color=brightgreen) [![GitHub Repo stars](https://img.shields.io/github/stars/teedoc/teedoc?style=social)](https://github.com/teedoc/teedoc)
 
 <img src="https://teedoc.github.io/static/image/logo.png" height=64/> 
 
