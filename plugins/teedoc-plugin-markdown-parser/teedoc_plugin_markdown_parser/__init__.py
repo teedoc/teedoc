@@ -78,11 +78,11 @@ class Plugin(Plugin_Base):
                         title = html.metadata["title"]
                     else:
                         title = ""
-                    if "keywords" in html.metadata:
+                    if "keywords" in html.metadata and not html.metadata["keywords"].strip() == "":
                         keywords = html.metadata["keywords"].split(",")
                     else:
                         keywords = []
-                    if "tags" in html.metadata:
+                    if "tags" in html.metadata and not html.metadata["tags"].strip() == "":
                         tags = html.metadata["tags"].split(",")
                     else:
                         tags = []
