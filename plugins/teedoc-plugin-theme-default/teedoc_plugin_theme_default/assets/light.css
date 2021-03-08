@@ -690,11 +690,27 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     justify-content: center;
 }
 
+/* class template */
 .md_page #page_content > div {
     width: 65%;
     max-width: 50em;
     margin: auto;
     line-height: 2em;
+}
+
+/* jupyter notebook parser */
+.jp-InputArea {
+    display: flex;
+    flex-direction: row;
+}
+.jp-InputPrompt {
+    word-break: keep-all;
+    margin-right: 0.2em;
+    font-size: 0.8em;
+}
+.jp-CodeMirrorEditor {
+    flex-grow: 1;
+    overflow: auto;
 }
 
 @media screen and (max-width: 900px) {
