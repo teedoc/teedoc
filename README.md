@@ -7,7 +7,7 @@ teedoc
 
 <img src="https://teedoc.github.io/static/image/logo.png" height=64/> 
 
-Official site: [teedoc.github.io](https://teedoc.github.io/)
+Official site: [teedoc.github.io](https://teedoc.github.io/) or [teedoc.gitee.io](https://teedoc.gitee.io/)
 
 documentation generate tool from markdown and jupyter notebook to html
 
@@ -43,5 +43,5 @@ documentation generate tool from markdown and jupyter notebook to html
 
 ## Get Started
 
-Visit official site: [teedoc.github.io](https://teedoc.github.io/)
+Visit official site: [teedoc.github.io](https://teedoc.github.io/) or [teedoc.gitee.io](https://teedoc.gitee.io/)
 
