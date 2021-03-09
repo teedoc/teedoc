@@ -22,7 +22,7 @@ teedoc
 - [x] 使用简单， 跨平台，只依赖 `Python3`
 - [x] 部署简单， 生成的网站是全静态页面，直接拷贝到服务器或者上传到三方机构即可部署
 - [x] 书写简单，使用 Markdown 语法编写
-- [ ] Jupyter notebook 支持
+- [x] Jupyter notebook 支持
 - [x] 多文档支持
 - [x] 插件支持
 - [x] 多主题支持（由插件实现）

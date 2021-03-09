@@ -115,7 +115,7 @@ def copy_dir(src, dst):
 def copy_file(src, dst):
     dir = os.path.dirname(dst)
     if not os.path.exists(dir):
-        os.makedirs(dir)
+        os.makedirs(dir, exist_ok=True)
     shutil.copyfile(src, dst)
     return True
 
@@ -143,7 +143,7 @@ def write_to_file(files_content, in_path, out_path):
         f_path = file.replace(in_path, out_path)
         d_path = os.path.dirname(f_path)
         if not os.path.exists(d_path):
-            os.makedirs(d_path)
+            os.makedirs(d_path, exist_ok=True)
         # TODO: check file update, if not, skip
         if html: # html, change name
             if os.path.basename(f_path).lower() == "readme.md": # change readme.md to index.html
@@ -899,6 +899,16 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
 
         def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue, plugins_new_config):
             try:
+                if url.startswith("/"):
+                    rel_url = url[1:]
+                else:
+                    rel_url = url
+                out_path = os.path.join(out_dir, rel_url)
+                in_path  = os.path.join(doc_src_path, dir)
+                if in_path.endswith("/"):
+                    in_path = in_path[:-1]
+                if out_path.endswith("/"):
+                    out_path = out_path[:-1]
                 # call plugins to parse files
                 result_htmls = {}
                 for plugin in plugins_objs:
@@ -915,6 +925,11 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                                     result_htmls[key] = result['htmls'][key] # will cover the before
                     if is_err():
                         return False
+                # copy not parsed files
+                for path in files:
+                    if not path in result_htmls:
+                        copy_file(path, path.replace(in_path, out_path))
+                # no file parsed, just reture
                 if not result_htmls:
                     log.d("parse files empty: {}".format(files))
                     # on_err()
@@ -945,10 +960,6 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                 if is_err():
                     return False
                 # write to file
-                if url.startswith("/"):
-                    url = url[1:]
-                out_path = os.path.join(out_dir, url)
-                in_path  = os.path.join(doc_src_path, dir)
                 ok, msg = write_to_file(htmls_str, in_path, out_path)
                 if not ok:
                     log.e("write files error: {}".format(msg))
@@ -957,7 +968,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                 if is_err():
                     return False
                 # add url, add "url" keyword for htmls, will remove empty html items
-                htmls = add_url_item(htmls, url, dir, site_root_url)
+                htmls = add_url_item(htmls, rel_url, dir, site_root_url)
                 if len(htmls) > 0:
                     queue.put((url, htmls))
             except Exception as e:

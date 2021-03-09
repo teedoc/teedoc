@@ -33,7 +33,13 @@ desc: teedoc 的 markdown 语法介绍和实例
 
 ## 链接
 
-[teedoc 简介](../README.md)
+[相对路径， README.md 文件](../README.md): `../README.md`， 会自动转换成`index.html`
+
+[相对路径， md 文件](./syntax_markdown.md)： `./syntax_markdown.md`， 会转成文档的 `.html` 结尾的链接
+
+[绝对路径， http 文件](https://storage.googleapis.com/tensorflow_docs/docs-l10n/site/zh-cn/tutorials/quickstart/beginner.ipynb)： `https://。。。/beginner.ipynb`，原链接，不会修改
+
+[相对路径， ipynb 文件](./syntax_notebook.ipynb)： `./syntax_notebook.ipynb`， 会转成文档的 `.html` 结尾的链接
 
 
 ## 列表

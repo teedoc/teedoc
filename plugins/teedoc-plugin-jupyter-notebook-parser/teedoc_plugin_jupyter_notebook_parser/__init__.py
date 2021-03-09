@@ -56,8 +56,8 @@ class Plugin(Plugin_Base):
         for file in files:
             ext = os.path.splitext(file)[1].lower()
             if ext.endswith("ipynb"):
-                # content = self._update_link(content)
                 html = convert_ipynb_to_html(file)
+                html.body = self._update_link_html(html.body)
                 result["htmls"][file] = {
                     "title": html.title,
                     "desc": html.desc,
@@ -83,14 +83,30 @@ class Plugin(Plugin_Base):
         items.append('<meta name="html-generator" content="teedoc-plugin-jupyter-notebook-parser">')
         return items
     
-    def _update_link(self, content):
+    def _update_link_html(self, content):
         def re_del(c):
-            ret = c[0].replace(".md", ".html") 
-            ret = re.sub("README.md", "index.html", c[0], flags=re.I)
-            ret = re.sub(r".md", ".html", ret, re.I)
+            ret = c[0]
+            links = re.findall('href="(.*?)"', c[0])
+            if len(links) > 0:
+                for link in links:
+                    if link.startswith(".") or os.path.isabs(link):
+                        ret = re.sub("README.md", "index.html", c[0], flags=re.I)
+                        ret = re.sub(r".md", ".html", ret, re.I)
+                        return ret
             return ret
-
-        content = re.sub(r'\[.*?\]\(.*?\.md\)', re_del, content, flags=re.I)
+        def re_del_ipynb(c):
+            ret = c[0]
+            links = re.findall('href="(.*?)"', c[0])
+            if len(links) > 0:
+                for link in links:
+                    if link.startswith(".") or os.path.isabs(link):
+                        ret = re.sub("README.ipynb", "index.html", c[0], flags=re.I)
+                        ret = re.sub(r".ipynb", ".html", ret, re.I)
+                        return ret
+            return ret
+        # <a class="anchor-link" href="#&#38142;&#25509;"> </a></h2><p><a href="./syntax_markdown.md">markdown 语法</a>
+        content = re.sub(r'\<a.*?href=.*?\.md.*?\</a\>', re_del, content, flags=re.I)
+        content = re.sub(r'\<a.*?href=.*?\.ipynb.*?\</a\>', re_del_ipynb, content, flags=re.I)
         return content
 
 if __name__ == "__main__":

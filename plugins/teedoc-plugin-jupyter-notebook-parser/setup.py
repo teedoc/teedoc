@@ -13,7 +13,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc-plugin-jupyter-notebook-parser',
-    version="1.0.0",
+    version="1.1.0",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
@@ -64,7 +64,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        #  'COMTool': ['style.qss'],
+        "teedoc_plugin_jupyter_notebook_parser" : ['templates/lab/*', 'templates/lab/static/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

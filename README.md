@@ -25,7 +25,7 @@ documentation generate tool from markdown and jupyter notebook to html
 - [x] Easy to use, cross platform, only need `Python3`
 - [x] Easy to deploy, only copy generated staitc HTML files to your server or other host
 - [x] Easy to write, markdown support
-- [ ] Jupyter notebook support
+- [x] Jupyter notebook support
 - [x] Multiple docs support
 - [x] Plugin support
 - [x] Multiple theme support(support by plugin)
