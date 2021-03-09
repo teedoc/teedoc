@@ -479,8 +479,8 @@ code {
 }
 /* add numbers for titles end*/
 
-#article_tags {
-    margin: 0 0 30px 0;
+#article_head {
+    margin-bottom: 2em;
 }
 #article_tags ul {
     list-style: none;
@@ -497,7 +497,11 @@ code {
     font-size: 0.9em;
     background-color: ${main_color};
 }
-
+#source_link {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
 
 /* cover prism.css */
 

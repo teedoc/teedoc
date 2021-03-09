@@ -5,6 +5,7 @@
     "site_domain": "teedoc.github.io",
     "site_protocol": "https",
     "config_template_dir": "./",
+    "source": "https://github.com/teedoc/teedoc.github.io/blob/main",
     "route": {
         "docs": {
             "/get_started/zh/": "docs/get_started/zh",
@@ -36,7 +37,7 @@
         "teedoc-plugin-jupyter-notebook-parser": {
             "from": "../../plugins/teedoc-plugin-jupyter-notebook-parser",
             "config": {
-                
+
             }
         },
         "teedoc-plugin-theme-default": {

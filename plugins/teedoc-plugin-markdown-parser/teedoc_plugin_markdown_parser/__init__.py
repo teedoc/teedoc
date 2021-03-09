@@ -52,7 +52,7 @@ class Plugin(Plugin_Base):
         }
         
 
-    def on_parse_files(self, files):
+    def on_parse_files(self, files, new_config=None):
         # result, format must be this
         result = {
             "ok": False,
@@ -107,8 +107,8 @@ class Plugin(Plugin_Base):
         result['ok'] = True
         return result
     
-    def on_parse_pages(self, files):
-        result = self.on_parse_files(files)
+    def on_parse_pages(self, files, new_config=None):
+        result = self.on_parse_files(files, new_config=new_config)
         return result
 
     

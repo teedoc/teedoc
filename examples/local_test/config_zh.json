@@ -104,5 +104,6 @@
                 "curr_doc_result_hint": "当前文档搜索结果"
             }
         }
-    }
+    },
+    "show_source": "编辑页面"
 }

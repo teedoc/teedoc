@@ -622,7 +622,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
-def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config):
+def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path):
     '''
         @htmls  {
             "title": "",
@@ -634,7 +634,8 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
             "sidebar": "",
             "navbar": ""
             "metadata": {},
-            "footer": ""
+            "footer": "",
+            "show_source": "Edit this page" or no this key
         }
     '''
     files = {}
@@ -668,6 +669,16 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                                     <div id="menu">
                                     </div>
                                 </div>'''
+                if "show_source" in html:
+                    source_url = site_config["source"]
+                    if source_url.endswith("/"):
+                        source_url = source_url[:-1]
+                    source_url += file.replace(doc_src_path, "")
+                    source_html = '''<div id="source_link"><a href="{}" target="_blank">{}</a></div>'''.format(
+                                    source_url, html["show_source"]
+                    )
+                else:
+                    source_html = ""
                 body_html = '''
         <div id="wrapper">
             {}
@@ -675,10 +686,13 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
             <div id="article">
                 <div id="content_wrapper">
                     <div id="content_body">
-                        <div id="article_title">
-                            <h1>{}</h1>
-                        </div>
-                        <div id="article_tags">
+                        <div id="article_head">
+                            <div id="article_title">
+                                <h1>{}</h1>
+                            </div>
+                            <div id="article_tags">
+                                {}
+                            </div>
                             {}
                         </div>
                         <div id="article_content">
@@ -709,6 +723,7 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                         menu_html,
                         article_title,
                         tags_html,
+                        source_html,
                         html["body"],
                         previous_item_html, 
                         next_item_html,
@@ -827,6 +842,40 @@ def get_html_start_id_class(html, id, classes):
     html_start = '<html {} {}>'.format(f'id="{id}"' if id else "", 'class="{}"'.format(" ".join(classes)) if classes else "")
     return html_start
 
+def htmls_add_source(htmls, repo_addr, label):
+    '''
+        @htmls {
+            "file_path": {
+                "metadata": {
+                    "show_source": "Edit this page"
+                }
+            }
+        }
+        @repo_addr https://github.com/teedoc/teedoc
+
+        @return {
+            "file_path": {
+                "metadata": {
+                    "show_source": "Edit this page"
+                },
+                "show_source": "Edit this page"
+            }
+        }
+    '''
+    if not repo_addr:
+        return htmls
+    for file, v in htmls.items():
+        # not show source
+        if "show_source" in v["metadata"]:
+            show_source = v["metadata"]["show_source"].strip().lower()
+            if show_source == "false":
+                continue
+            elif show_source != "true":
+                label = v["metadata"]["show_source"]
+        htmls[file]["show_source"] = label
+
+    return htmls
+
 def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
     '''
         @return {
@@ -913,7 +962,11 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                 result_htmls = {}
                 for plugin in plugins_objs:
                     # parse file content
-                    result = plugin.__getattribute__(plugin_func)(files)
+                    if plugin.name in plugins_new_config:
+                        new_config = plugins_new_config[plugin.name]["config"]
+                    else:
+                        new_config = {}
+                    result = plugin.__getattribute__(plugin_func)(files, new_config=new_config)
                     if result:
                         if not result['ok']:
                             log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
@@ -950,8 +1003,18 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                     htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
                 if is_err():
                     return False
+                # show source code url
+                if "source" in site_config:
+                    label = None
+                    if not "show_source" in doc_config:
+                        label = "Edit this page"
+                    elif doc_config["show_source"]:
+                        label = doc_config["show_source"]
+                    if label:
+                        htmls = htmls_add_source(htmls, site_config["source"], label)
+
                 # consturct html page
-                htmls_str = construct_html(htmls, header_items, js_items, site_config, sidebar_list, doc_config)
+                htmls_str = construct_html(htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path)
                 if is_err():
                     return False
                 # check abspath
@@ -1204,7 +1267,7 @@ def main():
     while 1: # for rebuild all files
         try:
             # doc source code root path
-            doc_src_path = os.path.abspath(args.dir)
+            doc_src_path = os.path.abspath(args.dir).replace("\\", "/")
             # parse site config
             ok, site_config = parse_site_config(doc_src_path)
             if not ok:
