@@ -695,8 +695,8 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                     </div>
                 </div>
                 <div id="toc">
-                    <div>
-                        {}
+                    <div id="toc_content">
+                            {}
                     </div>
                 </div>
             </div>

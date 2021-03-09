@@ -13,6 +13,7 @@ TemplateExporter.extra_template_basedirs=[templates_dir]
 html_exporter = HTMLExporter()
 html_exporter.template_name = "lab"
 html_exporter.template_file = 'base.html.j2'
+html_exporter.anchor_link_text = " " # set anchor_link empty
 
 def convert_ipynb_to_html_body(path):
     global html_exporter
@@ -71,8 +72,6 @@ def convert_ipynb_to_html(path):
         html.desc = html.metadata["desc"]
         html.tags = html.metadata["tags"].split(",") if html.metadata["tags"] else []
         body, resources = html_exporter.from_notebook_node(content)
-        # body = body.replace("<pre>", '<pre class="language-python">')
-        # print(body)
         html.body = body
     return html
 

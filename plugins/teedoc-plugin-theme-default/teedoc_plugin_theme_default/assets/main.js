@@ -15,6 +15,7 @@ window.onload = function(){
 $(document).ready(function(){
     $("#sidebar ul .show").slideDown(200);
     registerSidebarClick();
+    addTOC();
     hello();
 });
 
@@ -98,3 +99,15 @@ function hello(){
 }
 
 
+function addTOC(){
+    tocbot.init({
+        // Where to render the table of contents.
+        tocSelector: '#toc_content',
+        // Where to grab the headings to build the table of contents.
+        contentSelector: '#content_body',
+        // Which headings to grab inside of the contentSelector element.
+        headingSelector: 'h2, h3, h4',
+        // For headings inside relative or absolute positioned containers within content.
+        hasInnerContainers: true,
+        });
+}

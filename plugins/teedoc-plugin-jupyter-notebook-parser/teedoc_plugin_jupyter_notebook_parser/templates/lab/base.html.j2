@@ -109,17 +109,13 @@ unknown type  {{ cell.type }}
 
 {% block stream_stdout -%}
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>
-{{- output.text | ansi2html -}}
-</pre>
+<pre><code>{{- output.text | ansi2html -}}</code></pre>
 </div>
 {%- endblock stream_stdout %}
 
 {% block stream_stderr -%}
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr">
-<pre>
-{{- output.text | ansi2html -}}
-</pre>
+<pre><code>{{- output.text | ansi2html -}}</code></pre>
 </div>
 {%- endblock stream_stderr %}
 

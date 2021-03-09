@@ -62,6 +62,7 @@ class Plugin(Plugin_Base):
             "/static/js/theme_default/pre_main.js": os.path.join(self.assets_abs_path, "pre_main.js")
         }
         self.footer_js = {
+            "/static/js/theme_default/tocbot.min.js": os.path.join(self.assets_abs_path, "tocbot.min.js"),
             "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
         # code hilight js file
