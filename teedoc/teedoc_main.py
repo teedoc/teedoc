@@ -347,6 +347,11 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
                     config["label"],
                     "sub_indicator" if is_dir else ""
                 )
+            elif not is_dir and level == 1:
+                # first level label with no url or file and items, add sidebar_category class
+                li_item_html = '<li class="not_active no_link sidebar_category"><span class="label">{}</span>'.format(
+                    config["label"]
+                )
             else:
                 li_item_html = '<li class="not_active no_link"><a><span class="label">{}</span><span class="{}"></span></a>'.format(
                     config["label"], "sub_indicator" if is_dir else ""
@@ -1469,7 +1474,7 @@ def main():
                             raise RebuildException()
                         elif config_template_dir == dir:      # config template changed, just rebuild all
                             raise RebuildException()
-                        elif path[:-5].endswith("config"):    # doc or pages config changed, rebuild the changed doc
+                        elif path[:-5].endswith("config") or path[:-5].endswith("sidebar"):    # doc or pages config or sidebar changed, rebuild the changed doc
                             files.extend(get_files(dir))
                         else:                                 # normal file, nonly rebuild this file
                             files.append(path)
