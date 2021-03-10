@@ -1,0 +1,24 @@
+{
+    "import": "config_en",
+    "navbar": {
+        "items": [
+            {
+                "id": "language",
+                "label": "语言: ",
+                "position": "right",
+                "items": [
+                    {
+                        "id": "zh",
+                        "url": "/get_started/zh/",
+                        "label": "中文"
+                    },
+                    {
+                        "id": "en",
+                        "url": "/get_started/en/",
+                        "label": "English"
+                    }
+                ]
+            }
+        ]
+    }
+}

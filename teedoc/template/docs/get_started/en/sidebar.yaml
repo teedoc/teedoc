@@ -1,0 +1,49 @@
+items:
+-   label: Introduction to teedoc
+    file: README.md
+-   label: Install teedoc
+    file: install/README.md
+-   label: Start writing document
+    file: usage/start.md
+-   label: Pay attention to when writing documents
+    file: usage/write_attention.md
+-   label: Plugin
+    file: plugins/README.md
+    items:
+    -   label: Theme Plugin
+        file: plugins/themes.md
+    -   label: Other plugins
+        file: plugins/others.md
+-   label: markdown syntax
+    file: syntax/syntax_markdown.md
+-   label: Jupyter syntax
+    file: syntax/syntax_jupyter.ipynb
+-   label: Deployment
+    file: usage/deploy.md
+    items:
+    -   label: Deploy to github
+        file: usage/deploy_github_pages.md
+    -   label: Use nginx to deploy to the server
+        file: usage/deploy_nginx.md
+    -   label: Use CDN to accelerate website
+        file: usage/deploy_cdn.md
+-   label: SEO (Optimize for Search Engines)
+    file: usage/seo.md
+-   label: Website using teedoc
+    file: usage/sites.md
+-   label: Common problem
+    file: usage/problems.md
+-   label: More
+-   label: More samples
+    items:
+    -   label: Second-level subdirectory example
+        items:
+        -   label: Sample three-level sub-directory
+            items:
+            -   label: Article 1
+                file: more/example_docs/doc1.md
+        -   label: Article 2
+            file: more/example_docs/doc2.md
+    -   label: This is a external link
+        url: https://github.com/teedoc/teedoc
+        target: _blank

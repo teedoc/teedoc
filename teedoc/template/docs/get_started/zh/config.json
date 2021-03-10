@@ -1,0 +1,24 @@
+{
+    "import": "config_zh",
+    "navbar": {
+        "items": [
+            {
+                "id": "language",
+                "label": "Language: ",
+                "position": "right",
+                "items": [
+                    {
+                        "id": "zh",
+                        "url": "/get_started/zh/",
+                        "label": "中文"
+                    },
+                    {
+                        "id": "en",
+                        "url": "/get_started/en/",
+                        "label": "English"
+                    }
+                ]
+            }
+        ]
+    }
+}
