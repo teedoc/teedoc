@@ -1,10 +1,12 @@
 items:
+-   label: 简介
 -   label: teedoc 简介
     file: README.md
 -   label: 安装 teedoc
     file: install/README.md
 -   label: 开始写文档
     file: usage/start.md
+-   label: 自定义
 -   label: 插件
     file: plugins/README.md
     items:
@@ -27,6 +29,7 @@ items:
         file: usage/deploy_cdn.md
 -   label: 使用了 teedoc 的网站
     file: usage/sites.md
+-   label: 更多样例
 -   label: 更多样例
     items:
     -   label: 二级子目录样例

@@ -339,6 +339,11 @@ code {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
 }
+#sidebar li.sidebar_category {
+    font-size: 0.9em;
+    color: #9e9e9e;
+    margin: 1em 0 0.1em 0;
+}
 #menu_wrapper {
     width: 2%;
 }
