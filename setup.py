@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 import os
 from teedoc import __version__
+from glob import glob
 
 curr_dir = os.path.abspath(os.path.dirname(__file__))
 readme_path = os.path.join(curr_dir, "README.md")
@@ -14,7 +15,12 @@ install_requires = [ "coloredlogs",
                    ]
 packages = find_packages()
 print("packages:", packages)
-
+os.chdir("teedoc")
+tempalte_files = glob("template/**", recursive=True)
+package_data_files = ['static/js/*']
+package_data_files.extend(tempalte_files)
+print(package_data_files)
+os.chdir("..")
 setup(
     name='teedoc',
     version=__version__,
@@ -72,7 +78,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        "teedoc" : ['static/js/*'],
+        "teedoc" : package_data_files,
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

@@ -1,0 +1,41 @@
+
+#navbar h2 {
+    color: #4caf7d;
+}
+
+#home_page h1 {
+    width: 100%;
+    font-size: 6em;
+    text-align: center;
+    font-family: sans-serif;
+    color: #4caf7d;
+}
+#home_page h3 {
+    width: 100%;
+    text-align: center;
+}
+#big_btn_wrapper {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 5em 1em;
+}
+#home_page .big_btn a {
+    padding: 2em;
+    background-color: #4caf7d;
+    font-size: 1.3em;
+    border-radius: 10px;
+    transition: 0.4s;
+    display: flex;
+    color: white;
+}
+#home_page .big_btn a:hover {
+    box-shadow: 6px 4px 20px #0000002e;
+}
+.dark #home_page .big_btn a {
+    background-color: #1b5638;
+    color: #d2f9e5;
+}
+.dark #home_page .big_btn a:hover {
+    box-shadow: 6px 4px 20px #000000;
+    background-color: #2a7d53;
+}
