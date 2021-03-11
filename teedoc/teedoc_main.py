@@ -1065,7 +1065,6 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
     htmls = {}
     for i in range(queue.qsize()):
         url, _htmls = queue.get()
-        url = "{}{}".format(site_root_url, url)
         if not url in htmls:
             htmls[url] = {}
         htmls[url].update(_htmls)
