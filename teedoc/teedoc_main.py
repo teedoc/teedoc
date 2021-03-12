@@ -1240,7 +1240,7 @@ def main():
     parser.add_argument("-t", "--delay", type=int, default=-1, help="automatically rebuild and refresh page delay time")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s v{}".format(__version__))
     parser.add_argument("-i", "--index-url", type=str, default="", help="for install command, base URL of the Python Package Index (default https://pypi.org/simple). This should point to a repository compliant with PEP 503 (the simple repository API) or a local directory laid out in the same format.\ne.g. Chinese can use https://pypi.tuna.tsinghua.edu.cn/simple")
-    parser.add_argument("command", choices=["install", "build", "serve", "json2yaml", "yaml2json"])
+    parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json"])
     args = parser.parse_args()
     # convert json or yaml file
     if args.command == "json2yaml":
@@ -1265,6 +1265,23 @@ def main():
             with open(json_path, "w", encoding="utf-8") as f2:
                 json.dump(obj, f2, ensure_ascii=False, indent=4)
             log.i("convert json from yaml complete, file at: {}".format(json_path))
+        return 0
+    elif args.command == "init":
+        log.i("init doc now")
+        if not os.path.exists(args.dir):
+            os.makedirs(args.dir, exist_ok=True)
+        if os.listdir(args.dir):
+            log.e("directory {} not empty, please init in empty directory".format(args.dir))
+            return 1
+        template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "template")
+        for name in os.listdir(template_path):
+            path = os.path.join(template_path, name)
+            to_path = os.path.join(args.dir, name)
+            if os.path.isfile(path):
+                shutil.copyfile(path, to_path)
+            else:
+                shutil.copytree(path, to_path)
+        log.i("init doc complete, doc root: {}".format(args.dir))
         return 0
     t = None
     t2 = None

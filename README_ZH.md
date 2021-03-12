@@ -5,7 +5,7 @@ teedoc
 
 <img src="https://teedoc.github.io/static/image/logo.png" height=64/> 
 
-官网: [teedoc.github.io](https://teedoc.github.io/) 或者 [teedoc.gitee.io](https://teedoc.gitee.io/)
+官网: [teedoc.neucrack.com](https://teedoc.neucrack.com) 或者 [teedoc.github.io](https://teedoc.github.io/)
 
 将 `Markdown` 或者 `Jupyter Notebook` 格式的文档转换为 `HTML` 网页
 

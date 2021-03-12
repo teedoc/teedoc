@@ -1,0 +1,64 @@
+{
+    "site_name": "teedoc",
+    "site_slogon": "happy to write",
+    "site_root_url": "/",
+    "site_domain": "teedoc.neucrack.com",
+    "site_protocol": "https",
+    "config_template_dir": "config",
+    "source": "https://github.com/teedoc/teedoc.github.io/blob/main",
+    "route": {
+        "docs": {
+            "/get_started/zh/": "docs/get_started/zh",
+            "/get_started/en/": "docs/get_started/en",
+            "/develop/zh/": "docs/develop/zh",
+            "/develop/en/": "docs/develop/en"
+        },
+        "pages": {
+            "/": "pages/index/zh",
+            "/en/": "pages/index/en"
+        },
+        "assets": {
+            "/static/": "static",
+            "/get_started/assets/": "docs/get_started/assets"
+        },
+        "/blog/": "blog"
+    },
+    "executable": {
+        "python": "python3",
+        "pip": "pip3"
+    },
+    "plugins": {
+        "teedoc-plugin-markdown-parser":{
+            "from": "pypi",
+            "config": {
+                "toc_depth": 3
+            }
+        },
+        "teedoc-plugin-jupyter-notebook-parser":{
+            "from": "pypi",
+            "config": {
+            }
+        },
+        "teedoc-plugin-theme-default":{
+            "from": "pypi",
+            "config": {
+                "dark": true,
+                "env":{
+                    "main_color": "#4caf7d"
+                },
+                "css": "/static/css/custom.css",
+                "js": "/static/js/custom.js"
+            }
+        },
+        "teedoc-plugin-search":{
+            "from": "pypi",
+            "config": {
+                "search_hint": "Search"
+            }
+        }
+    },
+    "rebuild_changes_delay": 0,
+    "robots":{
+        "User-agent": "*"
+    }
+}

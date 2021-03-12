@@ -1,0 +1,114 @@
+{
+    "class": "language_zh",
+    "navbar": {
+        "title": "teedoc",
+        "logo": {
+            "alt": "teedoc logo",
+            "src": "/static/image/logo.png"
+        },
+        "home_url": "/",
+        "items": [
+            {
+                "url": "/get_started/zh/",
+                "label": "安装使用",
+                "position": "left"
+            },
+            {
+                "url": "/develop/zh/",
+                "label": "开发",
+                "position": "left"
+            },
+            {
+                "url": "https://github.com/neutree/teedoc",
+                "label": "github",
+                "target": "_blank",
+                "position": "right"
+            },
+            {
+                "id": "language",
+                "label": "Language: ",
+                "position": "right",
+                "items": [
+                    {
+                        "id": "zh",
+                        "url": "/",
+                        "label": "中文"
+                    },
+                    {
+                        "id": "en",
+                        "url": "/en/",
+                        "label": "English"
+                    }
+                ]
+            }
+        ]
+    },
+    "footer":{
+        "top":[
+            {
+                "label": "链接",
+                "items": [
+                    {
+                        "label": "使用 teedoc 构建",
+                        "url": "https://teedoc.neucrack.com",
+                        "target": "_blank"
+                    },
+                    {
+                        "label": "Copyright © 2021 Neucrack",
+                        "url": "https://neucrack.com",
+                        "target": "_blank"
+                    },
+                    {
+                        "label": "网站地图",
+                        "url": "/sitemap.xml"
+                    }
+                ]
+            },
+            {
+                "label": "源码",
+                "items": [
+                    {
+                        "label": "github",
+                        "url": "https://github.com/neutree/teedoc",
+                        "target": "_blank"
+                    },
+                    {
+                        "label": "gitee",
+                        "url": "https://gitee.com/teedoc/teedoc",
+                        "target": "_blank"
+                    },
+                    {
+                        "label": "本网站源文件",
+                        "url": "https://github.com/teedoc/teedoc.github.io",
+                        "target": "_blank"
+                    }
+                ]
+            }
+        ],
+        "bottom": [
+            {
+                "label": "*ICP备********号",
+                "url": "https://beian.miit.gov.cn",
+                "target": "_blank"
+            },
+            {
+                "label": "*公网安备***********号",
+                "url": "http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=****************",
+                "target": "_blank"
+            }
+        ]
+    },
+    "plugins": {
+        "teedoc-plugin-search":{
+            "config": {
+                "search_hint": "搜索",
+                "input_hint": "输入关键词，多关键词空格隔开",
+                "loading_hint": "正在加载，请稍候。。。",
+                "download_err_hint": "下载文件失败，请刷新重试或检查网络",
+                "other_docs_result_hint": "来自其它文档的结果",
+                "curr_doc_result_hint": "当前文档搜索结果"
+            }
+        }
+    },
+    "show_source": "编辑本页"
+}
