@@ -21,7 +21,9 @@
             "/static/": "static",
             "/get_started/assets/": "docs/get_started/assets"
         },
-        "/blog/": "blog"
+        "blog": {
+            "/blog/": "blog"
+        }
     },
     "executable": {
         "python": "python",
@@ -36,6 +38,12 @@
         },
         "teedoc-plugin-jupyter-notebook-parser": {
             "from": "../../plugins/teedoc-plugin-jupyter-notebook-parser",
+            "config": {
+
+            }
+        },
+        "teedoc-plugin-blog": {
+            "from": "../../plugins/teedoc-plugin-blog",
             "config": {
 
             }

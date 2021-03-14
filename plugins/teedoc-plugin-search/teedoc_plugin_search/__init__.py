@@ -161,9 +161,11 @@ class Plugin(Plugin_Base):
         return items
     
     def on_copy_files(self):
-        return self.files_to_copy
+        res = self.files_to_copy
+        self.files_to_copy = {}
+        return res
 
-    def on_htmls(self, htmls_files, htmls_pages):
+    def on_htmls(self, htmls_files, htmls_pages, htmls_blog=None):
         '''
             update htmls, may not all html, just partially
             htmls_files: {
@@ -215,6 +217,7 @@ class Plugin(Plugin_Base):
         for i, path in enumerate(sub_index_path):
             generated_index_json["/static/search_index/index_{}.json".format(i)] = path
         self.files_to_copy.update(generated_index_json)
+        return True
         
 
 

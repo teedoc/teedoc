@@ -23,6 +23,11 @@
                 "position": "left"
             },
             {
+                "url": "/blog/",
+                "label": "博客",
+                "position": "left"
+            },
+            {
                 "url": "https://github.com/neutree/teedoc",
                 "label": "github",
                 "target": "_blank",

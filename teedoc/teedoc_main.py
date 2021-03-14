@@ -87,6 +87,8 @@ def get_content_type_by_path(file_path):
         content_type = "application/javascript"
     elif ext == "xml":
         content_type = "text/xml"
+    elif ext == "json":
+        content_type = "application/json"
 
     return content_type
 
@@ -640,7 +642,9 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
             "navbar": ""
             "metadata": {},
             "footer": "",
-            "show_source": "Edit this page" or no this key
+            "show_source": "Edit this page" or no this key,
+            "date": "2021-3-14", # may not exists
+            "author": "", # may not exists
         }
     '''
     files = {}
@@ -684,6 +688,11 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                     )
                 else:
                     source_html = ""
+                info_html = '<span class="article_author">{}</span><span class="article_date">{}</span>'.format(
+                    html["author"] if "author" in html else "",
+                    html["date"] if "date" in html else "",
+                )
+
                 body_html = '''
         <div id="wrapper">
             {}
@@ -698,7 +707,14 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                             <div id="article_tags">
                                 {}
                             </div>
-                            {}
+                            <div id="article_info">
+                            <div>
+                                {}
+                            </div>
+                            <div>
+                                {}
+                            </div>
+                            </div>
                         </div>
                         <div id="article_content">
                             {}
@@ -728,6 +744,7 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                         menu_html,
                         article_title,
                         tags_html,
+                        info_html,
                         source_html,
                         html["body"],
                         previous_item_html, 
@@ -922,7 +939,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
         log.i("parse {}: {}, url:{}".format(name, dir, url))
         doc_config = load_doc_config(dir, config_template_dir)
         # get sidebar config
-        if sidebar:
+        if sidebar is True:
             try:
                 sidebar = get_sidebar(dir, config_template_dir)
             except Exception as e:
@@ -987,7 +1004,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                 for path in files:
                     if not path in result_htmls:
                         copy_file(path, path.replace(in_path, out_path))
-                # no file parsed, just reture
+                # no file parsed, just return
                 if not result_htmls:
                     log.d("parse files empty: {}".format(files))
                     # on_err()
@@ -1116,6 +1133,13 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     if not ok:
         return False
     # parse all blogs
+    htmls_blog = None
+    if "blog" in site_config["route"]:
+        routes = site_config["route"]["blog"]
+        ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
+                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files)
+        if not ok:
+            return False
 
     # generate sitemap.xml
     if not update_files: # only generate when build all
@@ -1124,7 +1148,9 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
 
     # send all htmls to plugins
     for plugin in plugins_objs:
-        plugin.on_htmls(htmls_files = htmls_files, htmls_pages = htmls_pages)
+        ok = plugin.on_htmls(htmls_files = htmls_files, htmls_pages = htmls_pages, htmls_blog = htmls_blog)
+        if not ok:
+            return False
 
     # copy assets
     assets = site_config["route"]["assets"]
@@ -1145,17 +1171,17 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             if not copy_dir(in_path, out_path):
                 return False
     # copy files from pulgins
+    for plugin in plugins_objs:
+        files = plugin.on_copy_files()
+        for dst,src in files.items():
+            if dst.startswith("/"):
+                dst = dst[1:]
+            dst = os.path.join(out_dir, dst)
+            if not os.path.isabs(src):
+                log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
+            if not copy_file(src, dst):
+                return False
     if not update_files:
-        for plugin in plugins_objs:
-            files = plugin.on_copy_files()
-            for dst,src in files.items():
-                if dst.startswith("/"):
-                    dst = dst[1:]
-                dst = os.path.join(out_dir, dst)
-                if not os.path.isabs(src):
-                    log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
-                if not copy_file(src, dst):
-                    return False
         # preview mode js
         if preview_mode:
             js_out_dir = os.path.join(out_dir, "static/js")

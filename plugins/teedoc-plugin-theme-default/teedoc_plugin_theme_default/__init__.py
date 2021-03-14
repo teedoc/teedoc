@@ -187,7 +187,9 @@ class Plugin(Plugin_Base):
         return items
     
     def on_copy_files(self):
-        return self.files_to_copy
+        res = self.files_to_copy
+        self.files_to_copy = {}
+        return res
 
 if __name__ == "__main__":
     config = {

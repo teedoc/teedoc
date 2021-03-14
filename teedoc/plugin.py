@@ -53,6 +53,9 @@ class Plugin_Base:
     
     def on_parse_pages(self, pages, new_config):
         return None
+
+    def on_parse_blog(self, pages, new_config):
+        return None
     
     def on_add_html_header_items(self):
         return []
@@ -68,7 +71,7 @@ class Plugin_Base:
     
     def on_copy_files(self):
         '''
-            copy file to out directory
+            copy file to out directory, when file changes, it also will be called
             @return dict object, keyword is url, value is file path
                     {
                         "/static/css/theme-default.css": "{}/theme-default.css".format(assets_abs_path)
@@ -77,7 +80,7 @@ class Plugin_Base:
         '''
         return {}
 
-    def on_htmls(self, htmls_files, htmls_pages):
+    def on_htmls(self, htmls_files, htmls_pages, htmls_blog=None):
         '''
             update htmls, may not all html, just partially
             htmls_files: {
@@ -93,4 +96,4 @@ class Plugin_Base:
                 }
             }
         '''
-        pass
+        return True
