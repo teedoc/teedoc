@@ -15,7 +15,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 import tempfile, shutil, json
 import time
-
+from datetime import datetime
 
 
 class Plugin(Plugin_Base):
@@ -135,9 +135,9 @@ class Plugin(Plugin_Base):
                         else:
                             GMT_FORMAT = '%Y-%m-%d'
                             try:
-                                date = datetime.strptime(date, GMT_FORMAT)
-                                ts = int(date.timestamp())
-                            except Exception:
+                                date_obj = datetime.strptime(date, GMT_FORMAT)
+                                ts = int(date_obj.timestamp())
+                            except Exception as e:
                                 date = date_file_edit
                     else:
                         date = date_file_edit
@@ -240,7 +240,7 @@ class Plugin(Plugin_Base):
             item["url"] = url
             self.index_content["items"][url] = item
         # sort by date
-        self.index_content["items"] = OrderedDict(sorted(self.index_content["items"].items(), key=lambda v: v[1]["ts"]))
+        self.index_content["items"] = OrderedDict(sorted(self.index_content["items"].items(), key=lambda v: v[1]["ts"], reverse=True))
         #   write content to sub index file
         with open(index_path, "w", encoding="utf-8") as f:
             json.dump(self.index_content, f, ensure_ascii=False)
