@@ -185,8 +185,10 @@ class Plugin(Plugin_Base):
         #     self.content["articles"][html["url"]] = html["raw"]
         # for file, html in htmls_pages.items():
         #     self.content["pages"][html["url"]] = html["raw"]
-        docs_url = htmls_files.keys()
-        pages_url = htmls_pages.keys()
+        if htmls_blog:
+            htmls_pages.update(htmls_blog)
+        docs_url = list(htmls_files.keys())
+        pages_url = list(htmls_pages.keys())
         index_content = {}
         sub_index_path = []
         generated_index_json = {}
