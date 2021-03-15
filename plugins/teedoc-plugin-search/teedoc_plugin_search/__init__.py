@@ -186,7 +186,7 @@ class Plugin(Plugin_Base):
         # for file, html in htmls_pages.items():
         #     self.content["pages"][html["url"]] = html["raw"]
         if htmls_blog:
-            htmls_pages.update(htmls_blog)
+            htmls_pages.update(htmls_blog.copy())
         docs_url = list(htmls_files.keys())
         pages_url = list(htmls_pages.keys())
         index_content = {}
