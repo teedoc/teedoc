@@ -3,7 +3,9 @@ window.onload = function(){
 }
 
 $(document).ready(function(){
-    if($("#blog_list").length > 0){
+    var isBlogHome = $("#blog_list").length > 0;
+    var isBlog = $("#blog_start").length > 0;
+    if(isBlogHome){
         $("#toc").remove();
     }
     function onDownloadOk(data, arg1, arg2){
@@ -11,14 +13,18 @@ $(document).ready(function(){
         $("#blog_list").append("<ul></ul>");
         for(var url in data["items"]){
             item = data["items"][url];
-            var li = '<li><a href="' + url + '" class="blog_title"><h2>'+ item["title"] +'</h2>';
             var info = '<div class="blog_info"><span class="blog_author">'+ item["author"] + '</span><span class="blog_date">'+ item["date"]+ '</span></div><div class="blog_tags">';
-            for(var i in item["tags"]){
-                info += '<span>' + item["tags"][i] + '</span>';    
+            // list
+            if(isBlogHome){
+                var li = '<li><a href="' + url + '" class="blog_title"><h2>'+ item["title"] +'</h2>';
+                for(var i in item["tags"]){
+                    info += '<span>' + item["tags"][i] + '</span>';    
+                }
+                info +='</div>' 
+                li += info + '<div class="blog_brief">'+ item["brief"] +'</div></a></li>';
+                $("#blog_list > ul").append(li);
             }
-            info +='</div>' 
-            li += info + '<div class="blog_brief">'+ item["brief"] +'</div></a></li>';
-            $("#blog_list > ul").append(li);
+            // sidebar
             var active = "not_active";
             if(pathname == url){
                 active = "active";
@@ -41,6 +47,8 @@ $(document).ready(function(){
             }
         });
     }
-    downloadJson("${site_root_url}static/blog_index/index.json", onDownloadOk);
+    if(isBlog){
+        downloadJson("${site_root_url}static/blog_index/index.json", onDownloadOk);
+    }
 });
 
