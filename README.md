@@ -38,7 +38,7 @@ documentation generate tool from markdown and jupyter notebook to html
 - [x] SEO friendly
 - [x] Real-time preview file changes
 - [x] Multiple thread support, faster build speed
-- [ ] Blog support
+- [x] Blog support
 
 
 ## Get Started
