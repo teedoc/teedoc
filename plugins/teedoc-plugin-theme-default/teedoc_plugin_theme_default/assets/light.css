@@ -209,7 +209,7 @@ code {
     background-color: white;
     visibility: hidden;
     margin-top: -5px;
-    z-index: 99;
+    z-index: 100;
 }
 #navbar .sub_items ul:hover {
     visibility: visible;
@@ -431,7 +431,8 @@ code {
     width: 25%;
     transition: 0.4s;
     top: 15%;
-    max-height: calc(100vh - 15%);
+    max-height: calc(100vh - 15vh);
+    overflow-y: auto;
 }
 #article #toc a{
     padding: 0.2em 0.1em;

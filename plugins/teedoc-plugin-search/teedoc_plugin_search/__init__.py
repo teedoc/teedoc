@@ -46,7 +46,7 @@ class Plugin(Plugin_Base):
             "/static/css/search/style.css": os.path.join(self.assets_abs_path, "style.css"),
         }
         self.footer_js = {
-            "/static/js/search/main.js": os.path.join(self.assets_abs_path, "main.js")
+            "/static/js/search/search_main.js": os.path.join(self.assets_abs_path, "search_main.js")
         }
         self.images = {
             "/static/image/search/close.svg": os.path.join(self.assets_abs_path, "close.svg"),

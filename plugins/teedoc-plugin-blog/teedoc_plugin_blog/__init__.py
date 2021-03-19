@@ -219,6 +219,8 @@ class Plugin(Plugin_Base):
                 }
             }
         '''
+        if not htmls_blog:
+            return True
         blog_url = list(htmls_blog.keys())
         index_url = ""
         blog_url = blog_url[0]

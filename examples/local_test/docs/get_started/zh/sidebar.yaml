@@ -29,6 +29,8 @@ items:
         file: usage/deploy_cdn.md
 -   label: 使用了 teedoc 的网站
     file: usage/sites.md
+-   label: testtest
+    file: syntax/syntax_markdown.md
 -   label: 更多样例
 -   label: 更多样例
     items:

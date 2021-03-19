@@ -298,8 +298,10 @@ def get_sidebar_list(sidebar, doc_path, doc_url):
             p = items[i - 1][1]["curr"]
         if i < length - 1:
             n = items[i + 1][1]["curr"]
-        item["previous"] = p
-        item["next"] = n
+        if not "previous" in item or not item["previous"]:
+            item["previous"] = p
+        if not "next" in item or not item["next"]:
+            item["next"] = n
         dict_items[path]= item
     return dict_items
 
