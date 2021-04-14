@@ -121,15 +121,25 @@ def copy_file(src, dst):
     shutil.copyfile(src, dst)
     return True
 
-def get_files(dir_path):
+def get_files(dir_path, warn=None):
     result = []
     files = os.listdir(dir_path)
     if not files:
         return []
+    # check index.* and readme.*, only allow one
+    if warn:
+        flag = False
+        for name in files:
+            name0 = os.path.splitext(name)[0].lower()
+            if name0 == "index" or name0 == "readme":
+                if flag:
+                    warn(f"dir {dir_path} include index file and readme file, please only use one!!!")
+                    break
+                flag = True
     for name in files:
         path = os.path.join(dir_path, name)
         if os.path.isdir(path):
-            f_list = get_files(path)
+            f_list = get_files(path, warn)
             result.extend(f_list)
         else:
             result.append(path.replace("\\", "/"))
@@ -335,9 +345,9 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file_rel(config["file"], doc_url)
                 if config["file"].startswith("./"):
-                    active = doc_path_relative == config["file"][2:]
+                    active = doc_path_relative.lower() == config["file"][2:].lower()
                 else:
-                    active = doc_path_relative == config["file"]
+                    active = doc_path_relative.lower() == config["file"].lower()
                 li_item_html = '<li class="{} with_link"><a href="{}"><span class="label">{}</span><span class="{}"></span></a>'.format(
                     "active" if active else "not_active",
                     url, config["label"],
@@ -447,12 +457,14 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                 elif parent_item_type == "selection" and _doc_url == _config_url: # / / /store.html
                     active = True
             else:
-                active = _doc_url == _config_url
+                if _config_url != "/" and page_url.startswith(_config_url):
+                    active = True
+                else:
+                    active = _doc_url == _config_url
             if active:
                 active_item = config
         sub_items_ul_html = ""
         if "items" in config:
-            active_item = None
             sub_items_html = ""
             for item in config["items"]:
                 item_html, _active_item = generate_items(item, doc_url, page_url, level = level + 1, parent_item_type = item_type)
@@ -461,8 +473,9 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                 sub_items_html += item_html
             sub_items_ul_html = "<ul>{}</ul>".format(sub_items_html)
         if item_type == "list":
-            li_html = '<li class="sub_items {}"><a>{}</a>{}\n'.format(
+            li_html = '<li class="sub_items {}"><a {}>{}</a>{}\n'.format(
                             "active_parent" if active_item else "",
+                            f'href="{config["url"]}"' if have_url else "",
                             "{}".format(config["label"]) if have_label else "",
                             sub_items_ul_html
                         )
@@ -900,7 +913,7 @@ def htmls_add_source(htmls, repo_addr, label):
 
     return htmls
 
-def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files):
+def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files, max_threads_num):
     '''
         @return {
             "doc_url", {
@@ -928,6 +941,9 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
         if not url.startswith(site_root_url):
             url = "{}{}".format(site_root_url[:-1], url)
         dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
+        if not os.path.exists(dir):
+            log.w("dir {} not exists!!!".format(dir))
+            continue
         if update_files:
             all_files = []
             for modify_file in update_files:
@@ -937,7 +953,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                 continue
             log.i("update file:", all_files)
         else:
-            all_files = get_files(dir)
+            all_files = get_files(dir, warn = log.w)
         log.i("parse {}: {}, url:{}".format(name, dir, url))
         doc_config = load_doc_config(dir, config_template_dir)
         # get sidebar config
@@ -1069,7 +1085,6 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             log.i("generate ok")
             return True
 
-        max_threads_num = multiprocessing.cpu_count()
         if len(all_files) > 10:
             all_files = split_list(all_files, max_threads_num)
             ts = []
@@ -1092,7 +1107,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
         htmls[url].update(_htmls)
     return True, htmls
 
-def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False):
+def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False, max_threads_num = 1):
     '''
         "route": {
             "docs": {
@@ -1127,14 +1142,14 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     # parse all docs
     routes = site_config["route"]["docs"]
     ok, htmls_files = parse("docs", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=True, allow_no_navbar=False, update_files=update_files)
+                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num)
     if not ok:
         return False
 
     # parse all pages
     routes = site_config["route"]["pages"]
     ok, htmls_pages = parse("pages", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=False, allow_no_navbar=True, update_files=update_files)
+                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num)
     if not ok:
         return False
     # parse all blogs
@@ -1142,7 +1157,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     if "blog" in site_config["route"]:
         routes = site_config["route"]["blog"]
         ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files)
+                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num)
         if not ok:
             return False
 
@@ -1271,6 +1286,7 @@ def main():
     parser.add_argument("-t", "--delay", type=int, default=-1, help="automatically rebuild and refresh page delay time")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s v{}".format(__version__))
     parser.add_argument("-i", "--index-url", type=str, default="", help="for install command, base URL of the Python Package Index (default https://pypi.org/simple). This should point to a repository compliant with PEP 503 (the simple repository API) or a local directory laid out in the same format.\ne.g. Chinese can use https://pypi.tuna.tsinghua.edu.cn/simple")
+    parser.add_argument("--thread", type=int, default=0, help="how many threads use to building, default 0 will use max CPU supported")
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json"])
     args = parser.parse_args()
     # convert json or yaml file
@@ -1337,7 +1353,10 @@ def main():
                 serve_dir = os.path.join(doc_src_path, "out").replace("\\", "/")
                 out_dir = serve_dir
             # thread num
-            max_threads_num = multiprocessing.cpu_count()
+            if args.thread > 0:
+                max_threads_num = args.thread
+            else:
+                max_threads_num = multiprocessing.cpu_count()
             log.i(f"max thread number: {max_threads_num}")
             if args.command in ["build", "serve"]:
                 # init plugins
@@ -1413,7 +1432,7 @@ def main():
                 log.i("all plugins install complete")
             elif args.command == "build":
                 # parse files
-                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview):
+                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview, max_threads_num=max_threads_num):
                     return 1
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
@@ -1421,7 +1440,7 @@ def main():
                 from http.server import SimpleHTTPRequestHandler
                 from http import HTTPStatus
 
-                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True):
+                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True, max_threads_num=max_threads_num):
                     return 1
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
@@ -1509,7 +1528,7 @@ def main():
                         else:                                 # normal file, nonly rebuild this file
                             files.append(path)
                     if files:
-                        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True):
+                        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True, max_threads_num=max_threads_num):
                             return 1
                         log.i("rebuild ok")
                 t.join()

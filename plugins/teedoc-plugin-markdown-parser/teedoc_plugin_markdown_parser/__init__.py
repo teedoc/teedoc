@@ -74,7 +74,13 @@ class Plugin(Plugin_Base):
                     content = self._update_link(content)
                     parser = markdown2.Markdown(extras = self._extention)
                     parser._toc_html = ""
-                    html = parser.convert(content)
+                    try:
+                        html = parser.convert(content)
+                    except Exception as e:
+                        import io, traceback
+                        traceback.print_exc()
+                        self.logger.w("parse markdown file {} fail, please check markdown content format".format(file))
+                        continue
                     if "title" in html.metadata:
                         title = html.metadata["title"]
                     else:

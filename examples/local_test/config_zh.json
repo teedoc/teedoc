@@ -23,6 +23,22 @@
                 "position": "left"
             },
             {
+                "label": "列表展示",
+                "url": "/blog/",
+                "position": "left",
+                "type": "list",
+                "items": [
+                    {
+                        "label": "使用",
+                        "url": "/get_started/zh/"
+                    },
+                    {
+                        "label": "开发",
+                        "url": "/develop/zh/"
+                    }
+                ]
+            },
+            {
                 "url": "/blog/",
                 "label": "博客",
                 "position": "left"
