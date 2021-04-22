@@ -96,7 +96,7 @@ class Plugin(Plugin_Base):
                     if "desc" in html.metadata:
                         desc = html.metadata["desc"]
                     else:
-                        desc = []
+                        desc = ""
                     result["htmls"][file] = {
                         "title": title,
                         "desc": desc,
