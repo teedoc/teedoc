@@ -1518,6 +1518,10 @@ def main():
                     # detect config.json or site_config.json change, if changed, update all docs file along with the json file
                     files = []
                     for path in files_changed:
+                        ext = os.path.splitext(path)
+                        if ".sw" in ext:
+                            log.w("ingnore {} temp file".format(path))
+                            continue
                         dir = os.path.dirname(path)
                         if path[:-5].endswith("site_config"): # site_config changed, rebuild all
                             raise RebuildException()
