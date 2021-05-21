@@ -341,6 +341,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
         is_dir = "items" in config
         active = False
         li_item_html = ""
+        collapsed = False if ("collapsed" in config and config["collapsed"] == False) else True
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 url = get_url_by_file_rel(config["file"], doc_url)
@@ -382,9 +383,12 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
             if _active:
                 li_item_html = li_item_html.replace("not_active", 'active_parent')
             elif not active:
-                li_item_html = li_item_html.replace("sub_indicator", "sub_indicator sub_indicator_collapsed")
+                if not collapsed:
+                    li_item_html = li_item_html.replace("sub_indicator", "sub_indicator")
+                else:
+                    li_item_html = li_item_html.replace("sub_indicator", "sub_indicator sub_indicator_collapsed")
             html += li_item_html
-            html += '<ul class="{}">\n{}</ul>\n'.format("show" if active else "", dir_html)
+            html += '<ul class="{}">\n{}</ul>\n'.format("show" if (active or not collapsed) else "", dir_html)
         else:
             html += li_item_html
         if li:

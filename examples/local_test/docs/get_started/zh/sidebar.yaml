@@ -9,6 +9,7 @@ items:
 -   label: 自定义
 -   label: 插件
     file: plugins/README.md
+    collapsed: false
     items:
     -   label: 主题插件
         file: plugins/themes.md
