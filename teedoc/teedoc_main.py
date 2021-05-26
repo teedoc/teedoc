@@ -1093,10 +1093,9 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             all_files = split_list(all_files, max_threads_num)
             ts = []
             for files in all_files:
-                t = threading.Thread(target=generate, args=(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, queue, plugins_new_config))
-                t.setDaemon(True)
-                t.start()
-                ts.append(t)
+                p = multiprocessing.Process(target=generate, args=(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, queue, plugins_new_config))
+                p.start()
+                ts.append(p)
             for t in ts:
                 t.join()
                 # log.i("{} generate ok".format(t.name))
