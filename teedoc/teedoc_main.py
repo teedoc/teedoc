@@ -5,10 +5,12 @@ try:
     from .logger import Logger
     from .http_server import HTTP_Server
     from .version import __version__
+    from .utils import sidebar_summary2dict
 except Exception:
     from logger import Logger
     from http_server import HTTP_Server
     from version import __version__
+    from utils import sidebar_summary2dict
 import os, sys
 import json, yaml
 import subprocess
@@ -409,6 +411,8 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
                     </div>
                     {}
                 </div>
+                <div id="sidebar_splitter">
+                </div>
             </div>'''.format(sidebar_title_html, items)
         html["sidebar"] = sidebar_html
         htmls[file] = html
@@ -715,8 +719,8 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
                 body_html = '''
         <div id="wrapper">
             {}
-            {}
             <div id="article">
+                {}
                 <div id="content_wrapper">
                     <div id="content_body">
                         <div id="article_head">
@@ -1290,7 +1294,7 @@ def main():
     parser.add_argument("-v", "--version", action="version", version="%(prog)s v{}".format(__version__))
     parser.add_argument("-i", "--index-url", type=str, default="", help="for install command, base URL of the Python Package Index (default https://pypi.org/simple). This should point to a repository compliant with PEP 503 (the simple repository API) or a local directory laid out in the same format.\ne.g. Chinese can use https://pypi.tuna.tsinghua.edu.cn/simple")
     parser.add_argument("--thread", type=int, default=0, help="how many threads use to building, default 0 will use max CPU supported")
-    parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json"])
+    parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
     # convert json or yaml file
     if args.command == "json2yaml":
@@ -1315,6 +1319,29 @@ def main():
             with open(json_path, "w", encoding="utf-8") as f2:
                 json.dump(obj, f2, ensure_ascii=False, indent=4)
             log.i("convert json from yaml complete, file at: {}".format(json_path))
+        return 0
+    elif args.command == "summary2json":
+        if not os.path.exists(args.file):
+            log.e("file {} not found".format(args.file))
+            return 1
+        with open(args.file, encoding="utf-8") as f:
+            obj = sidebar_summary2dict(f.read())
+            json_path = os.path.join(os.path.dirname(args.file), "sidebar.json")
+            with open(json_path, "w", encoding="utf-8") as f2:
+                json.dump(obj, f2, ensure_ascii=False, indent=4)
+            log.i("convert json from gitbook summary complete, file at: {}".format(json_path))
+        return 0
+    elif args.command == "summary2yaml":
+        if not os.path.exists(args.file):
+            log.e("file {} not found".format(args.file))
+            return 1
+        with open(args.file, encoding="utf-8") as f:
+            obj = sidebar_summary2dict(f.read())
+            yaml_str = yaml.dump(obj, allow_unicode=True, indent=4, sort_keys=False)
+            yaml_path = os.path.join(os.path.dirname(args.file), "sidebar.yaml")
+            with open(yaml_path, "w", encoding="utf-8") as f2:
+                f2.write(yaml_str)
+            log.i("convert yaml from gitbook summary complete, file at: {}".format(yaml_path))
         return 0
     elif args.command == "init":
         log.i("init doc now")
