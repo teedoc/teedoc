@@ -222,6 +222,8 @@ class Plugin(Plugin_Base):
         if not htmls_blog:
             return True
         blog_url = list(htmls_blog.keys())
+        if len(blog_url) == 0:
+            return True
         index_url = ""
         blog_url = blog_url[0]
         index_url = "{}static/blog_index/index.json".format(self.site_config["site_root_url"])
