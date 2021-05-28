@@ -19,7 +19,11 @@ class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
     desc = "default theme for teedoc"
     defautl_config = {
-        "light": True
+        "dark": True,
+        "env": {
+            "main_color": "#4caf7d",
+            "sidebar_width": "300px"
+        }
     }
 
     def __init__(self, config, doc_src_path, site_config, logger = None):
@@ -31,7 +35,11 @@ class Plugin(Plugin_Base):
         self.doc_src_path = doc_src_path
         self.site_config = site_config
         self.config = Plugin.defautl_config
+        env = self.config["env"]
+        if "env" in config:
+            env.update(config["env"])
         self.config.update(config)
+        self.config["env"] = env
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
@@ -43,9 +51,9 @@ class Plugin(Plugin_Base):
             "/static/css/theme_default/light.css": os.path.join(self.assets_abs_path, "light.css")
         }
         # code hilight css file
-        if "code_highlight_css" in config and config["code_highlight_css"]:
+        if "code_highlight_css" in self.config and self.config["code_highlight_css"]:
             self.css = {}
-            self.code_highlight_css = config["code_highlight_css"]
+            self.code_highlight_css = self.config["code_highlight_css"]
         else:
             self.code_highlight_css = None
             self.css = {
@@ -58,6 +66,7 @@ class Plugin(Plugin_Base):
         self.light_js = {
         }
         self.header_js = {
+            "/static/js/theme_default/split.js": os.path.join(self.assets_abs_path, "split.js"),
             "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
             "/static/js/theme_default/pre_main.js": os.path.join(self.assets_abs_path, "pre_main.js")
         }
@@ -66,8 +75,8 @@ class Plugin(Plugin_Base):
             "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
         # code hilight js file
-        if "code_highlight_js" in config and config["code_highlight_js"]:
-            self.code_highlight_js = config["code_highlight_js"]
+        if "code_highlight_js" in self.config and self.config["code_highlight_js"]:
+            self.code_highlight_js = self.config["code_highlight_js"]
         else:
             self.code_highlight_js = None
             self.footer_js["/static/css/theme_default/prism.min.js"] = os.path.join(self.assets_abs_path, "prism.min.js")
@@ -79,11 +88,9 @@ class Plugin(Plugin_Base):
             "/static/image/theme_default/dark_mode.svg": os.path.join(self.assets_abs_path, "dark_mode.svg")
         }
         # set site_root_url env value
-        if not "env" in config:
-            config['env'] = {}
-        config['env']["site_root_url"] = self.site_config["site_root_url"]
+        self.config['env']["site_root_url"] = self.site_config["site_root_url"]
         # replace variable in css with value
-        vars = config["env"]
+        vars = self.config["env"]
         self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_theme_default")
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
@@ -92,6 +99,7 @@ class Plugin(Plugin_Base):
         self.light_css = self._update_file_var(self.light_css, vars, self.temp_dir)
         self.css       = self._update_file_var(self.css, vars, self.temp_dir)
         self.header_js = self._update_file_var(self.header_js, vars, self.temp_dir)
+        self.footer_js = self._update_file_var(self.footer_js, vars, self.temp_dir)
         # files to copy
         self.html_header_items = self._generate_html_header_items()
         self.files_to_copy = {}
@@ -168,7 +176,7 @@ class Plugin(Plugin_Base):
             with open(path, encoding='utf-8') as f:
                 content = f.read()
                 for k, v in vars.items():
-                    content = content.replace("${}{}{}".format("{", k.strip(), "}"), v)
+                    content = content.replace("${}{}{}".format("{", k.strip(), "}"), str(v))
                 temp_path = os.path.join(temp_dir, os.path.basename(path))
                 with open(temp_path, "w", encoding='utf-8') as fw:
                     fw.write(content)

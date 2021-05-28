@@ -16,8 +16,26 @@ $(document).ready(function(){
     $("#sidebar ul .show").slideDown(200);
     registerSidebarClick();
     addTOC();
+    addSplitter();
     hello();
 });
+
+var sidebar_width = "${sidebar_width}";
+var sidebar_width_is_percent = false;
+try{
+    if(isNaN(sidebar_width)){
+        if(sidebar_width.endsWith("px")){
+            sidebar_width = parseInt(sidebar_width.substr(0, sidebar_width.length-2));
+        }else if(sidebar_width.endsWith("%")){
+            sidebar_width = parseInt(sidebar_width.substr(0, sidebar_width.length-1));
+            sidebar_width_is_percent = true;
+        }else{
+            sidebar_width = parseInt(sidebar_width);
+        }
+    }
+}catch(err){
+    alert('plugin theme env sidebar_width value error, e.g. 300 or "300px" or "30%", not ' + sidebar_width);
+}
 
 function registerSidebarClick(){
     function show_collapse_item(a_obj){
@@ -110,4 +128,72 @@ function addTOC(){
         // For headings inside relative or absolute positioned containers within content.
         hasInnerContainers: true,
         });
+}
+
+
+
+function getSplitter(){
+    var sizes = localStorage.getItem("splitter_w");
+    if(sizes){
+        try
+        {
+        sizes = JSON.parse(sizes);
+        }
+        catch(err)
+        {
+            sizes = false;
+        }
+    }
+    if(!sizes){
+        var screenW = $(window).width();
+        var split_w = 0;
+        if(!sidebar_width_is_percent){
+            split_w = parseInt(sidebar_width/screenW*100);
+        }else{
+            split_w = sidebar_width;
+        }
+        sizes = [split_w, 100-split_w];
+        setSplitter(sizes);
+    }
+    return sizes;
+}
+function setSplitter(sizes){
+    localStorage.setItem("splitter_w", JSON.stringify(sizes));
+}
+
+
+function addSplitter(){
+    var screenW = $(window).width();
+    if(screenW > 900)
+    {
+        var split = Split(["#sidebar_wrapper", "#article"],{
+                            gutterSize: 10,
+                            gutterAlign: 'start',
+                            minSize: 200,
+                            elementStyle: function (dimension, size, gutterSize) {
+                                return {
+                                    'width': 'calc(' + size + '% - ' + gutterSize + 'px)',
+                                }
+                            },
+                            onDragEnd: function (sizes) {
+                                setSplitter(sizes)
+                            },
+                        });
+        var screenW = $(window).width();
+        var sizes = getSplitter();
+        split_w = parseInt(sizes[0]);
+        if( (split_w + 20) >= screenW){
+            if(!sidebar_width_is_percent){
+                split_w = parseInt(sidebar_width/screenW*100);
+            }else{
+                split_w = sidebar_width;
+            }
+        }
+        split.setSizes([split_w, 100 - split_w]);
+        $(".gutter").hover(function(){
+            $(".gutter").css("width", "18px");
+        },function(){
+            $(".gutter").css("width", "10px");
+        });
+    }
 }

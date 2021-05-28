@@ -53,7 +53,8 @@
             "config": {
                 "dark": true,
                 "env": {
-                    "main_color": "#4caf7d"
+                    "main_color": "#4caf7d",
+                    "sidebar_width": "300px"
                 },
                 "css": "/static/css/custom.css",
                 "js": "/static/js/custom.js",
