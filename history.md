@@ -1,6 +1,22 @@
 teedoc update history
 ========
 
+## 2021-05-21 v1.15.0
+
+* Add summary2json and summary2yaml command for gitbook sidebar file
+* Add sidebar splitter, you can set `sidebar_width`(default sidebar width) config for plugin  `teedoc-plugin-theme-default`, e.g.:
+```
+"teedoc-plugin-theme-default": {
+            "from": "../../plugins/teedoc-plugin-theme-default",
+            "config": {
+                "env": {
+                    "sidebar_width": "300px"
+                }
+            }
+}
+```
+
+
 ## 2021-05-21 v1.14.0
 
 Speed up build by change multithread build to multiprocess build
