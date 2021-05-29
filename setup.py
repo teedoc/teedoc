@@ -19,6 +19,7 @@ os.chdir("teedoc")
 tempalte_files = glob("template/**", recursive=True)
 package_data_files = ['static/js/*']
 package_data_files.extend(tempalte_files)
+package_data_files.append("template/.gitignore")
 print(package_data_files)
 os.chdir("..")
 setup(
