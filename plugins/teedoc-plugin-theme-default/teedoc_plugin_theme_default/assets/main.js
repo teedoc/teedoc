@@ -17,6 +17,7 @@ $(document).ready(function(){
     registerSidebarClick();
     addTOC();
     addSplitter();
+    registerOnWindowResize();
     hello();
 });
 
@@ -71,11 +72,13 @@ function registerSidebarClick(){
             $("#menu").addClass("close");
             $("#to_top").addClass("m_hide");
             $("#sidebar_wrapper").show(100);
+            $(".gutter").css("display", "block");
         }else{ // hide
             $("#menu").removeClass("m_menu_fixed");
             $("#menu").removeClass("close");
             $("#to_top").removeClass("m_hide");
             $("#sidebar_wrapper").hide(100);
+            $(".gutter").css("display", "none");
         }
     });
     $("#navbar_menu_btn").bind("click", function(e){
@@ -161,39 +164,68 @@ function setSplitter(sizes){
     localStorage.setItem("splitter_w", JSON.stringify(sizes));
 }
 
+var hasSplitter = false;
+
+function createSplitter(){
+    var split = Split(["#sidebar_wrapper", "#article"],{
+        gutterSize: 10,
+        gutterAlign: 'start',
+        minSize: 200,
+        elementStyle: function (dimension, size, gutterSize) {
+            return {
+                'width': 'calc(' + size + '% - ' + gutterSize + 'px)',
+            }
+        },
+        onDragEnd: function (sizes) {
+            setSplitter(sizes)
+        },
+    });
+    hasSplitter = true;
+    var screenW = $(window).width();
+    var sizes = getSplitter();
+    split_w = parseInt(sizes[0]);
+    if(isNaN(split_w) || (split_w + 20) >= screenW){
+    if(!sidebar_width_is_percent){
+    split_w = parseInt(sidebar_width/screenW*100);
+    }else{
+    split_w = sidebar_width;
+    }
+    }
+    split.setSizes([split_w, 100 - split_w]);
+    $(".gutter").hover(function(){
+    $(".gutter").css("width", "18px");
+    },function(){
+    $(".gutter").css("width", "10px");
+    });
+}
 
 function addSplitter(){
     var screenW = $(window).width();
     if(screenW > 900)
     {
-        var split = Split(["#sidebar_wrapper", "#article"],{
-                            gutterSize: 10,
-                            gutterAlign: 'start',
-                            minSize: 200,
-                            elementStyle: function (dimension, size, gutterSize) {
-                                return {
-                                    'width': 'calc(' + size + '% - ' + gutterSize + 'px)',
-                                }
-                            },
-                            onDragEnd: function (sizes) {
-                                setSplitter(sizes)
-                            },
-                        });
-        var screenW = $(window).width();
-        var sizes = getSplitter();
-        split_w = parseInt(sizes[0]);
-        if(isNaN(split_w) || (split_w + 20) >= screenW){
-            if(!sidebar_width_is_percent){
-                split_w = parseInt(sidebar_width/screenW*100);
-            }else{
-                split_w = sidebar_width;
-            }
-        }
-        split.setSizes([split_w, 100 - split_w]);
-        $(".gutter").hover(function(){
-            $(".gutter").css("width", "18px");
-        },function(){
-            $(".gutter").css("width", "10px");
-        });
+        createSplitter();
     }
 }
+
+function registerOnWindowResize(){
+    window.onresize = function(){
+        var screenW = $(window).width();
+        console.log(screenW);
+        if(screenW < 900){
+            console.log($("#sidebar_wrapper").attr("style"));
+            $("#sidebar_wrapper").removeAttr("style");
+            if($("#menu").hasClass("close")){
+                $("#sidebar_wrapper").css("display", "block");    
+            }
+            $(".gutter").css("display", "none");
+        }else{
+            if(!hasSplitter){
+                createSplitter();
+            }
+            if($("#sidebar_wrapper").css("display") != "none"){
+                $(".gutter").css("display", "block");
+            }
+        }
+    }
+}
+

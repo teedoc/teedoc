@@ -230,6 +230,7 @@ code {
     background-position: 50%;
     transition: 0.2s;
     border-radius: 5px;
+    display: block;
 }
 
 .gutter.gutter-horizontal {
@@ -931,6 +932,9 @@ a.toc-link {
     #sidebar {
         position: relative;
         width: 100%;
+    }
+    .gutter {
+        display: none;
     }
     #sidebar > ul {
         padding-top: 3em;
