@@ -182,7 +182,7 @@ function addSplitter(){
         var screenW = $(window).width();
         var sizes = getSplitter();
         split_w = parseInt(sizes[0]);
-        if( (split_w + 20) >= screenW){
+        if(isNaN(split_w) || (split_w + 20) >= screenW){
             if(!sidebar_width_is_percent){
                 split_w = parseInt(sidebar_width/screenW*100);
             }else{
