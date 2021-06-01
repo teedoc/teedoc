@@ -946,8 +946,8 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
     global g_is_error
     g_is_error = False
     for url, dir in routes.items():
-        if not url.startswith(site_root_url):
-            url = "{}{}".format(site_root_url[:-1], url)
+        if not url.startswith("/"):
+            url = "{}{}".format("/", url)
         dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
         if not os.path.exists(dir):
             log.w("dir {} not exists!!!".format(dir))
