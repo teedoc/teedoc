@@ -941,7 +941,8 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             }
         }
     '''
-    queue = Queue()
+    manager = multiprocessing.Manager()
+    queue = manager.Queue()
     site_root_url = site_config["site_root_url"]
     global g_is_error
     g_is_error = False
@@ -1100,9 +1101,9 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                 p = multiprocessing.Process(target=generate, args=(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, queue, plugins_new_config))
                 p.start()
                 ts.append(p)
-            for t in ts:
-                t.join()
-                # log.i("{} generate ok".format(t.name))
+            for p in ts:
+                p.join()
+                # log.i("{} generate ok".format(p.name))
         else:
             if not generate(all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, queue, plugins_new_config):
                 return False, None
