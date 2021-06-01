@@ -33,6 +33,15 @@ code {
 #sidebar ul .active_parent > a {
     background-color: #232323;
 }
+.gutter.gutter-horizontal {
+    background-color: #484848;
+}
+*::-webkit-scrollbar-track {
+    background: #484848;
+}
+*::-webkit-scrollbar-thumb {
+    background-color: #6b6b6b;
+}
 #article #toc {
     background-color: #1b1b1b;
 }
