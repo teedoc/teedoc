@@ -19,6 +19,34 @@ items:
     file: syntax/syntax_markdown.md
 -   label: jupyter notebook 语法
     file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
 -   label: 部署
     file: usage/deploy.md
     items:

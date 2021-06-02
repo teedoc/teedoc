@@ -19,6 +19,7 @@ $(document).ready(function(){
     addSplitter();
     registerOnWindowResize();
     hello();
+    focusSidebar();
 });
 
 var sidebar_width = "${sidebar_width}";
@@ -226,6 +227,15 @@ function registerOnWindowResize(){
                 $(".gutter").css("display", "block");
             }
         }
+    }
+}
+
+function focusSidebar(){
+    var windowH = window.innerHeight;
+    var active = $("#sidebar .active")[0];
+    var offset = active.offsetTop;
+    if(offset > windowH/2){
+        $("#sidebar .show").scrollTop(offset);
     }
 }
 
