@@ -21,7 +21,7 @@ class Plugin(Plugin_Base):
         "parse_files": ["md"]
     }
 
-    def __init__(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object

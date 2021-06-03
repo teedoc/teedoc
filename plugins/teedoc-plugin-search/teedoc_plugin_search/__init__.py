@@ -24,7 +24,7 @@ class Plugin(Plugin_Base):
     defautl_config = {
     }
 
-    def __init__(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object
@@ -74,7 +74,7 @@ class Plugin(Plugin_Base):
             "pages": {}
         }
 
-    def __del__(self):
+    def on_del(self):
         if os.path.exists(self.temp_dir):
             try:
                 shutil.rmtree(self.temp_dir)

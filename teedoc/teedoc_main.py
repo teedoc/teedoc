@@ -1375,6 +1375,7 @@ def main():
         return 0
     t = None
     t2 = None
+    plugins_objs = []
     while 1: # for rebuild all files
         try:
             # doc source code root path
@@ -1404,7 +1405,6 @@ def main():
             if args.command in ["build", "serve"]:
                 # init plugins
                 plugins = list(site_config['plugins'].keys())
-                plugins_objs = []
                 log.i("plugins: {}".format(plugins))
                 for plugin, info in site_config['plugins'].items():
                     try:
@@ -1421,8 +1421,6 @@ def main():
                     module = __import__(plugin_import_name)
                     plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
                     plugins_objs.append(plugin_obj)
-            else:
-                plugins_objs = []
             # execute command
             if args.command == "install":
                 log.i("install, source doc root path: {}".format(doc_src_path))

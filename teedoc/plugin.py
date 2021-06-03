@@ -10,12 +10,15 @@ class Plugin_Base:
 
     def __init__(self, config, doc_src_path, site_config, logger = None):
         '''
+            @attention DO NOT overwrite this function, if have to, please call super().__init__() first
             @config a dict object
             @logger teedoc.logger.Logger object
         '''
-        self.logger = Fake_Logger() if not logger else logger
-        self.doc_src_path = doc_src_path
-        self.site_config = site_config
+        self._pid = os.getpid()
+        self.on_init(config, doc_src_path, site_config, logger)
+
+    def on_init(self):
+        pass
         
 
     def on_parse_files(self, files, new_config=None):
@@ -97,3 +100,12 @@ class Plugin_Base:
             }
         '''
         return True
+
+    def __del__(self):
+        # DO NOT implement this function, use on_end() instead !!!!!! this functioin may be called multi times
+        if os.getpid() == self._pid:
+            self.on_del()
+
+    def on_del(self):
+        pass
+
