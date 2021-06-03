@@ -1481,7 +1481,7 @@ def main():
                 class On_Resquest(SimpleHTTPRequestHandler):
 
                     def __init__(self, *args, **kwargs):
-                        super().__init__(*args, **kwargs, directory=serve_dir)
+                        super().__init__(*args, directory=serve_dir, **kwargs)
 
                     def do_GET(self):
                         file_path = self.path[1:].split("?")[0]
