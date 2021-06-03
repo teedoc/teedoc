@@ -135,7 +135,7 @@ def get_files(dir_path, warn=None):
             name0 = os.path.splitext(name)[0].lower()
             if name0 == "index" or name0 == "readme":
                 if flag:
-                    warn(f"dir {dir_path} include index file and readme file, please only use one!!!")
+                    warn("dir {} include index file and readme file, please only use one!!!".format(dir_path))
                     break
                 flag = True
     for name in files:
@@ -198,7 +198,7 @@ def update_config(old, update, level = 0):
                     else:
                         old_list_item[item["id"]] = item
                 else:
-                    old_list_item[f"n{i}"] = item
+                    old_list_item["n{}".format(i)] = item
             # convert back to list
             items = []
             for id in old_list_item:
@@ -214,7 +214,7 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
         @config_dir config template files dir, abspath
     '''
     config = None
-    config_path = os.path.join(doc_dir, f"{config_name}.json")
+    config_path = os.path.join(doc_dir, config_name + ".json")
     if os.path.exists(config_path):
         with open(config_path, encoding="utf-8") as f:
             try:
@@ -222,9 +222,9 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
             except Exception as e:
                 raise Exception('\n\ncan not parse json file "{}"\njson format error: {}'.format(config_path, e))
     else:
-        config_path = os.path.join(doc_dir, f"{config_name}.yaml")
+        config_path = os.path.join(doc_dir, config_name + ".yaml")
         if not os.path.exists(config_path):
-            config_path = os.path.join(doc_dir, f"{config_name}.yml")
+            config_path = os.path.join(doc_dir, config_name + ".yml")
         if not os.path.exists(config_path):
             raise Exception("can not open file: {}".format(config_path))
         with open(config_path, encoding="utf-8") as f:
@@ -1388,7 +1388,7 @@ def main():
                 max_threads_num = args.thread
             else:
                 max_threads_num = multiprocessing.cpu_count()
-            log.i(f"max thread number: {max_threads_num}")
+            log.i("max thread number: {}".format(max_threads_num))
             if args.command in ["build", "serve"]:
                 # init plugins
                 plugins = list(site_config['plugins'].keys())

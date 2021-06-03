@@ -39,7 +39,7 @@ def sidebar_summary2dict(content):
             elif line.startswith("    * "):
                 level_mark = "    "
             if not level_mark is None:
-                print(f"level symbol--{level_mark}--")
+                print("level symbol--{}--".format(level_mark))
         if line.startswith("## "): # label
             item = {
                 "label": line.strip()[3:]
@@ -52,7 +52,7 @@ def sidebar_summary2dict(content):
             }
             item[url_type] = url
             sidebar_items.append(item)
-        elif line.startswith(f"{level_mark}* "): # level 2 label
+        elif line.startswith("{}* ".format(level_mark)): # level 2 label
             label, url, url_type = parse_line(line)
             item = {
                 "label": label,
@@ -61,7 +61,7 @@ def sidebar_summary2dict(content):
             if not "items" in sidebar_items[-1]:
                 sidebar_items[-1]["items"] = []
             sidebar_items[-1]["items"].append(item)
-        elif line.startswith(f"{level_mark}{level_mark}* "): # level 3 label
+        elif line.startswith("{}{}* ".format(level_mark, level_mark)): # level 3 label
             label, url, url_type = parse_line(line)
             item = {
                 "label": label,
@@ -70,7 +70,7 @@ def sidebar_summary2dict(content):
             if not "items" in sidebar_items[-1]["items"][-1]:
                 sidebar_items[-1]["items"][-1]["items"] = []
             sidebar_items[-1]["items"][-1]["items"].append(item)
-        elif line.startswith(f"{level_mark}{level_mark}{level_mark}* "): # level 4 label
+        elif line.startswith("{}{}{}* ".format(level_mark, level_mark, level_mark)): # level 4 label
             label, url, url_type = parse_line(line)
             item = {
                 "label": label,
@@ -79,7 +79,7 @@ def sidebar_summary2dict(content):
             if not "items" in sidebar_items[-1]["items"][-1]["items"][-1]:
                 sidebar_items[-1]["items"][-1]["items"][-1]["items"] = []
             sidebar_items[-1]["items"][-1]["items"][-1]["items"].append(item)
-        elif line.startswith(f"{level_mark}{level_mark}{level_mark}{level_mark}* "): # level 5 label
+        elif line.startswith("{}{}{}{}* ".format(level_mark, level_mark, level_mark, level_mark)): # level 5 label
             label, url, url_type = parse_line(line)
             item = {
                 "label": label,
