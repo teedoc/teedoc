@@ -55,7 +55,7 @@ class Logger:
         # self.log.addHandler(sh)
         # file output
         if file_path:
-            fh = logging.FileHandler(file_path, mode="a", encoding="utf-8")#默认mode 为a模式，默认编码方式为utf-8
+            fh = logging.FileHandler(file_path, mode="a", encoding="utf-8")
             fh.setFormatter(formatter)
             fh.setLevel(level_)
             self.log.addHandler(fh)
