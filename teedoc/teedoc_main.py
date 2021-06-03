@@ -332,7 +332,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
                                 "title": "",
                                 "desc": "",
                                 "keywords": [],
-                                "body": html，
+                                "body": html,
                                 “sidebar": ""
                                 }
                 }
