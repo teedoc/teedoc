@@ -15,12 +15,16 @@ class HTTP_Server(HTTPServer):
         err_type = sys.exc_info()[0]
         if err_type == ConnectionAbortedError or err_type == BrokenPipeError or err_type == ConnectionResetError:
             return
-        print('-'*40, file=sys.stderr)
+        # print('-'*40, file=sys.stderr)
+        print('-'*40)
+        # print('Exception occurred during processing of request from',
+        #     client_address, file=sys.stderr)
         print('Exception occurred during processing of request from',
-            client_address, file=sys.stderr)
+            client_address)
         import traceback
         traceback.print_exc()
-        print('-'*40, file=sys.stderr)
+        # print('-'*40, file=sys.stderr)
+        print('-'*40)
 
 
 
