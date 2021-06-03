@@ -924,12 +924,10 @@ def htmls_add_source(htmls, repo_addr, label):
 def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
     if not pipe_tx is None:
         def on_err():
-            print('eeeee')
             pipe_tx.send(True)
 
         def is_err():
             if pipe_rx.poll():
-                print('get  eeeee')
                 pipe_rx.recv()
                 return True
             return False

@@ -2,7 +2,7 @@
     logger wrapper based oh logging
 
     @author neucrack
-    @license MIT © 2020-2021 neucrack CZD666666@gmail.com
+    @license MIT copyright 2020-2021 neucrack CZD666666@gmail.com
 '''
 
 
