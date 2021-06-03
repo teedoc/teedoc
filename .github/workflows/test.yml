@@ -1,0 +1,34 @@
+# This is a basic workflow to help you get started with Actions
+
+name: test build
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    name: test build task
+    # The type of runner that the job will run on
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [2.7, 3.6, 3.7, 3.9]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: checkout code from github
+        uses: actions/checkout@v2
+
+      # Runs a set of commands using the runners shell
+      - name: test build
+        run: |
+          python teedoc/teedoc_main.py -d examples/local_test build
