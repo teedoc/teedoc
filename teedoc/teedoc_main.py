@@ -483,7 +483,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
         if item_type == "list":
             li_html = '<li class="sub_items {}"><a {}>{}</a>{}\n'.format(
                             "active_parent" if active_item else "",
-                            f'href="{config["url"]}"' if have_url else "",
+                            'href="{}"'.format(config["url"]) if have_url else "",
                             "{}".format(config["label"]) if have_label else "",
                             sub_items_ul_html
                         )
@@ -884,7 +884,7 @@ def get_html_start_id_class(html, id, classes):
         classes.extend(html["metadata"]["class"].split(","))
     if "" in classes:
         classes.remove("")
-    html_start = '<html {} {}>'.format(f'id="{id}"' if id else "", 'class="{}"'.format(" ".join(classes)) if classes else "")
+    html_start = '<html {} {}>'.format('id="{}"'.format(id) if id else "", 'class="{}"'.format(" ".join(classes)) if classes else "")
     return html_start
 
 def htmls_add_source(htmls, repo_addr, label):
