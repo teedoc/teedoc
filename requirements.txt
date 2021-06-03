@@ -2,3 +2,5 @@ coloredlogs
 markdown2
 watchdog
 nbconvert
+PyYAML
+
