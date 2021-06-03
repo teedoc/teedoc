@@ -920,6 +920,123 @@ def htmls_add_source(htmls, repo_addr, label):
 
     return htmls
 
+
+def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
+    if not pipe_tx is None:
+        def on_err():
+            print('eeeee')
+            pipe_tx.send(True)
+
+        def is_err():
+            if pipe_rx.poll():
+                print('get  eeeee')
+                pipe_rx.recv()
+                return True
+            return False
+    else:
+        is_err_flag = False
+        def on_err():
+            global is_err_flag
+            is_err_flag = True
+
+        def is_err():
+            return is_err_flag
+
+    try:
+        if url.startswith("/"):
+            rel_url = url[1:]
+        else:
+            rel_url = url
+        out_path = os.path.join(out_dir, rel_url)
+        in_path  = os.path.join(doc_src_path, dir)
+        if in_path.endswith("/"):
+            in_path = in_path[:-1]
+        if out_path.endswith("/"):
+            out_path = out_path[:-1]
+        # call plugins to parse files
+        result_htmls = {}
+        for plugin in plugins_objs:
+            # parse file content
+            if plugin.name in plugins_new_config:
+                new_config = plugins_new_config[plugin.name]["config"]
+            else:
+                new_config = {}
+            result = plugin.__getattribute__(plugin_func)(files, new_config=new_config)
+            if result:
+                if not result['ok']:
+                    log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
+                    on_err()
+                    return False
+                else:
+                    for key in result['htmls']:
+                        if result['htmls'][key]:
+                            result_htmls[key] = result['htmls'][key] # will cover the before
+            if is_err():
+                return False
+        # copy not parsed files
+        for path in files:
+            if not path in result_htmls:
+                copy_file(path, path.replace(in_path, out_path))
+        # no file parsed, just return
+        if not result_htmls:
+            log.d("parse files empty: {}".format(files))
+            # on_err()
+            return True
+        htmls = result_htmls
+        # generate sidebar to html
+        if sidebar:
+            sidebar_list = get_sidebar_list(sidebar, dir, url)
+            htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "")
+        else:
+            sidebar_list = {}
+        if is_err():
+            return False
+        # generate navbar to html
+        if navbar:
+            htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs, plugins_new_config)
+        if footer:
+            htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
+        if is_err():
+            return False
+        # show source code url
+        if "source" in site_config:
+            label = None
+            if not "show_source" in doc_config:
+                label = "Edit this page"
+            elif doc_config["show_source"]:
+                label = doc_config["show_source"]
+            if label:
+                htmls = htmls_add_source(htmls, site_config["source"], label)
+
+        # consturct html page
+        htmls_str = construct_html(htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path)
+        if is_err():
+            return False
+        # check abspath
+        if site_root_url != "/":
+            htmls_str = update_html_abs_path(htmls_str, site_root_url)
+        if is_err():
+            return False
+        # write to file
+        ok, msg = write_to_file(htmls_str, in_path, out_path)
+        if not ok:
+            log.e("write files error: {}".format(msg))
+            on_err()
+            return False
+        if is_err():
+            return False
+        # add url, add "url" keyword for htmls, will remove empty html items
+        htmls = add_url_item(htmls, rel_url, dir, site_root_url)
+        if len(htmls) > 0:
+            queue.put((url, htmls))
+    except Exception as e:
+        log.e("generate html fail: {}".format(e))
+        on_err()
+        raise e
+        return False
+    log.i("generate ok")
+    return True
+
 def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files, max_threads_num):
     '''
         @return {
@@ -943,8 +1060,6 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
     manager = multiprocessing.Manager()
     queue = manager.Queue()
     site_root_url = site_config["site_root_url"]
-    global g_is_error
-    g_is_error = False
     for url, dir in routes.items():
         if not url.startswith("/"):
             url = "{}{}".format("/", url)
@@ -989,122 +1104,22 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             footer = doc_config['footer']
         except Exception as e:
             footer = None
-        def on_err():
-            global g_is_error
-            g_is_error = True
-        def is_err():
-            global g_is_error
-            return g_is_error
         
 
-        def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, queue, plugins_new_config):
-            try:
-                if url.startswith("/"):
-                    rel_url = url[1:]
-                else:
-                    rel_url = url
-                out_path = os.path.join(out_dir, rel_url)
-                in_path  = os.path.join(doc_src_path, dir)
-                if in_path.endswith("/"):
-                    in_path = in_path[:-1]
-                if out_path.endswith("/"):
-                    out_path = out_path[:-1]
-                # call plugins to parse files
-                result_htmls = {}
-                for plugin in plugins_objs:
-                    # parse file content
-                    if plugin.name in plugins_new_config:
-                        new_config = plugins_new_config[plugin.name]["config"]
-                    else:
-                        new_config = {}
-                    result = plugin.__getattribute__(plugin_func)(files, new_config=new_config)
-                    if result:
-                        if not result['ok']:
-                            log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
-                            on_err()
-                            return False
-                        else:
-                            for key in result['htmls']:
-                                if result['htmls'][key]:
-                                    result_htmls[key] = result['htmls'][key] # will cover the before
-                    if is_err():
-                        return False
-                # copy not parsed files
-                for path in files:
-                    if not path in result_htmls:
-                        copy_file(path, path.replace(in_path, out_path))
-                # no file parsed, just return
-                if not result_htmls:
-                    log.d("parse files empty: {}".format(files))
-                    # on_err()
-                    return True
-                htmls = result_htmls
-                # generate sidebar to html
-                if sidebar:
-                    sidebar_list = get_sidebar_list(sidebar, dir, url)
-                    htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "")
-                else:
-                    sidebar_list = {}
-                if is_err():
-                    return False
-                # generate navbar to html
-                if navbar:
-                    htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs, plugins_new_config)
-                if footer:
-                    htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
-                if is_err():
-                    return False
-                # show source code url
-                if "source" in site_config:
-                    label = None
-                    if not "show_source" in doc_config:
-                        label = "Edit this page"
-                    elif doc_config["show_source"]:
-                        label = doc_config["show_source"]
-                    if label:
-                        htmls = htmls_add_source(htmls, site_config["source"], label)
-
-                # consturct html page
-                htmls_str = construct_html(htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path)
-                if is_err():
-                    return False
-                # check abspath
-                if site_root_url != "/":
-                    htmls_str = update_html_abs_path(htmls_str, site_root_url)
-                if is_err():
-                    return False
-                # write to file
-                ok, msg = write_to_file(htmls_str, in_path, out_path)
-                if not ok:
-                    log.e("write files error: {}".format(msg))
-                    on_err()
-                    return False
-                if is_err():
-                    return False
-                # add url, add "url" keyword for htmls, will remove empty html items
-                htmls = add_url_item(htmls, rel_url, dir, site_root_url)
-                if len(htmls) > 0:
-                    queue.put((url, htmls))
-            except Exception as e:
-                log.e("generate html fail: {}".format(e))
-                on_err()
-                raise e
-                return False
-            log.i("generate ok")
-            return True
-
+ 
         if len(all_files) > 10:
             all_files = split_list(all_files, max_threads_num)
             ts = []
+            pipe_rx, pipe_tx = multiprocessing.Pipe()
             for files in all_files:
-                p = multiprocessing.Process(target=generate, args=(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, queue, plugins_new_config))
+                p = multiprocessing.Process(target=generate, args=(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx))
                 p.start()
                 ts.append(p)
             for p in ts:
                 p.join()
                 # log.i("{} generate ok".format(p.name))
         else:
-            if not generate(all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, queue, plugins_new_config):
+            if not generate(all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None):
                 return False, None
     htmls = {}
     for i in range(queue.qsize()):
