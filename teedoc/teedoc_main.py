@@ -333,7 +333,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
                                 "desc": "",
                                 "keywords": [],
                                 "body": html,
-                                “sidebar": ""
+                                "sidebar": ""
                                 }
                 }
     '''
@@ -428,7 +428,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                                 "desc": "",
                                 "keywords": [],
                                 "body": html,
-                                “sidebar": ""
+                                "sidebar": ""
                                 }
                 }
         @return {
@@ -436,7 +436,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                                 "title": "",
                                 "desc": "",
                                 "keywords": [],
-                                "body": html，
+                                "body": html,
                                 "sidebar": "",
                                 "navbar": ""
                                 }
@@ -575,7 +575,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
                                 "desc": "",
                                 "keywords": [],
                                 "body": html,
-                                “sidebar": "",
+                                "sidebar": "",
                                 "navbar": ""
                                 }
                 }
@@ -584,7 +584,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
                                 "title": "",
                                 "desc": "",
                                 "keywords": [],
-                                "body": html，
+                                "body": html,
                                 "sidebar": "",
                                 "navbar": "",
                                 "footer": ""
