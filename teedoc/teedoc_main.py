@@ -1,6 +1,5 @@
 import argparse
 import sys
-from typing import Optional
 try:
     from .logger import Logger
     from .http_server import HTTP_Server
