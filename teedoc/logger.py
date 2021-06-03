@@ -92,16 +92,16 @@ class Fake_Logger:
         pass
 
     def d(self, *args):
-        print(*args)
+        print(args)
 
     def i(self, *args):
-        print(*args)
+        print(args)
 
     def w(self, *args):
-        print(*args)
+        print(args)
 
     def e(self, *args):
-        print(*args)
+        print(args)
 
 
 if __name__ == "__main__":
