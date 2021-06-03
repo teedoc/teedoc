@@ -31,5 +31,5 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: test build
         run: |
-          pip install -r requirements.txt
-          python teedoc/teedoc_main.py -d examples/local_test build
+          pip3 install -r requirements.txt
+          python3 teedoc/teedoc_main.py -d examples/local_test build
