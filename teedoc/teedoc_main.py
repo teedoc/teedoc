@@ -119,7 +119,10 @@ def copy_file(src, dst):
     dir = os.path.dirname(dst)
     if not os.path.exists(dir):
         os.makedirs(dir, exist_ok=True)
-    shutil.copyfile(src, dst)
+    try:
+        shutil.copyfile(src, dst)
+    except Exception:
+        return False
     return True
 
 def get_files(dir_path, warn=None):
@@ -1206,7 +1209,8 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                     in_path = file.replace(in_path+"/", "")
                     out_path = os.path.join(out_path, in_path)
                     log.i("copy", file, out_path)
-                    copy_file(file, out_path)
+                    if not copy_file(file, out_path):
+                        log.w("copy {} to {} fail".format(file, out_path))
         else:
             if not copy_dir(in_path, out_path):
                 return False
