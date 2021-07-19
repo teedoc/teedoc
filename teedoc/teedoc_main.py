@@ -1248,41 +1248,47 @@ def files_watch(doc_src_path, log, delay_time, queue):
         
         def get_update_files(self):
             self.lock.acquire()
+            self.update_files = list(set(self.update_files))  # remove dumplicated files
             files = self.update_files
             if files:
                 self.update_files = []
             self.lock.release()
             return files
+        
+        def _append_files(self, files):
+            self.lock.acquire()
+            self.update_files.extend(files)
+            self.lock.release()
 
         def on_moved(self, event):
-            pass
-        
-        def on_created(self, event):
             if event.is_directory:
                 # print("directory created:{0}".format(event.src_path))
                 pass
             else:
-                # print("file created:{0}".format(event.src_path))
+                print("file moved:{0}".format(event.dest_path))
+                files = [os.path.abspath(os.path.join(self.doc_src_path, event.dest_path)).replace("\\", "/")]
+                self._append_files(files)
+        
+        def on_created(self, event):
+            if event.is_directory:
+                log.d("directory created:{0}".format(event.src_path))
+                pass
+            else:
+                log.d("file created:{0}".format(event.src_path))
                 files = [os.path.abspath(os.path.join(self.doc_src_path, event.src_path)).replace("\\", "/")]
-                self.lock.acquire()
-                self.update_files.extend(files)
-                self.update_files = list(set(self.update_files))
-                self.lock.release()
+                self._append_files(files)
         
         def on_deleted(self, event):
             pass
-        
+
         def on_modified(self, event):
             if event.is_directory:
                 # print("directory modified:{0}".format(event.src_path))
                 pass
             else:
-                # log.d("file modified:{0}".format(event.src_path))
+                log.d("file modified:{0}".format(event.src_path))
                 files = [os.path.abspath(os.path.join(self.doc_src_path, event.src_path)).replace("\\", "/")]
-                self.lock.acquire()
-                self.update_files.extend(files)
-                self.update_files = list(set(self.update_files))
-                self.lock.release()
+                self._append_files(files)
  
     observer = Observer()
     handler = FileEventHandler(doc_src_path)
@@ -1302,7 +1308,6 @@ def files_watch(doc_src_path, log, delay_time, queue):
 
 
 def main():
-    log = Logger(level="i")
     parser = argparse.ArgumentParser(prog="teedoc", description="teedoc, a doc generator, generate html from markdown and jupyter notebook\nrun 'teedoc install && teedoc serve'")
     parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
     parser.add_argument("-f", "--file", type=str, default="", help="file path for json2yaml or yaml2json command")
@@ -1310,9 +1315,12 @@ def main():
     parser.add_argument("-t", "--delay", type=int, default=-1, help="automatically rebuild and refresh page delay time")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s v{}".format(__version__))
     parser.add_argument("-i", "--index-url", type=str, default="", help="for install command, base URL of the Python Package Index (default https://pypi.org/simple). This should point to a repository compliant with PEP 503 (the simple repository API) or a local directory laid out in the same format.\ne.g. Chinese can use https://pypi.tuna.tsinghua.edu.cn/simple")
+    parser.add_argument("-log", "--log-level", type=str, default="i", choices=["d", "i", "w", "e"], help="log level")
     parser.add_argument("--thread", type=int, default=0, help="how many threads use to building, default 0 will use max CPU supported")
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
+
+    log = Logger(level=args.log_level)
     # convert json or yaml file
     if args.command == "json2yaml":
         if not os.path.exists(args.file):
@@ -1379,8 +1387,8 @@ def main():
         return 0
     t = None
     t2 = None
-    plugins_objs = []
     while 1: # for rebuild all files
+        plugins_objs = []
         try:
             # doc source code root path
             doc_src_path = os.path.abspath(args.dir).replace("\\", "/")
