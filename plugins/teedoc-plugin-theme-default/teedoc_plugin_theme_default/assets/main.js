@@ -20,6 +20,7 @@ $(document).ready(function(){
     registerOnWindowResize();
     hello();
     focusSidebar();
+    imageViewer();
 });
 
 var sidebar_width = "${sidebar_width}";
@@ -211,7 +212,6 @@ function addSplitter(){
 function registerOnWindowResize(){
     window.onresize = function(){
         var screenW = $(window).width();
-        console.log(screenW);
         if(screenW < 900){
             console.log($("#sidebar_wrapper").attr("style"));
             $("#sidebar_wrapper").removeAttr("style");
@@ -237,5 +237,9 @@ function focusSidebar(){
     if(offset > windowH/2){
         $("#sidebar .show").scrollTop(offset);
     }
+}
+
+function imageViewer(){
+    const gallery = new Viewer(document.getElementById("content_body"));
 }
 

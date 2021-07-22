@@ -1,6 +1,14 @@
 teedoc update history
 ========
 
+## 2021-07-22 v1.15.8
+
+
+* Optimize file watcher, fix rename in file browser can't trigger event issue
+* Fix error when copy error(not found error)
+
+plugin theme_default: Add image viewer for img item
+
 ## 2021-05-21 v1.15.0
 
 * Add summary2json and summary2yaml command for gitbook sidebar file

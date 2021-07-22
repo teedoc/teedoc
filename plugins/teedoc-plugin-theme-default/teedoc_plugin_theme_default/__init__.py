@@ -59,6 +59,8 @@ class Plugin(Plugin_Base):
             self.css = {
                 "/static/css/theme_default/prism.min.css": os.path.join(self.assets_abs_path, "prism.min.css"),
             }
+        # image viewer
+        self.css["/static/css/theme_default/viewer.min.css"] = os.path.join(self.assets_abs_path, "viewer.min.css")
         # js files
         self.dark_js = {
 
@@ -72,7 +74,8 @@ class Plugin(Plugin_Base):
         }
         self.footer_js = {
             "/static/js/theme_default/tocbot.min.js": os.path.join(self.assets_abs_path, "tocbot.min.js"),
-            "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js")
+            "/static/js/theme_default/main.js": os.path.join(self.assets_abs_path, "main.js"),
+            "/static/js/theme_default/viewer.min.js": os.path.join(self.assets_abs_path, "viewer.min.js")
         }
         # code hilight js file
         if "code_highlight_js" in self.config and self.config["code_highlight_js"]:

@@ -517,9 +517,7 @@ code {
 #content_body img {
     max-width: 100%;
     object-fit: contain;
-}
-#content_body img::before {
-    content: "<span class==\"img_btn\"></span>";
+    cursor: zoom-in;
 }
 
 /* add numbers for titles */
