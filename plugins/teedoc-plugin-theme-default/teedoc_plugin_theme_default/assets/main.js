@@ -16,10 +16,13 @@ $(document).ready(function(){
     $("#sidebar ul .show").slideDown(200);
     registerSidebarClick();
     addTOC();
-    addSplitter();
-    registerOnWindowResize();
+    var has_sidebar = document.getElementById("sidebar_wrapper");
+    if(has_sidebar){
+        addSplitter();
+        focusSidebar();
+    }
+    registerOnWindowResize(has_sidebar);
     hello();
-    focusSidebar();
     imageViewer();
 });
 
@@ -209,9 +212,12 @@ function addSplitter(){
     }
 }
 
-function registerOnWindowResize(){
+function registerOnWindowResize(has_sidebar){
     window.onresize = function(){
         var screenW = $(window).width();
+        if(!has_sidebar){
+            return;
+        }
         if(screenW < 900){
             console.log($("#sidebar_wrapper").attr("style"));
             $("#sidebar_wrapper").removeAttr("style");
@@ -240,6 +246,10 @@ function focusSidebar(){
 }
 
 function imageViewer(){
-    const gallery = new Viewer(document.getElementById("content_body"));
+    var content_e = document.getElementById("content_body");
+    if(!content_e){
+        content_e = document.getElementById("page_content");
+    }
+    const gallery = new Viewer(content_e);
 }
 

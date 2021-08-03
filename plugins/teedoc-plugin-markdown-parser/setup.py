@@ -7,13 +7,13 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
-install_requires = ["markdown2 >= 2.4.0"]
+install_requires = ["mistune"]
 packages = find_packages()
 print("packages:", packages)
 
 setup(
     name='teedoc-plugin-markdown-parser',
-    version="1.0.10",
+    version="2.0.0",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
