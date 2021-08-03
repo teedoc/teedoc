@@ -7,13 +7,13 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
-install_requires = []
+install_requires = ["teedoc-plugin-markdown-parser"]
 packages = find_packages()
 print("packages:", packages)
 
 setup(
     name='teedoc-plugin-blog',
-    version="1.0.6",
+    version="1.0.8",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 

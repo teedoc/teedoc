@@ -1,5 +1,5 @@
 coloredlogs
-markdown2
+mistune
 watchdog
 nbconvert
 PyYAML

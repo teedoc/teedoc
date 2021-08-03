@@ -3,7 +3,6 @@ import os, sys
 from os.path import join
 import tempfile
 import shutil
-import markdown2
 import json
 import copy
 try:

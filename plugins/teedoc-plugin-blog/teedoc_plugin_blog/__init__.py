@@ -1,7 +1,6 @@
 
 
 import os, sys
-import markdown2
 import re
 from collections import OrderedDict
 try:
@@ -17,6 +16,17 @@ import tempfile, shutil, json
 import time
 from datetime import datetime
 
+import mistune
+mistune_version = mistune.__version__.split(".") # 0.8.4, 2.0.0rc1
+mistune_version = int(mistune_version[0]) * 10 + int(mistune_version[1]) # 8, 20
+local_plugin_path = os.path.join(teedoc_project_path, "plugins", "teedoc-plugin-markdown-parser")
+if os.path.exists(local_plugin_path):
+    sys.path.insert(0, local_plugin_path)
+from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
+if mistune_version >= 20:
+    from teedoc_plugin_markdown_parser.renderer_new import MDRenderer, plugins
+else:
+    from teedoc_plugin_markdown_parser.renderer_old import MDRenderer
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -37,23 +47,6 @@ class Plugin(Plugin_Base):
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
-        self._extention = {
-            # we not need TOC, but we use this extension to generate ID of headers
-            "toc" : {
-                "depth": config["toc_depth"] if "toc_depth" in config else 3
-            },
-            "metadata" : None,
-            "fenced-code-blocks" : None,
-            "highlightjs-lang" : None,
-            "break-on-newline" : None,
-            "code-friendly" : None,
-            "cuddled-lists" : None,
-            "footnotes" : None,
-            "strike" : None,
-            "spoiler" : None,
-            "tables" : None,
-            "task_list" : None
-        }
         self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_blog")
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
@@ -76,6 +69,26 @@ class Plugin(Plugin_Base):
         self.index_content = {
             "items": {}
         }
+
+    def on_new_process_init(self):
+        '''
+            for multiple processing, for below func, will be called in new process,
+            every time create a new process, this func will be invoke
+        '''
+        if mistune_version >= 20:
+            self.md_parser = mistune.create_markdown(renderer=MDRenderer(), plugins=plugins)
+        else:
+            renderer = MDRenderer()
+            self.md_parser = mistune.Markdown(renderer=renderer)
+        self.meta_parser = Meta_Parser()
+
+    def on_new_process_del(self):
+        '''
+            for multiple processing, for below func, will be called in new process,
+            every time exit a new process, this func will be invoke
+        '''
+        del self.md_parser
+        del self.meta_parser
 
     def on_parse_blog(self, files, new_config=None):
         # result, format must be this
@@ -101,35 +114,34 @@ class Plugin(Plugin_Base):
                     is_blog_index = file.lower() == blog_index_file_path
                     if is_blog_index:
                         content += '\n<div id="blog_list"></div>'
-                    parser = markdown2.Markdown(extras = self._extention)
-                    parser._toc_html = ""
-                    html = parser.convert(content)
+                    metadata, content_no_meta = self.meta_parser.parse_meta(content)
+                    html = self.md_parser(content_no_meta)
                     if "<!-- more -->" in html:
                         brief = html[:html.find("<!-- more -->")].strip()
                     else:
                         brief = html[:500].strip()
-                    if "title" in html.metadata:
-                        title = html.metadata["title"]
+                    if "title" in metadata:
+                        title = metadata["title"]
                     else:
                         title = ""
-                    if "keywords" in html.metadata and not html.metadata["keywords"].strip() == "":
-                        keywords = html.metadata["keywords"].split(",")
+                    if "keywords" in metadata and not metadata["keywords"].strip() == "":
+                        keywords = metadata["keywords"].split(",")
                     else:
                         keywords = []
-                    if "tags" in html.metadata and not html.metadata["tags"].strip() == "":
-                        tags = html.metadata["tags"].split(",")
+                    if "tags" in metadata and not metadata["tags"].strip() == "":
+                        tags = metadata["tags"].split(",")
                     else:
                         tags = []
-                    if "desc" in html.metadata:
-                        desc = html.metadata["desc"]
+                    if "desc" in metadata:
+                        desc = metadata["desc"]
                     else:
                         desc = ""
                     html_str = '<span id="blog_start"></span>' + html
                     # date default last edit time
                     ts = int(os.stat(file).st_mtime)
                     date_file_edit = time.strftime("%Y-%m-%d", time.localtime(ts))
-                    if "date" in html.metadata:
-                        date = html.metadata["date"].strip().lower()
+                    if "date" in metadata:
+                        date = metadata["date"].strip().lower()
                         # set date to false to disable date display
                         if date and (date == "false" or date == "none"):
                             date = ""
@@ -142,8 +154,8 @@ class Plugin(Plugin_Base):
                                 date = date_file_edit
                     else:
                         date = date_file_edit
-                    if "author" in html.metadata:
-                        author = html.metadata["author"]
+                    if "author" in metadata:
+                        author = metadata["author"]
                     else:
                         author = ""
                     result["htmls"][file] = {
@@ -154,7 +166,7 @@ class Plugin(Plugin_Base):
                         "body": html_str,
                         # "toc": html.toc_html if html.toc_html else "",
                         "toc": "", # just empty, toc generated by js but not python
-                        "metadata": html.metadata,
+                        "metadata": metadata,
                         "raw": content,
                         "date": date,
                         "ts": ts,

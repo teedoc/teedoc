@@ -1,5 +1,4 @@
 import os, sys
-import markdown2
 import re
 from collections import OrderedDict
 try:

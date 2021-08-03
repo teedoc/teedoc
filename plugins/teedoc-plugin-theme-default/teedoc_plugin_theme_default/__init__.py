@@ -2,7 +2,6 @@ from genericpath import exists
 import os, sys
 import tempfile
 import shutil
-import markdown2
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
