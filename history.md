@@ -1,6 +1,11 @@
 teedoc update history
 ========
 
+## 2021-08-3 v1.16.1
+
+* Change markdown parser from markdown2 to mistune, now build faster at least 2x
+* Ignore .git folder in file watcher
+
 ## 2021-07-22 v1.15.8
 
 
