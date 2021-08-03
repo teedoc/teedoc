@@ -1251,7 +1251,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
     class FileEventHandler(RegexMatchingEventHandler):
         def __init__(self, doc_src_path):
             ignore = "{}/out/.*".format(doc_src_path)
-            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*"])
+            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*", r".*/.git/.*"])
             self.update_files = []
             self.doc_src_path = doc_src_path
             self.lock = threading.Lock()
@@ -1581,11 +1581,6 @@ def main():
                     # detect config.json or site_config.json change, if changed, update all docs file along with the json file
                     files = []
                     for path in files_changed:
-                        # ignore .git
-                        path = path.replace("\\", "/")
-                        rel = path.replace(doc_src_path, "")[1:]
-                        if rel.startswith(".git/"):
-                            continue
                         # if path.replace(doc_src_path, "")
                         ext = os.path.splitext(path)
                         if ".sw" in ext:
