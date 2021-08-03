@@ -19,6 +19,58 @@ class Plugin_Base:
 
     def on_init(self):
         pass
+
+    def on_copy_files(self):
+        '''
+            copy file to out directory, when file changes, it also will be called
+            @return dict object, keyword is url, value is file path
+                    {
+                        "/static/css/theme-default.css": "{}/theme-default.css".format(assets_abs_path)
+                    }
+                    how to get assets_abs_path see teedoc-plugin-theme-default
+        '''
+        return {}
+
+    def on_htmls(self, htmls_files, htmls_pages, htmls_blog=None):
+        '''
+            update htmls, may not all html, just partially
+            htmls_files: {
+                "/get_started/zh":{
+                    "url":{
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html,
+                                "url": "",
+                                "raw": ""
+                          }
+                }
+            }
+        '''
+        return True
+
+    def __del__(self):
+        # DO NOT implement this function, use on_end() instead !!!!!! this functioin may be called multi times
+        if os.getpid() == self._pid:
+            self.on_del()
+
+    def on_del(self):
+        pass
+
+
+    def on_new_process_init(self):
+        '''
+            for multiple processing, for below func, will be called in new process,
+            every time create a new process, this func will be invoke
+        '''
+        pass
+
+    def on_new_process_del(self):
+        '''
+            for multiple processing, for below func, will be called in new process,
+            every time exit a new process, this func will be invoke
+        '''
+        pass
         
 
     def on_parse_files(self, files, new_config=None):
@@ -59,53 +111,16 @@ class Plugin_Base:
 
     def on_parse_blog(self, pages, new_config):
         return None
-    
-    def on_add_html_header_items(self):
-        return []
-    
-    def on_add_html_js_items(self):
-        return []
-    
+
     def on_add_navbar_items(self, new_config):
         '''
             @return list items(navbar item, e.g. "<a href=></a>")
         '''
         return []
+
+    def on_add_html_header_items(self):
+        return []
     
-    def on_copy_files(self):
-        '''
-            copy file to out directory, when file changes, it also will be called
-            @return dict object, keyword is url, value is file path
-                    {
-                        "/static/css/theme-default.css": "{}/theme-default.css".format(assets_abs_path)
-                    }
-                    how to get assets_abs_path see teedoc-plugin-theme-default
-        '''
-        return {}
-
-    def on_htmls(self, htmls_files, htmls_pages, htmls_blog=None):
-        '''
-            update htmls, may not all html, just partially
-            htmls_files: {
-                "/get_started/zh":{
-                    "url":{
-                                "title": "",
-                                "desc": "",
-                                "keywords": [],
-                                "body": html,
-                                "url": "",
-                                "raw": ""
-                          }
-                }
-            }
-        '''
-        return True
-
-    def __del__(self):
-        # DO NOT implement this function, use on_end() instead !!!!!! this functioin may be called multi times
-        if os.getpid() == self._pid:
-            self.on_del()
-
-    def on_del(self):
-        pass
+    def on_add_html_js_items(self):
+        return []
 

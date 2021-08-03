@@ -10,7 +10,7 @@ except Exception:
     pass
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
-from .parse_metadata import parse_meta
+from .parse_metadata import Meta_Parser
 
 import mistune
 mistune_version = mistune.__version__.split(".") # 0.8.4, 2.0.0rc1
@@ -39,12 +39,26 @@ class Plugin(Plugin_Base):
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
+
+    def on_new_process_init(self):
+        '''
+            for multiple processing, for below func, will be called in new process,
+            every time create a new process, this func will be invoke
+        '''
         if mistune_version >= 20:
             self.md_parser = mistune.create_markdown(renderer=MDRenderer(), plugins=plugins)
         else:
             renderer = MDRenderer()
             self.md_parser = mistune.Markdown(renderer=renderer)
+        self.meta_parser = Meta_Parser()
 
+    def on_new_process_del(self):
+        '''
+            for multiple processing, for below func, will be called in new process,
+            every time exit a new process, this func will be invoke
+        '''
+        del self.md_parser
+        del self.meta_parser
 
     def on_parse_files(self, files, new_config=None):
         # result, format must be this
@@ -67,7 +81,7 @@ class Plugin(Plugin_Base):
                     content = f.read().strip()
                     content = self._update_link(content)
                     try:
-                        metadata, content_no_meta = parse_meta(content)
+                        metadata, content_no_meta = self.meta_parser.parse_meta(content)
                         html = self.md_parser(content_no_meta)
                     except Exception as e:
                         import io, traceback

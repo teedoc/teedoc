@@ -923,6 +923,10 @@ def htmls_add_source(htmls, repo_addr, label):
 
     return htmls
 
+def generate_return(plugins_objs, ok):
+    for p in plugins_objs:
+        p.on_new_process_del()
+    return ok
 
 def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
     if not pipe_tx is None:
@@ -944,6 +948,10 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
             return is_err_flag
 
     try:
+        # call init in new process
+        for p in plugins_objs:
+            p.on_new_process_init()
+
         if url.startswith("/"):
             rel_url = url[1:]
         else:
@@ -967,13 +975,13 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
                 if not result['ok']:
                     log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
                     on_err()
-                    return False
+                    return generate_return(plugins_objs, False)
                 else:
                     for key in result['htmls']:
                         if result['htmls'][key]:
                             result_htmls[key] = result['htmls'][key] # will cover the before
             if is_err():
-                return False
+                return generate_return(plugins_objs, False)
         # copy not parsed files
         for path in files:
             if not path in result_htmls:
@@ -982,7 +990,8 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
         if not result_htmls:
             log.d("parse files empty: {}".format(files))
             # on_err()
-            return True
+            return generate_return(plugins_objs, True)
+            
         htmls = result_htmls
         # generate sidebar to html
         if sidebar:
@@ -991,14 +1000,14 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
         else:
             sidebar_list = {}
         if is_err():
-            return False
+            return generate_return(plugins_objs, False)
         # generate navbar to html
         if navbar:
             htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs, plugins_new_config)
         if footer:
             htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
         if is_err():
-            return False
+            return generate_return(plugins_objs, False)
         # show source code url
         if "source" in site_config:
             label = None
@@ -1012,20 +1021,20 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
         # consturct html page
         htmls_str = construct_html(htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path)
         if is_err():
-            return False
+            return generate_return(plugins_objs, False)
         # check abspath
         if site_root_url != "/":
             htmls_str = update_html_abs_path(htmls_str, site_root_url)
         if is_err():
-            return False
+            return generate_return(plugins_objs, False)
         # write to file
         ok, msg = write_to_file(htmls_str, in_path, out_path)
         if not ok:
             log.e("write files error: {}".format(msg))
             on_err()
-            return False
+            return generate_return(plugins_objs, False)
         if is_err():
-            return False
+            return generate_return(plugins_objs, False)
         # add url, add "url" keyword for htmls, will remove empty html items
         htmls = add_url_item(htmls, rel_url, dir, site_root_url)
         if len(htmls) > 0:
@@ -1034,9 +1043,9 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
         log.e("generate html fail: {}".format(e))
         on_err()
         raise e
-        return False
+        return generate_return(plugins_objs, False)
     log.i("generate ok")
-    return True
+    return generate_return(plugins_objs, True)
 
 def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files, max_threads_num):
     '''
@@ -1120,7 +1129,8 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
                 p.join()
                 # log.i("{} generate ok".format(p.name))
         else:
-            if not generate(all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None):
+            ok = generate(all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None)
+            if not ok:
                 return False, None
     htmls = {}
     for i in range(queue.qsize()):
@@ -1571,6 +1581,12 @@ def main():
                     # detect config.json or site_config.json change, if changed, update all docs file along with the json file
                     files = []
                     for path in files_changed:
+                        # ignore .git
+                        path = path.replace("\\", "/")
+                        rel = path.replace(doc_src_path, "")[1:]
+                        if rel.startswith(".git/"):
+                            continue
+                        # if path.replace(doc_src_path, "")
                         ext = os.path.splitext(path)
                         if ".sw" in ext:
                             log.w("ingnore {} temp file".format(path))
