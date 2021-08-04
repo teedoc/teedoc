@@ -1117,7 +1117,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
         
 
  
-        if len(all_files) > 10:
+        if max_threads_num > 1 and len(all_files) > 10:
             all_files = split_list(all_files, max_threads_num)
             ts = []
             pipe_rx, pipe_tx = multiprocessing.Pipe()
@@ -1327,6 +1327,8 @@ def main():
     parser.add_argument("-i", "--index-url", type=str, default="", help="for install command, base URL of the Python Package Index (default https://pypi.org/simple). This should point to a repository compliant with PEP 503 (the simple repository API) or a local directory laid out in the same format.\ne.g. Chinese can use https://pypi.tuna.tsinghua.edu.cn/simple")
     parser.add_argument("-log", "--log-level", type=str, default="i", choices=["d", "i", "w", "e"], help="log level")
     parser.add_argument("--thread", type=int, default=0, help="how many threads use to building, default 0 will use max CPU supported")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="host address for serve command")
+    parser.add_argument("--port", type=int, default=2333, help="port for serve command")
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
 
@@ -1508,7 +1510,7 @@ def main():
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
 
-                host = ('0.0.0.0', 2333)
+                host = (args.host, args.port)
                 
                 class On_Resquest(SimpleHTTPRequestHandler):
 
@@ -1568,6 +1570,8 @@ def main():
                         server = HTTP_Server(host, On_Resquest)
                         log.i("root dir: {}".format(serve_dir))
                         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
+                        if host[0] == "0.0.0.0":
+                            log.i("You can visit http://127.0.0.1:2333")
                         server.serve_forever()
                     if not t2:
                         t2 = threading.Thread(target=server_loop, args=(host, log))

@@ -15,7 +15,7 @@ class Logger:
     '''
         use logging module to record log to console or file
     '''
-    def __init__(self, level="d", file_path=None, fmt = '%(asctime)s - [%(levelname)s] - [%(threadName)s]: %(message)s'):
+    def __init__(self, level="d", file_path=None, fmt = '%(asctime)s - [%(levelname)s] - [%(processName)s - %(threadName)s] %(message)s'):
         self.log = logging.getLogger("logger")
         formatter=logging.Formatter(fmt=fmt)
         level_ = logging.DEBUG
@@ -29,6 +29,7 @@ class Logger:
         coloredlogs.DEFAULT_FIELD_STYLES = {'asctime': {'color': 'green'}, 'hostname': {'color': 'magenta'},
                                     'levelname': {'color': 'green', 'bold': True}, 'request_id': {'color': 'yellow'},
                                     'name': {'color': 'blue'}, 'programname': {'color': 'cyan'},
+                                    'processName': {'color': 'magenta'},
                                     'threadName': {'color': 'magenta'},
                                     'filename': {'color': 'white'},
                                     'lineno': {'color': 'white'}}
