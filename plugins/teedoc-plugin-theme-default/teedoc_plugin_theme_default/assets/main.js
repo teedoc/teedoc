@@ -248,7 +248,7 @@ function focusSidebar(){
 function imageViewer(){
     var content_e = document.getElementById("content_body");
     if(!content_e){
-        content_e = document.getElementById("page_content");
+        content_e = document.getElementById("page_wrapper");
     }
     const gallery = new Viewer(content_e);
 }
