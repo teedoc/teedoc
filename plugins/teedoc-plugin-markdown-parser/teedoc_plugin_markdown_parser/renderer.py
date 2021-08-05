@@ -10,6 +10,6 @@ class Block_Quote_Renderer(mistune.Renderer):
 class Header_Renderer(mistune.Renderer):
     def header(self, text, level, raw = None):
         html = mistune.Renderer.header(self, text, level, raw)
-        escaped_id = text.replace('"', "'")
+        escaped_id = text.replace('"', "'").replace(' ', "-")
         html = html.replace(f'<h{level}>', f'<h{level} id="{escaped_id}">')
         return html

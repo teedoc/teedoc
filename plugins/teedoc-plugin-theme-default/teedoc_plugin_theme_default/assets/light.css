@@ -732,7 +732,6 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     min-height: 2em;
     margin-top: 5em;
     display: flex;
-    border-top: 1px solid #f1f1f1;
     padding: 1em;
     transition: 0.4s;
     background-color: #292929;
