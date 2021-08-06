@@ -238,19 +238,47 @@ $$
 {f[g(x)]}'=2[g(x)] \times g'(x)=2[2x+1] \times 2=8x+4
 $$
 
-### html
+### HTML
+
+```html
+<div class="hello">
+hello  <img src="../../assets/images/logo.png"/>
+</div>
+```
+
+注意这里没有空行, 效果如下
 
 <div class="hello">
-hello  <img src="../../assets/images/logo.jpg"/>
+hello <br/> <img src="../../assets/images/logo.jpg"/>
 </div>
 
-## markdown in html
+### HTML 中写 Markdown
 
-<div class="hello">
+```markdown
+<div>
+hello <br/> <img src="../../assets/images/logo.jpg"/>
 
-### markdown in html
 * hello1
 * hello2
 ![]("../../assets/images/logo.jpg")
+
 </div>
+```
+
+注意这里 `Markdown` 和 `HTML` 之间有个空格, 这与上面的纯 `HTML` 才能分开, 即其实不是`HTML`中有`Markdown`, 而是用空行来分开先写`HTML`一部分, 再写`Markdown`, 再写另一部分`HTML`, 效果如下:
+
+
+
+<div>
+hello <br/> <img src="../../assets/images/logo.jpg"/>
+
+## title in HTML block
+* hello1
+* hello2
+![](../../assets/images/logo.jpg)
+
+
+</div>
+
+
 

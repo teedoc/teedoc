@@ -780,7 +780,7 @@ def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_lis
             else: # not "sidebar" in html
                 body_html = '''
                 <div id="page_wrapper">
-                    {}
+                    <div id="page_content"><div>{}</div></div>
                     <a id="to_top" href="#"></a>
                     <div id="page_footer">{}</div>
                 </div>'''.format(html["body"], footer_html)
