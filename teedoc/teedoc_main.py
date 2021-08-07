@@ -663,7 +663,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
                 layout = os.path.join(template_root, html["metadata"]["layout"])
                 if os.path.exists(layout):
                     renderer = Renderer(layout)
-            ids, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
+            id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
             if "sidebar" in html:
                 previous_article = None
                 next_article = None
@@ -679,7 +679,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
                                 "title": sidebar_list[file]["next"][1]
                             }
                 rendered_html = renderer.render(
-                    page_ids = ids,
+                    page_id = id,
                     page_classes = classes,
                     keywords = html["keywords"],
                     description = html["desc"],
@@ -716,7 +716,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
                 )
             else:
                 rendered_html = renderer.render(
-                    page_ids = ids,
+                    page_id = id,
                     page_classes = classes,
                     keywords = html["keywords"],
                     description = html["desc"],
@@ -802,24 +802,22 @@ def add_url_item(htmls, url, dir, site_root_url):
         htmls_valid[url_path]["file_path"] = file_path
     return htmls_valid
 
-def get_html_start_id_class(html, ids, classes):
-    if ids:
-        ids = ids.split(",")
+def get_html_start_id_class(html, id, classes):
+    if id:
+        id = id.split(" ")[0]
     else:
-        ids = []
+        id = []
     if classes:
         classes = classes.split(",")
     else:
         classes = []
     if "id" in html["metadata"]:
-        ids.extend(html["metadata"]["id"].split(","))
+        id = html["metadata"]["id"].split(" ")[0]
     if "class" in html["metadata"]:
         classes.extend(html["metadata"]["class"].split(","))
-    if "" in ids:
-        ids.remove("")
     if "" in classes:
         classes.remove("")
-    return ids, classes
+    return id, classes
 
 def htmls_add_source(htmls, repo_addr, label, doc_src_path):
     '''

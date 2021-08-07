@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html id="{% for id in page_ids %} {{ id }} {% endfor%}" class="{% for c in page_classes%} {{ c }} {% endfor%}">
+<html id="{{ page_id }}" class="{% for c in page_classes%} {{ c }} {% endfor%}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +7,7 @@
     <meta name="description" content="{{ description }}">
     <meta name="generator" content="teedoc">
     <meta name="theme" content="teedoc-plugin-theme-default">
-    {% for item in header_items %}
-    {{ item|safe }}
-    {% endfor %}
+    {% for item in header_items %}{{ item|safe }}{% endfor %}
     <title>{% if title %}{{ title }} - {{ site_name }} {% else %} {{ site_name }} {% endif %}</title>
 </head>
 <body>
