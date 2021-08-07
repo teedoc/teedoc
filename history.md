@@ -1,6 +1,10 @@
 teedoc update history
 ========
 
+## 2021-08-7 v1.17.1
+
+* Add layout template customize support(Jinja2)
+
 ## 2021-08-3 v1.16.1
 
 * Change markdown parser from markdown2 to mistune, now build faster at least 2x
