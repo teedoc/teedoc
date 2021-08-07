@@ -5,11 +5,13 @@ try:
     from .http_server import HTTP_Server
     from .version import __version__
     from .utils import sidebar_summary2dict
+    from .html_renderer import Renderer
 except Exception:
     from logger import Logger
     from http_server import HTTP_Server
     from version import __version__
     from utils import sidebar_summary2dict
+    from html_renderer import Renderer
 import os, sys
 import json, yaml
 import subprocess
@@ -335,7 +337,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
                                 "desc": "",
                                 "keywords": [],
                                 "body": html,
-                                "sidebar": ""
+                                "sidebar": (sidebar_title, sidebar_items_html)
                                 }
                 }
     '''
@@ -405,18 +407,18 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
             continue
         doc_path_relative = file.replace(doc_path, "")[1:].replace("\\", "/")
         items, _ = generate_items(sidebar, doc_path_relative, doc_url)
-        sidebar_html = '''
-            <div id="sidebar_wrapper">
-                <div id="sidebar">
-                    <div id="sidebar_title">
-                        {}
-                    </div>
-                    {}
-                </div>
-                <div id="sidebar_splitter">
-                </div>
-            </div>'''.format(sidebar_title_html, items)
-        html["sidebar"] = sidebar_html
+        # sidebar_html = '''
+        #     <div id="sidebar_wrapper">
+        #         <div id="sidebar">
+        #             <div id="sidebar_title">
+        #                 {}
+        #             </div>
+        #             {}
+        #         </div>
+        #         <div id="sidebar_splitter">
+        #         </div>
+        #     </div>'''.format(sidebar_title_html, items)
+        html["sidebar"] = (sidebar_title_html, items)
         htmls[file] = html
     return htmls
 
@@ -440,7 +442,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
                                 "keywords": [],
                                 "body": html,
                                 "sidebar": "",
-                                "navbar": ""
+                                "navbar": (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins)
                                 }
                 }
     '''
@@ -523,17 +525,18 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
             continue
         # get file file url
         url = get_url_by_file_rel(file.replace(doc_path, "")[1:], doc_url)
-        nav_left, nav_right = generate_lef_right_items(navbar, doc_url, url)
+        navbar_main, navbar_options = generate_lef_right_items(navbar, doc_url, url)
+        home_url = navbar["home_url"]
+        navbar_title = navbar["title"]
         if "src" in navbar["logo"] and navbar["logo"]["src"]:
-            logo_html = '<a class="site_title" href="{}"><img class="site_logo" src="{}" alt="{}"><h2>{}</h2></a>'.format(
-                            navbar["home_url"], navbar["logo"]["src"], navbar["logo"]["alt"], navbar["title"]
-                        )
+            logo_url = navbar["logo"]["src"]
+            logo_alt = navbar["logo"]["alt"]
         else:
-            logo_html = '<a class="site_title" href="{}"><h2>{}</h2></a>'.format(
-                            navbar["home_url"], navbar["title"]
-                        )
+            logo_url = None
+            logo_alt = None
+
         # add navbar items from plugins
-        items_plugins_html = ""
+        navbar_plugins = ""
         for plugin in plugins_objs:
             if plugin.name in plugins_new_config:
                 new_config = plugins_new_config[plugin.name]["config"]
@@ -546,24 +549,8 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, plugins
             for item in _items:
                 items_html += "<li>{}</li>".format(item)
             items_html += "</ul>"
-            items_plugins_html += items_html
-        navbar_html = '''
-            <div id="navbar">
-                <div id="navbar_menu">
-                    {}
-                    <a id="navbar_menu_btn"></a>
-                </div>
-                <div id="navbar_items">
-                    <div>
-                        {}
-                    </div>
-                    <div>
-                        {}
-                        {}
-                    </div>
-                </div>
-            </div>'''.format(logo_html, nav_left, nav_right, items_plugins_html)
-        html["navbar"] = navbar_html
+            navbar_plugins += items_html
+        html["navbar"] = (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins)
         htmls[file] = html
     return htmls
 
@@ -589,7 +576,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
                                 "body": html,
                                 "sidebar": "",
                                 "navbar": "",
-                                "footer": ""
+                                "footer": (footer_top, footer_bottom)
                                 }
                 }
     '''
@@ -641,176 +628,118 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         if not html:
             continue
         footer_top, footer_bottom = generate_footer_items(footer, doc_url)
-        footer_html = '''
-            <div id="footer">
-                <div id="footer_top">
-                    {}
-                </div>
-                <div id="footer_bottom">
-                    {}
-                </div>
-            </div>'''.format(footer_top, footer_bottom)
-        html["footer"] = footer_html
+        html["footer"] = (footer_top, footer_bottom)
         htmls[file] = html
     return htmls
 
-def construct_html(htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path):
+def construct_html(html_template, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path):
     '''
         @htmls  {
             "title": "",
             "desc": "",
-            "keywords": [],
-            "tags": [],
+            "keywords": ["", ],
+            "tags": ["", ],
             "body": "",
-            "toc": "",
-            "sidebar": "",
-            "navbar": ""
+            "toc": "", # may not exists
+            "sidebar": (sidebar_title, sidebar_items_html),
+            "navbar": (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
             "metadata": {},
-            "footer": "",
-            "show_source": "Edit this page" or no this key,
+            "footer": (footer_top, footer_bottom),
+            "show_source": ("Edit this page", source_url), # may not exists
             "date": "2021-3-14", # may not exists
             "author": "", # may not exists
         }
     '''
+    template_root = os.path.join(doc_src_path, site_config["layout_root_dir"]) if "layout_root_dir" in site_config else os.path.join(doc_src_path, "layout")
+    renderer0 = Renderer(html_template)
     files = {}
     items = list(htmls.items())
     for i, (file, html) in enumerate(items):
         if not html:
             files[file] = None
         else:
-            if html["title"]:
-                page_title = "{} - {}".format(html["title"], site_config["site_name"])
-                article_title = html["title"]
-            else:
-                page_title = site_config["site_name"]
-                article_title = ""
-            header_items = "\n        ".join(header_items_in)
-            js_items = "\n".join(js_items_in)
-            tags_html = ""
-            footer_html = html["footer"] if "footer" in html else ""
-            for tag in html["tags"]:
-                tags_html += '<li>{}</li>\n'.format(tag)
-            tags_html = '<ul>{}</ul>'.format(tags_html)
+            renderer = renderer0
+            if "layout" in html["metadata"]:
+                layout = os.path.join(template_root, html["metadata"]["layout"])
+                if os.path.exists(layout):
+                    renderer = Renderer(layout)
+            ids, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
             if "sidebar" in html:
-                previous_item_html = ""
-                next_item_html = ""
+                previous_article = None
+                next_article = None
                 if file in sidebar_list:
                     if sidebar_list[file]["previous"]:
-                        previous_item_html = '<a href="{}"><span class="icon"></span><span class="label">{}</span></a>'.format(sidebar_list[file]["previous"][0], sidebar_list[file]["previous"][1])
+                        previous_article = {
+                                "url": sidebar_list[file]["previous"][0],
+                                "title": sidebar_list[file]["previous"][1]
+                            }
                     if sidebar_list[file]["next"]:
-                        next_item_html = '<a href="{}"><span class="label">{}</span><span class="icon"></span></a>'.format(sidebar_list[file]["next"][0], sidebar_list[file]["next"][1])
-                menu_html = '''<div id="menu_wrapper">
-                                    <div id="menu">
-                                    </div>
-                                </div>'''
-                if "show_source" in html:
-                    source_url = site_config["source"]
-                    if source_url.endswith("/"):
-                        source_url = source_url[:-1]
-                    source_url += file.replace(doc_src_path, "")
-                    source_html = '''<div id="source_link"><a href="{}" target="_blank">{}</a></div>'''.format(
-                                    source_url, html["show_source"]
-                    )
-                else:
-                    source_html = ""
-                info_html = '<span class="article_author">{}</span><span class="article_date">{}</span>'.format(
-                    html["author"] if "author" in html else "",
-                    html["date"] if "date" in html else "",
+                        next_article = {
+                                "url": sidebar_list[file]["next"][0],
+                                "title": sidebar_list[file]["next"][1]
+                            }
+                rendered_html = renderer.render(
+                    page_ids = ids,
+                    page_classes = classes,
+                    keywords = html["keywords"],
+                    description = html["desc"],
+                    header_items = header_items_in,
+                    title = html["title"],
+                    site_name = site_config["site_name"],
+                    # navbar
+                    # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
+                    logo_url = html["navbar"][0],
+                    logo_alt = html["navbar"][1],
+                    home_url = html["navbar"][2],
+                    navbar_title = html["navbar"][3],
+                    navbar_main = html["navbar"][4],
+                    navbar_options = html["navbar"][5],
+                    navbar_plugins = html["navbar"][6],
+                    # sidebar info
+                    sidebar_title = html["sidebar"][0],
+                    sidebar_items_html = html["sidebar"][1],
+                    # docs body info
+                    article_title = html["title"],
+                    tags = html["tags"],
+                    author = html["author"] if "author" in html else None,
+                    date = html["date"] if "date" in html else None,
+                    show_source = html["show_source"][0] if "show_source" in html else None,
+                    source_url = html["show_source"][1] if "show_source" in html else None,
+                    body = html["body"],
+                    previous = previous_article,
+                    next = next_article,
+                    toc = html["toc"] if "toc" in html else None,
+                    # footer
+                    footer_top = html["footer"][0],
+                    footer_bottom = html["footer"][1],
+                    footer_js_items = js_items_in
                 )
-
-                body_html = '''
-        <div id="wrapper">
-            {}
-            <div id="article">
-                {}
-                <div id="content_wrapper">
-                    <div id="content_body">
-                        <div id="article_head">
-                            <div id="article_title">
-                                <h1>{}</h1>
-                            </div>
-                            <div id="article_tags">
-                                {}
-                            </div>
-                            <div id="article_info">
-                            <div>
-                                {}
-                            </div>
-                            <div>
-                                {}
-                            </div>
-                            </div>
-                        </div>
-                        <div id="article_content">
-                            {}
-                        </div>
-                    </div>
-                    <div id="previous_next">
-                        <div id="previous">
-                            {}
-                        </div>
-                        <div id="next">
-                            {}
-                        </div>
-                    </div>
-                </div>
-                <div id="toc">
-                    <div id="toc_content">
-                            {}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <a id="to_top" href="#"></a>
-        <div id="doc_footer">
-                        {}
-                    </div>'''.format(
-                        html["sidebar"],
-                        menu_html,
-                        article_title,
-                        tags_html,
-                        info_html,
-                        source_html,
-                        html["body"],
-                        previous_item_html, 
-                        next_item_html,
-                        html["toc"] if "toc" in html else "",
-                        footer_html,
+            else:
+                rendered_html = renderer.render(
+                    page_ids = ids,
+                    page_classes = classes,
+                    keywords = html["keywords"],
+                    description = html["desc"],
+                    header_items = header_items_in,
+                    title = html["title"],
+                    site_name = site_config["site_name"],
+                    # navbar
+                    # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
+                    logo_url = html["navbar"][0],
+                    logo_alt = html["navbar"][1],
+                    home_url = html["navbar"][2],
+                    navbar_title = html["navbar"][3],
+                    navbar_main = html["navbar"][4],
+                    navbar_options = html["navbar"][5],
+                    navbar_plugins = html["navbar"][6],
+                    # docs body info
+                    body = html["body"],
+                    # footer
+                    footer_top = html["footer"][0],
+                    footer_bottom = html["footer"][1],
+                    footer_js_items = js_items_in
                 )
-            else: # not "sidebar" in html
-                body_html = '''
-                <div id="page_wrapper">
-                    <div id="page_content"><div>{}</div></div>
-                    <a id="to_top" href="#"></a>
-                    <div id="page_footer">{}</div>
-                </div>'''.format(html["body"], footer_html)
-            html_start = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
-            files[file] = '''<!DOCTYPE html>
-{}
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="{}">
-    <meta name="description" content="{}">
-    <meta name="generator" content="teedoc">
-    {}
-    <title>{}</title>
-</head>
-<body>
-    {}
-    {}
-</body>
-{}
-</html>
-'''.format( html_start,
-            ",".join(html["keywords"]),
-            html["desc"], 
-            header_items,
-            page_title,
-            html["navbar"] if "navbar" in html else "",
-            body_html,
-            js_items
-            )
+            files[file] = rendered_html
     return files
 
 def update_html_abs_path(file_htmls, root_path):
@@ -873,23 +802,26 @@ def add_url_item(htmls, url, dir, site_root_url):
         htmls_valid[url_path]["file_path"] = file_path
     return htmls_valid
 
-def get_html_start_id_class(html, id, classes):
-    if id:
-        id = id.split(" ")[0] # remove space
+def get_html_start_id_class(html, ids, classes):
+    if ids:
+        ids = ids.split(",")
+    else:
+        ids = []
     if classes:
         classes = classes.split(",")
     else:
         classes = []
     if "id" in html["metadata"]:
-        id = html["metadata"]["id"].split(" ")[0] # remove space
+        ids.extend(html["metadata"]["id"].split(","))
     if "class" in html["metadata"]:
         classes.extend(html["metadata"]["class"].split(","))
+    if "" in ids:
+        ids.remove("")
     if "" in classes:
         classes.remove("")
-    html_start = '<html {} {}>'.format('id="{}"'.format(id) if id else "", 'class="{}"'.format(" ".join(classes)) if classes else "")
-    return html_start
+    return ids, classes
 
-def htmls_add_source(htmls, repo_addr, label):
+def htmls_add_source(htmls, repo_addr, label, doc_src_path):
     '''
         @htmls {
             "file_path": {
@@ -898,14 +830,14 @@ def htmls_add_source(htmls, repo_addr, label):
                 }
             }
         }
-        @repo_addr https://github.com/teedoc/teedoc
+        @repo_addr https://github.com/teedoc/teedoc.github.io/blob/main
 
         @return {
             "file_path": {
                 "metadata": {
                     "show_source": "Edit this page"
                 },
-                "show_source": "Edit this page"
+                "show_source": ("Edit this page", source_url)
             }
         }
     '''
@@ -919,7 +851,11 @@ def htmls_add_source(htmls, repo_addr, label):
                 continue
             elif show_source != "true":
                 label = v["metadata"]["show_source"]
-        htmls[file]["show_source"] = label
+        source_url = repo_addr
+        if source_url.endswith("/"):
+            source_url = source_url[:-1]
+        source_url += file.replace(doc_src_path, "")
+        htmls[file]["show_source"] = (label, source_url)
 
     return htmls
 
@@ -928,7 +864,7 @@ def generate_return(plugins_objs, ok):
         p.on_new_process_del()
     return ok
 
-def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
+def generate(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
     if not pipe_tx is None:
         def on_err():
             pipe_tx.send(True)
@@ -1016,10 +952,10 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
             elif doc_config["show_source"]:
                 label = doc_config["show_source"]
             if label:
-                htmls = htmls_add_source(htmls, site_config["source"], label)
+                htmls = htmls_add_source(htmls, site_config["source"], label, doc_src_path)
 
         # consturct html page
-        htmls_str = construct_html(htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path)
+        htmls_str = construct_html(html_template, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path)
         if is_err():
             return generate_return(plugins_objs, False)
         # check abspath
@@ -1047,7 +983,7 @@ def generate(files, url, dir, doc_config, plugin_func, routes, site_config, doc_
     log.i("generate ok")
     return generate_return(plugins_objs, True)
 
-def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files, max_threads_num):
+def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files, max_threads_num, html_template):
     '''
         @return {
             "doc_url", {
@@ -1122,14 +1058,14 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             ts = []
             pipe_rx, pipe_tx = multiprocessing.Pipe()
             for files in all_files:
-                p = multiprocessing.Process(target=generate, args=(files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx))
+                p = multiprocessing.Process(target=generate, args=(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx))
                 p.start()
                 ts.append(p)
             for p in ts:
                 p.join()
                 # log.i("{} generate ok".format(p.name))
         else:
-            ok = generate(all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None)
+            ok = generate(html_template, all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None)
             if not ok:
                 return False, None
     htmls = {}
@@ -1159,6 +1095,12 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     # get html header item from plugins
     header_items = []
     js_items = []
+    #     get html template from plugins
+    html_templates = {
+        "page": None,
+        "article": None,
+        "blog": None
+    }
     for plugin in plugins_objs:
         items = plugin.on_add_html_header_items()
         _js_items = plugin.on_add_html_js_items()
@@ -1169,20 +1111,32 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             header_items.extend(items)
         if _js_items:
             js_items.extend(_js_items)
+        temp = plugin.on_article_html_template()
+        if temp and os.path.exists(temp):
+            html_templates["article"] = temp
+        temp = plugin.on_page_html_template()
+        if temp and os.path.exists(temp):
+            html_templates["page"] = temp
+        temp = plugin.on_blog_html_template()
+        if temp and os.path.exists(temp):
+            html_templates["blog"] = temp
+    if not html_templates["page"] or not html_templates["article"] or not html_templates["blog"]:
+        log.e("no html templates, please install theme plugin")
+        return False
     # preview_mode js file
     if preview_mode:
         js_items.append('<script type="text/javascript" src="{}static/js/live.js"></script>'.format(site_config['site_root_url']))
     # parse all docs
     routes = site_config["route"]["docs"]
     ok, htmls_files = parse("docs", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num)
+                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, html_template = html_templates["article"])
     if not ok:
         return False
 
     # parse all pages
     routes = site_config["route"]["pages"]
     ok, htmls_pages = parse("pages", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num)
+                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, html_template = html_templates["page"])
     if not ok:
         return False
     # parse all blogs
@@ -1190,7 +1144,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     if "blog" in site_config["route"]:
         routes = site_config["route"]["blog"]
         ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num)
+                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, html_template = html_templates["blog"])
         if not ok:
             return False
 

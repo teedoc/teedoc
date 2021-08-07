@@ -13,7 +13,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc-plugin-theme-default',
-    version="1.8.5",
+    version="1.9.0",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
@@ -65,7 +65,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        "teedoc_plugin_theme_default" : ['assets/*'],
+        "teedoc_plugin_theme_default" : ['assets/*', 'templates/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

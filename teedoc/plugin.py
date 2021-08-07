@@ -57,6 +57,16 @@ class Plugin_Base:
     def on_del(self):
         pass
 
+    def on_article_html_template(self):
+        return None
+
+    def on_page_html_template(self):
+        return None
+
+    def on_blog_html_template(self):
+        return None
+
+    ############################################33
 
     def on_new_process_init(self):
         '''

@@ -78,5 +78,6 @@
     "rebuild_changes_delay": 1,
     "robots": {
         "User-agent": "*"
-    }
+    },
+    "layout_root_dir": "layout"
 }

@@ -128,6 +128,15 @@ class Plugin(Plugin_Base):
             except Exception:
                 pass
 
+    def on_article_html_template(self):
+        return os.path.join(curr_path, "templates", "article.html")
+
+    def on_page_html_template(self):
+        return os.path.join(curr_path, "templates", "page.html")
+
+    def on_blog_html_template(self):
+        return os.path.join(curr_path, "templates", "article.html")
+
     def _generate_html_header_items(self):
         items = []
         # css
@@ -200,6 +209,7 @@ class Plugin(Plugin_Base):
         res = self.files_to_copy
         self.files_to_copy = {}
         return res
+
 
 if __name__ == "__main__":
     config = {

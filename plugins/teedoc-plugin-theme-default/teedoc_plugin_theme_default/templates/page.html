@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html id="{% for id in page_ids %} {{ id }} {% endfor%}" class="{% for c in page_classes%} {{ c }} {% endfor%}">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="{{ keywords }}">
+    <meta name="description" content="{{ description }}">
+    <meta name="generator" content="teedoc">
+    <meta name="theme" content="teedoc-plugin-theme-default">
+    {% for item in header_items %}
+    {{ item|safe }}
+    {% endfor %}
+    <title>{% if title %}{{ title }} - {{ site_name }} {% else %} {{ site_name }} {% endif %}</title>
+</head>
+<body>
+    <div id="navbar">
+        <div id="navbar_menu">
+            <a class="site_title" href="{{ home_url }}">
+                {% if logo_url %}
+                    <img class="site_logo" src="{{ logo_url }}" alt="{{ logo_alt }}">
+                {% endif %}
+                {% if navbar_title %}
+                    <h2>{{ navbar_title|safe }}</h2>
+                {% endif %}
+        </a>
+            <a id="navbar_menu_btn"></a>
+        </div>
+        <div id="navbar_items">
+            <div>
+                {{ navbar_main|safe }}
+            </div>
+            <div>
+                {{ navbar_options|safe }}
+                {{ navbar_plugins|safe }}
+            </div>
+        </div>
+    </div>
+    <div id="page_wrapper">
+        <div id="page_content">
+            <div>
+                {{ body|safe }}
+            </div>
+        </div>
+        <a id="to_top" href="#"></a>
+        <div id="page_footer">
+            <div id="footer">
+                <div id="footer_top">
+                    {{ footer_top|safe }}
+                </div>
+                <div id="footer_bottom">
+                    {{ footer_bottom|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+{% for item in footer_js_items %}
+    {{ item|safe }}
+{% endfor %}
+</html>

@@ -39,6 +39,7 @@ documentation generate tool from markdown and jupyter notebook to html
 - [x] Real-time preview file changes
 - [x] Multiple thread support, faster build speed
 - [x] Blog support
+- [x] Jinja2 HTML layout template support
 
 
 ## Get Started
