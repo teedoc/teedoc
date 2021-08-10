@@ -11,7 +11,8 @@ with open(readme_path, encoding="utf-8") as f:
 
 install_requires = [ "coloredlogs",
                      "watchdog",
-                     "PyYaml"
+                     "PyYaml",
+                     "jinja2"
                    ]
 packages = find_packages()
 print("packages:", packages)
