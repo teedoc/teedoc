@@ -1,5 +1,6 @@
 coloredlogs
 mistune
 watchdog
+nbconvert
 PyYAML
 jinja2
