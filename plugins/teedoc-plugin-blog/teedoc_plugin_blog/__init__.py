@@ -23,10 +23,7 @@ local_plugin_path = os.path.join(teedoc_project_path, "plugins", "teedoc-plugin-
 if os.path.exists(local_plugin_path):
     sys.path.insert(0, local_plugin_path)
 from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
-if mistune_version >= 20:
-    from teedoc_plugin_markdown_parser.renderer_new import MDRenderer, plugins
-else:
-    from teedoc_plugin_markdown_parser.renderer_old import MDRenderer
+from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -75,11 +72,7 @@ class Plugin(Plugin_Base):
             for multiple processing, for below func, will be called in new process,
             every time create a new process, this func will be invoke
         '''
-        if mistune_version >= 20:
-            self.md_parser = mistune.create_markdown(renderer=MDRenderer(), plugins=plugins)
-        else:
-            renderer = MDRenderer()
-            self.md_parser = mistune.Markdown(renderer=renderer)
+        self.md_parser = create_markdown_parser()
         self.meta_parser = Meta_Parser()
 
     def on_new_process_del(self):

@@ -7,13 +7,13 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
-install_requires = ["jupyter_core", "nbconvert"]
+install_requires = ["jupyter_core>=4.7.1", "nbconvert>=6.0.7"]
 packages = find_packages()
 print("packages:", packages)
 
 setup(
     name='teedoc-plugin-jupyter-notebook-parser',
-    version="1.1.3",
+    version="1.1.4",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 

@@ -10,15 +10,6 @@ except Exception:
     pass
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
-from .parse_metadata import Meta_Parser
-
-import mistune
-mistune_version = mistune.__version__.split(".") # 0.8.4, 2.0.0rc1
-mistune_version = int(mistune_version[0]) * 10 + int(mistune_version[1]) # 8, 20
-if mistune_version >= 20:
-    from .renderer_new import MDRenderer, plugins
-else:
-    from .renderer_old import MDRenderer
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -45,11 +36,9 @@ class Plugin(Plugin_Base):
             for multiple processing, for below func, will be called in new process,
             every time create a new process, this func will be invoke
         '''
-        if mistune_version >= 20:
-            self.md_parser = mistune.create_markdown(renderer=MDRenderer(), plugins=plugins)
-        else:
-            renderer = MDRenderer()
-            self.md_parser = mistune.Markdown(renderer=renderer)
+        from .renderer import create_markdown_parser
+        from .parse_metadata import Meta_Parser
+        self.md_parser = create_markdown_parser()
         self.meta_parser = Meta_Parser()
 
     def on_new_process_del(self):

@@ -1,15 +1,10 @@
+
+
 import mistune
-import urllib.parse
+mistune_version = mistune.__version__.split(".") # 0.8.4, 2.0.0rc1
+mistune_version = int(mistune_version[0]) * 10 + int(mistune_version[1]) # 8, 20
+if mistune_version >= 20:
+    from .renderer_new import create_markdown_parser
+else:
+    from .renderer_old import create_markdown_parser
 
-class Block_Quote_Renderer(mistune.Renderer):
-    def block_quote(self, text):
-        text = mistune.Renderer.block_quote(self, text)
-        text = text.replace('<blockquote><p>!', '<blockquote class="spoiler warning"><p>')
-        return text
-
-class Header_Renderer(mistune.Renderer):
-    def header(self, text, level, raw = None):
-        html = mistune.Renderer.header(self, text, level, raw)
-        escaped_id = text.replace('"', "'").replace(' ', "-")
-        html = html.replace(f'<h{level}>', f'<h{level} id="{escaped_id}">')
-        return html

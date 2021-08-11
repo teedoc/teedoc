@@ -13,7 +13,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc-plugin-markdown-parser',
-    version="2.0.4",
+    version="2.0.6",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 

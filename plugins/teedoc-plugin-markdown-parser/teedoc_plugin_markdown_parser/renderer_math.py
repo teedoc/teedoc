@@ -58,14 +58,11 @@ class MathInlineMixin(object):
 
 class MathRendererMixin(object):
     def block_math(self, text):
-        print("block:", text)
         return '$$%s$$' % text
 
     def block_latex(self, name, text):
-        print(name, text)
         return r'\begin{%s}%s\end{%s}' % (name, text, name)
 
     def math(self, text):
-        print("math:", text)
         return '$%s$' % text
 

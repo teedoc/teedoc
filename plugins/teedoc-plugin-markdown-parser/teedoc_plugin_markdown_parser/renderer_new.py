@@ -1,5 +1,5 @@
 import mistune
-from .renderer import Block_Quote_Renderer, Header_Renderer
+from .renderer_base import Block_Quote_Renderer, Header_Renderer
 from .renderer_math import MathRendererMixin
 
 plugins = [
@@ -15,7 +15,7 @@ plugins = [
 
 class MDRenderer(
                  # HighlightMixin,
-                 MathRendererMixin,
+                #  MathRendererMixin,
                 #  TasklistRenderMixin,
                  Block_Quote_Renderer,
                  Header_Renderer,
@@ -23,4 +23,8 @@ class MDRenderer(
     def __init__(self):
         mistune.Renderer.__init__(self, escape = False, hard_wrap = True)
 
+
+def create_markdown_parser():
+    parser = mistune.create_markdown(renderer=MDRenderer(), plugins=plugins)
+    return parser
 
