@@ -273,7 +273,7 @@ def get_url_by_file_rel(file_path, doc_url):
         url = "{}/{}.html".format(doc_url, url)
     return url
 
-def get_sidebar_list(sidebar, doc_path, doc_url):
+def get_sidebar_list(sidebar, doc_path, doc_url, log):
     '''
         @return {
             "file_path": {
@@ -295,12 +295,15 @@ def get_sidebar_list(sidebar, doc_path, doc_url):
         items = OrderedDict()
         if "label" in config and "file" in config and config["file"] != None and config["file"] != "null":
             url = get_url_by_file_rel(config["file"], doc_url)
-            items[os.path.join(doc_path, config["file"]).replace("\\", "/")] = {
+            file_abs = os.path.join(doc_path, config["file"]).replace("\\", "/")
+            if not os.path.exists(file_abs):
+                log.w("file {} not found, but set in {} sidebar config file, maybe letter case wrong?".format(file_abs, doc_path))
+            items[file_abs] = {
                 "curr": (url, config["label"])
             }
         if is_dir:
             for item in config["items"]:
-                _items = get_sidebar_list(item, doc_path, doc_url)
+                _items = get_sidebar_list(item, doc_path, doc_url, log)
                 items.update(_items)
         return items
 
@@ -862,7 +865,7 @@ def generate_return(plugins_objs, ok):
         p.on_new_process_del()
     return ok
 
-def generate(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
+def generate(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
     if not pipe_tx is None:
         def on_err():
             pipe_tx.send(True)
@@ -929,10 +932,7 @@ def generate(html_template, files, url, dir, doc_config, plugin_func, routes, si
         htmls = result_htmls
         # generate sidebar to html
         if sidebar:
-            sidebar_list = get_sidebar_list(sidebar, dir, url)
             htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "")
-        else:
-            sidebar_list = {}
         if is_err():
             return generate_return(plugins_objs, False)
         # generate navbar to html
@@ -1050,20 +1050,23 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             footer = None
         
 
- 
+        if sidebar_dict:
+            sidebar_list = get_sidebar_list(sidebar_dict, dir, url, log)
+        else:
+            sidebar_list = {}
         if max_threads_num > 1 and len(all_files) > 10:
             all_files = split_list(all_files, max_threads_num)
             ts = []
             pipe_rx, pipe_tx = multiprocessing.Pipe()
             for files in all_files:
-                p = multiprocessing.Process(target=generate, args=(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx))
+                p = multiprocessing.Process(target=generate, args=(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx))
                 p.start()
                 ts.append(p)
             for p in ts:
                 p.join()
                 # log.i("{} generate ok".format(p.name))
         else:
-            ok = generate(html_template, all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None)
+            ok = generate(html_template, all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None)
             if not ok:
                 return False, None
     htmls = {}
