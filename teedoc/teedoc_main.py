@@ -751,7 +751,7 @@ def update_html_abs_path(file_htmls, root_path):
         elif content.startswith("href"):
             if content[6] == "/" and content[7] != "/": # href="/static/..."
                 content = "{}{}{}".format(content[:6], root_path[:-1], content[6:])
-        else:
+        elif content.startswith("url"):
             if content[4] != "/" and content[5] == "/" and content[6] != "/": # url("/static/...")
                 content = "{}{}{}".format(content[:5], root_path[:-1], content[5:])
             elif content[4] == "/" and content[5] != "/": # url(/static/...)
@@ -763,7 +763,7 @@ def update_html_abs_path(file_htmls, root_path):
             continue
         file_htmls[path] = re.sub(r'href=".*?"', re_del, file_htmls[path])
         file_htmls[path] = re.sub(r'src=".*?"', re_del, file_htmls[path])
-        file_htmls[path] = re.sub(r'url(.*?)', re_del, file_htmls[path])
+        file_htmls[path] = re.sub(r'url\(.*?\)', re_del, file_htmls[path])
     return file_htmls
 
 def add_url_item(htmls, url, dir, site_root_url):
@@ -1523,7 +1523,7 @@ def main():
                         log.i("root dir: {}".format(serve_dir))
                         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
                         if host[0] == "0.0.0.0":
-                            log.i("You can visit http://127.0.0.1:2333")
+                            log.i("You can visit http://127.0.0.1:2333{}".format(site_config["site_root_url"]))
                         server.serve_forever()
                     if not t2:
                         t2 = threading.Thread(target=server_loop, args=(host, log))

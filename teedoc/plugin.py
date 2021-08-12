@@ -46,6 +46,24 @@ class Plugin_Base:
                           }
                 }
             }
+            htmls_blog: {
+                "/blog/":{
+                    "url":{
+                                "title": "",
+                                "desc": "",
+                                "keywords": [],
+                                "body": html,
+                                "tags": [],
+                                "url": "",
+                                "raw": "",
+                                "date": date,
+                                "ts": 12344566,
+                                "author": author,
+                                "brief": "",
+                                "metadata": {}
+                          }
+                }
+            }
         '''
         return True
 

@@ -241,7 +241,8 @@ class Plugin(Plugin_Base):
             item.pop("raw")
             item.pop("footer")
             item.pop("file_path")
-            item.pop("show_source")
+            if "show_source" in item:
+                item.pop("show_source")
             item.pop("navbar")
             item.pop("toc")
             item["metadata"].pop("title")
