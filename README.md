@@ -1,7 +1,7 @@
 teedoc
 ===========
 
-[中文 README](./README_ZH.md)
+[中文](./README_ZH.md) | English
 
 [![License](https://img.shields.io/github/license/teedoc/teedoc?color=red)](./LICENSE) [![PyPI](https://img.shields.io/pypi/v/teedoc)](https://pypi.org/project/teedoc/#history) ![PyPI - Downloads](https://img.shields.io/pypi/dm/teedoc?color=brightgreen) ![PyPI - Downloads](https://img.shields.io/pypi/dw/teedoc?color=brightgreen) [![GitHub Repo stars](https://img.shields.io/github/stars/teedoc/teedoc?style=social)](https://github.com/teedoc/teedoc)
 
@@ -45,4 +45,65 @@ documentation generate tool from markdown and jupyter notebook to html
 ## Get Started
 
 Visit official site: [teedoc.github.io](https://teedoc.github.io/) or [teedoc.gitee.io](https://teedoc.gitee.io/)
+
+## Create your website on github pages in minutes
+
+See [template repo](https://github.com/teedoc/template)
+
+## Quik start
+
+* Install python3
+
+On `Windows` or `macOS`, download from [python.org](https://www.python.org/downloads/)
+
+On `Linux`, `Ubuntu` for example:
+
+```
+sudo apt install python3 python3-pip
+```
+
+* Install teedoc
+
+This command will **install teedoc program**
+
+```
+pip3 install teedoc
+```
+
+* Initialize document
+
+```
+mkdir my_site
+cd my_site
+teeedoc init
+```
+
+or
+
+```
+teeedoc -d my_site init
+```
+
+* Install plugins
+
+This command will **install plugins** used by doc(set in `site_config.json`)
+
+```
+cd my_site
+teedoc install
+```
+
+* build or serve
+
+```
+teedoc serve
+```
+
+then visit [http://127.0.0.1:2333](http://127.0.0.1:2333) in browser
+
+If you only want to generate htmls:
+
+```
+teedoc build
+```
 

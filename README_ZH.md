@@ -1,6 +1,8 @@
 teedoc
 =====
 
+中文 | [English](./README.md)
+
 [![License](https://img.shields.io/github/license/teedoc/teedoc?color=red&label=开源协议)](./LICENSE) [![PyPI](https://img.shields.io/pypi/v/teedoc?label=版本)](https://pypi.org/project/teedoc/#history) ![PyPI - Downloads](https://img.shields.io/pypi/dm/teedoc?color=brightgreen&label=下载次数) ![PyPI - Downloads](https://img.shields.io/pypi/dw/teedoc?color=brightgreen&label=下载次数) [![GitHub Repo stars](https://img.shields.io/github/stars/teedoc/teedoc?style=social&label=收藏)](https://github.com/teedoc/teedoc)
 
 <img src="https://teedoc.github.io/static/image/logo.png" height=64/> 
@@ -42,4 +44,67 @@ teedoc
 ## 开始使用吧
 
 官网: [teedoc.github.io](https://teedoc.github.io/) 或者 [teedoc.gitee.io](https://teedoc.gitee.io/)
+
+
+## 几分钟内在 github pages 服务上搭建你自己的网站
+
+查看 [template 仓库](https://github.com/teedoc/template)
+
+
+## 快速开始
+
+* 安装 python3
+
+`Windows` 或 `macOS`, 从 [python.org](https://www.python.org/downloads/) 下载安装包安装
+
+`Linux`, 如 `Ubuntu`:
+
+```
+sudo apt install python3 python3-pip
+```
+
+* 安装 teedoc
+
+这条命令会 **安装 teedoc 主程序**
+
+```
+pip3 install teedoc
+```
+
+* 初始化文档
+
+```
+mkdir my_site
+cd my_site
+teeedoc init
+```
+
+或者
+
+```
+teeedoc -d my_site init
+```
+
+* 安装插件
+
+这条命令会 **安装文档需要的插件**(在`site_config.json`里设置)
+
+```
+cd my_site
+teedoc install
+```
+
+* 构建（`build`） 或者 预览（`serve`）
+
+```
+teedoc serve
+```
+
+然后浏览器访问 [http://127.0.0.1:2333](http://127.0.0.1:2333)
+
+如果只需要构建生成网页:
+
+```
+teedoc build
+```
 
