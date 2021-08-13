@@ -1,0 +1,3 @@
+[submodule "teedoc/template"]
+	path = teedoc/template
+	url = https://github.com/teedoc/template.git
