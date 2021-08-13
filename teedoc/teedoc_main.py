@@ -809,7 +809,7 @@ def get_html_start_id_class(html, id, classes):
     if id:
         id = id.split(" ")[0]
     else:
-        id = []
+        id = None
     if classes:
         classes = classes.split(",")
     else:
