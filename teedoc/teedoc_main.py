@@ -635,7 +635,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
-def construct_html(html_template, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path):
+def construct_html(html_template, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs):
     '''
         @htmls  {
             "title": "",
@@ -681,67 +681,73 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
                                 "url": sidebar_list[file]["next"][0],
                                 "title": sidebar_list[file]["next"][1]
                             }
-                rendered_html = renderer.render(
-                    page_id = id,
-                    page_classes = classes,
-                    keywords = html["keywords"],
-                    description = html["desc"],
-                    header_items = header_items_in,
-                    title = html["title"],
-                    site_name = site_config["site_name"],
+                vars = {
+                    "page_id" : id,
+                    "page_classes" : classes,
+                    "keywords" : html["keywords"],
+                    "description" : html["desc"],
+                    "header_items" : header_items_in,
+                    "title" : html["title"],
+                    "site_name" : site_config["site_name"],
                     # navbar
                     # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
-                    logo_url = html["navbar"][0],
-                    logo_alt = html["navbar"][1],
-                    home_url = html["navbar"][2],
-                    navbar_title = html["navbar"][3],
-                    navbar_main = html["navbar"][4],
-                    navbar_options = html["navbar"][5],
-                    navbar_plugins = html["navbar"][6],
+                    "logo_url" : html["navbar"][0],
+                    "logo_alt" : html["navbar"][1],
+                    "home_url" : html["navbar"][2],
+                    "navbar_title" : html["navbar"][3],
+                    "navbar_main" : html["navbar"][4],
+                    "navbar_options" : html["navbar"][5],
+                    "navbar_plugins" : html["navbar"][6],
                     # sidebar info
-                    sidebar_title = html["sidebar"][0],
-                    sidebar_items_html = html["sidebar"][1],
+                    "sidebar_title" : html["sidebar"][0],
+                    "sidebar_items_html" : html["sidebar"][1],
                     # docs body info
-                    article_title = html["title"],
-                    tags = html["tags"],
-                    author = html["author"] if "author" in html else None,
-                    date = html["date"] if "date" in html else None,
-                    show_source = html["show_source"][0] if "show_source" in html else None,
-                    source_url = html["show_source"][1] if "show_source" in html else None,
-                    body = html["body"],
-                    previous = previous_article,
-                    next = next_article,
-                    toc = html["toc"] if "toc" in html else None,
+                    "article_title" : html["title"],
+                    "tags" : html["tags"],
+                    "author" : html["author"] if "author" in html else None,
+                    "date" : html["date"] if "date" in html else None,
+                    "show_source" : html["show_source"][0] if "show_source" in html else None,
+                    "source_url" : html["show_source"][1] if "show_source" in html else None,
+                    "body" : html["body"],
+                    "previous" : previous_article,
+                    "next" : next_article,
+                    "toc" : html["toc"] if "toc" in html else None,
                     # footer
-                    footer_top = html["footer"][0],
-                    footer_bottom = html["footer"][1],
-                    footer_js_items = js_items_in
-                )
+                    "footer_top" : html["footer"][0],
+                    "footer_bottom" : html["footer"][1],
+                    "footer_js_items" : js_items_in
+                }
+                for plugin in plugins_objs:
+                    vars = plugin.__getattribute__("on_render_vars")(vars)
+                rendered_html = renderer.render(**vars)
             else:
-                rendered_html = renderer.render(
-                    page_id = id,
-                    page_classes = classes,
-                    keywords = html["keywords"],
-                    description = html["desc"],
-                    header_items = header_items_in,
-                    title = html["title"],
-                    site_name = site_config["site_name"],
+                vars = {
+                    "page_id" : id,
+                    "page_classes" : classes,
+                    "keywords" : html["keywords"],
+                    "description" : html["desc"],
+                    "header_items" : header_items_in,
+                    "title" : html["title"],
+                    "site_name" : site_config["site_name"],
                     # navbar
                     # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
-                    logo_url = html["navbar"][0],
-                    logo_alt = html["navbar"][1],
-                    home_url = html["navbar"][2],
-                    navbar_title = html["navbar"][3],
-                    navbar_main = html["navbar"][4],
-                    navbar_options = html["navbar"][5],
-                    navbar_plugins = html["navbar"][6],
+                    "logo_url" : html["navbar"][0],
+                    "logo_alt" : html["navbar"][1],
+                    "home_url" : html["navbar"][2],
+                    "navbar_title" : html["navbar"][3],
+                    "navbar_main" : html["navbar"][4],
+                    "navbar_options" : html["navbar"][5],
+                    "navbar_plugins" : html["navbar"][6],
                     # docs body info
-                    body = html["body"],
+                    "body" : html["body"],
                     # footer
-                    footer_top = html["footer"][0],
-                    footer_bottom = html["footer"][1],
-                    footer_js_items = js_items_in
-                )
+                    "footer_top" : html["footer"][0],
+                    "footer_bottom" : html["footer"][1],
+                    "footer_js_items" : js_items_in
+                }
+                for plugin in plugins_objs:
+                    vars = plugin.__getattribute__("on_render_vars")(vars)
+                rendered_html = renderer.render(**vars)
             files[file] = rendered_html
     return files
 
@@ -953,7 +959,7 @@ def generate(html_template, files, url, dir, doc_config, plugin_func, routes, si
                 htmls = htmls_add_source(htmls, site_config["source"], label, doc_src_path)
 
         # consturct html page
-        htmls_str = construct_html(html_template, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path)
+        htmls_str = construct_html(html_template, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs)
         if is_err():
             return generate_return(plugins_objs, False)
         # check abspath

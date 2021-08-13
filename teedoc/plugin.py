@@ -84,6 +84,14 @@ class Plugin_Base:
     def on_blog_html_template(self):
         return None
 
+    def on_render_vars(self, vars : dict):
+        '''
+            call when render html page by jinja2
+            @vars  dict object, you can add variables or change variables in this callback
+            @return dict object
+        '''
+        return vars
+
     ############################################33
 
     def on_new_process_init(self):
