@@ -654,7 +654,8 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
         }
     '''
     template_root = os.path.join(doc_src_path, site_config["layout_root_dir"]) if "layout_root_dir" in site_config else os.path.join(doc_src_path, "layout")
-    renderer0 = Renderer(html_template)
+    theme_layout_root = os.path.dirname(html_template)
+    renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root])
     files = {}
     items = list(htmls.items())
     for i, (file, html) in enumerate(items):
@@ -665,7 +666,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
             if "layout" in html["metadata"]:
                 layout = os.path.join(template_root, html["metadata"]["layout"])
                 if os.path.exists(layout):
-                    renderer = Renderer(layout)
+                    renderer = Renderer(html["metadata"]["layout"], search_paths=[template_root, theme_layout_root])
             id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
             if "sidebar" in html:
                 previous_article = None

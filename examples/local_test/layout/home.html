@@ -39,6 +39,7 @@
         <div id="page_content">
             <div>
                 <h1>Generated use custom layout</h1>
+                <h2>{% include "content.html" %}</h2>
                 {{ body|safe }}
             </div>
         </div>
@@ -56,7 +57,5 @@
     </div>
 
 </body>
-{% for item in footer_js_items %}
-    {{ item|safe }}
-{% endfor %}
+{% include "footer_js.html" %}
 </html>
