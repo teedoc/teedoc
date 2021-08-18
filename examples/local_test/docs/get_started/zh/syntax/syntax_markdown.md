@@ -7,7 +7,6 @@ desc: teedoc 的 markdown 语法介绍和实例
 
 本文是使用`Markdown`编写的文档，使用`teedoc`生成的页面效果， `Markdown`文件见[这里](https://github.com/teedoc/teedoc.github.io/blob/main/docs/get_started/zh/syntax/syntax_markdown.md)
 
-
 ## Markdown 基本文件内容格式
 
 需要先在`site_config.json`中确认有`markdown`解析插件启用了，比如`teedoc-plugin-markdown-parser`。
@@ -24,6 +23,8 @@ title: markdown 语法
 tags: teedoc, markdown, 语法
 keywords: teedoc, markdown, 语法
 desc: teedoc 的 markdown 语法介绍和实例
+id: zh_readme
+class: zh_readme
 ---
 ```
 
@@ -34,6 +35,7 @@ desc: teedoc 的 markdown 语法介绍和实例
 * `tags`： 文章标签，会显示到页面
 * `id`: 页面`id`， 会被添加到`html`标签中，比如`<html id="zh_readme">...</html>`, 可以不设置，会覆盖`config.json`中的设置
 * `class`: 页面`class`,多个用英文逗号`,`隔开，可以不设置，会覆盖`config.json`中的设置。比如可以通过设置这个值来达到设置特定页面的`css`样式
+* `layout`: 页面使用的布局模板, 默认不需要这个键值, 会使用主题插件里面的配置,需要你需要自定义这个页面的布局, 可以设置这个参数, 路径相对于`site_config`中的`layout_root_dir`路径, `layout_root_dir` 默认为`layout`, 所以要使用`layout/special_layout.html` 只需要填写`special_layout.html`. 布局模板语法见[layout 文档](../usage/layout_template.md)
 
 ### Markdown 文件内容
 
@@ -112,15 +114,6 @@ class: zh_readme
 
 这是一段行内代码`print("hello")`，或者强调`teedoc`
 
-```
-#include "stdio.h"
-
-int main()
-{
-    printf("hello world");
-}
-```
-
 ```python
 print("hello")
 
@@ -164,10 +157,10 @@ print("hello")
 
 要显示这张图片，需要在`site_config.json`中设置`route`键值
 
-![这是一张图片](../../assets/images/logo.jpg)
-![这是一张图片](../assets/images/logo.jpg)
+![这是一张图片](../../assets/images/logo.png)
+![这是一张图片](../assets/images/logo.png)
 
-![这是一张图片](../../assets/images/logo.jpg)![这是一张图片](../assets/images/logo.jpg)
+![这是一张图片](../../assets/images/logo.png)![这是一张图片](../assets/images/logo.png)
 
 ## 视频
 
@@ -217,28 +210,19 @@ print("hello")
 - [ ] 任务4
 
 
-### 数学公式
+## 标题链接(页内跳转)
 
-​	计算图导数计算是反向传播，利用链式法则和隐式函数求导。
 
-​	假设 $z = f(u,v)$ 在点 $(u,v)$ 处偏导连续，$(u,v)$是关于 $t$ 的函数，在 $t$ 点可导，求 $z$ 在 $t$ 点的导数。
+比如要跳转到标题[Markdown 文件头](#Markdown-文件头), 只需
+```markdown
+[Markdown 文件头](#Markdown-文件头)
+```
 
-根据链式法则有
-$$
-\frac{dz}{dt}=\frac{\partial z}{\partial u}.\frac{du}{dt}+\frac{\partial z}{\partial v}
-				.\frac{dv}{dt}
-$$
-​	链式法则用文字描述:“由两个函数凑起来的复合函数，其导数等于里边函数代入外边函数的值之导数，乘以里边函数的导数。  
-​	为了便于理解，下面举例说明：
-$$
-f(x)=x^2,g(x)=2x+1
-$$
-​	则:
-$$
-{f[g(x)]}'=2[g(x)] \times g'(x)=2[2x+1] \times 2=8x+4
-$$
+这里空格使用了减号`-`替换
 
-### HTML
+
+
+## HTML
 
 ```html
 <div class="hello">
@@ -249,35 +233,7 @@ hello  <img src="../../assets/images/logo.png"/>
 注意这里没有空行, 效果如下
 
 <div class="hello">
-hello <br/> <img src="../../assets/images/logo.jpg"/>
-</div>
-
-### HTML 中写 Markdown
-
-```markdown
-<div>
-hello <br/> <img src="../../assets/images/logo.jpg"/>
-
-* hello1
-* hello2
-![]("../../assets/images/logo.jpg")
-
-</div>
-```
-
-注意这里 `Markdown` 和 `HTML` 之间有个空格, 这与上面的纯 `HTML` 才能分开, 即其实不是`HTML`中有`Markdown`, 而是用空行来分开先写`HTML`一部分, 再写`Markdown`, 再写另一部分`HTML`, 效果如下:
-
-
-
-<div>
-hello <br/> <img src="../../assets/images/logo.jpg"/>
-
-## title in HTML block
-* hello1
-* hello2
-![](../../assets/images/logo.jpg)
-
-
+hello <br/> <img src="../../assets/images/logo.png"/>
 </div>
 
 
