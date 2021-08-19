@@ -791,6 +791,16 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
 }
 
 /* TOC */
+.anchor {
+    opacity: 0;
+    transition: 0.4s;
+}
+h2:hover > .anchor, h3:hover > .anchor, h4:hover > .anchor, h5:hover > .anchor {
+    opacity: 1;
+}
+.anchor:hover {
+    opacity: 1;
+}
 .anchor-link {
     display: none;
 }

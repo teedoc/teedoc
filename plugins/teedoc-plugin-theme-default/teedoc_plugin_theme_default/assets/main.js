@@ -21,6 +21,7 @@ $(document).ready(function(){
         addSplitter();
         focusSidebar();
     }
+    addAnchor();
     registerOnWindowResize(has_sidebar);
     hello();
     imageViewer();
@@ -256,3 +257,8 @@ function imageViewer(){
     const gallery = new Viewer(content_e);
 }
 
+function addAnchor(){
+    $("h2, h3, h4, h5").each(function(){
+        $(this).append('<a class="anchor" href="#'+ $(this).attr("id") +'">#</a>');
+    });
+}
