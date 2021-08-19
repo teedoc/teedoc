@@ -225,6 +225,14 @@ code {
     width: 300px;
 }
 /* sidebar splitter */
+.gutter_icon {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==);
+    width: 3px;
+    height: 2em;
+    background-repeat: no-repeat;
+    position: fixed;
+    top: 50%;
+}
 .gutter {
     background-color: #eee;
     background-repeat: no-repeat;
@@ -232,6 +240,7 @@ code {
     transition: 0.2s;
     border-radius: 5px;
     display: block;
+    z-index: 99;
 }
 
 .gutter.gutter-horizontal {

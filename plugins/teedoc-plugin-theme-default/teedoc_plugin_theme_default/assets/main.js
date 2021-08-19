@@ -173,7 +173,7 @@ var hasSplitter = false;
 
 function createSplitter(){
     var split = Split(["#sidebar_wrapper", "#article"],{
-        gutterSize: 10,
+        gutterSize: 3,
         gutterAlign: 'start',
         minSize: 200,
         elementStyle: function (dimension, size, gutterSize) {
@@ -197,10 +197,13 @@ function createSplitter(){
     }
     }
     split.setSizes([split_w, 100 - split_w]);
+    $(".gutter").append('<div class="gutter_icon"></div>');
     $(".gutter").hover(function(){
-    $(".gutter").css("width", "18px");
+        $(".gutter").css("width", "10px");
+        $(".gutter_icon").css("width", "10px");
     },function(){
-    $(".gutter").css("width", "10px");
+        $(".gutter").css("width", "3px");
+        $(".gutter_icon").css("width", "3px");
     });
 }
 
