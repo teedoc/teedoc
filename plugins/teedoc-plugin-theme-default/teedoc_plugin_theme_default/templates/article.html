@@ -96,10 +96,12 @@
                         {% endif %}
                     </div>
                     <div id="next">
+                        {% if next%}
                         <a href="{{ next.url }}">
                             <span class="label">{{ next.title }}</span>
                             <span class="icon"></span>
                         </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
