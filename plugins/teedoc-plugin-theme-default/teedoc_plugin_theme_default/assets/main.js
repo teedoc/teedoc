@@ -258,7 +258,9 @@ function imageViewer(){
 }
 
 function addAnchor(){
-    $("h2, h3, h4, h5").each(function(){
-        $(this).append('<a class="anchor" href="#'+ $(this).attr("id") +'">#</a>');
+    $("#content_body h2, #content_body h3, #content_body h4, #content_body h5").each(function(){
+        if($(this).attr("id")){
+            $(this).append('<a class="anchor" href="#'+ $(this).attr("id") +'">#</a>');
+        }
     });
 }

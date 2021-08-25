@@ -928,7 +928,7 @@ a.toc-link {
         display: block;
     }
     #navbar #navbar_items {
-        display: block;
+        display: ${mobile_navbar_collapsed};
         padding-right: 0;
     }
     #navbar .sub_items ul {
