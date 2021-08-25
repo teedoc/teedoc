@@ -1416,6 +1416,8 @@ def main():
                     path = info['from']
                     # install from pypi.org
                     if not path or path.lower() == "pypi":
+                        if "version" in info:
+                            plugin = f"{plugin}=={info['version']}"
                         log.i("install plugin <{}> from pypi.org".format(plugin))
                         if args.index_url:
                             cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin, "-i", args.index_url]
