@@ -19,6 +19,7 @@ class Plugin(Plugin_Base):
     desc = "default theme for teedoc"
     defautl_config = {
         "dark": True,
+        "default_dark": True,
         "mobile_navbar_collapsed": True,
         "env": {
             "main_color": "#4caf7d",
@@ -44,6 +45,10 @@ class Plugin(Plugin_Base):
             self.config["env"]["mobile_navbar_collapsed"] = "none"
         else:
             self.config["env"]["mobile_navbar_collapsed"] = "block"
+        if self.config["dark"] and self.config["default_dark"]:
+            self.config["env"]["default_theme"] = "dark"
+        else:
+            self.config["env"]["default_theme"] = "light"
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")

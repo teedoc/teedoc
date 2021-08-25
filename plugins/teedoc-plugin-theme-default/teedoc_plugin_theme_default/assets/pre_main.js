@@ -21,7 +21,7 @@ function removejscssfile(filename, filetype) {
 function getTheme(){
     var t = localStorage.getItem("theme");
     if(!t){
-        t = "light";
+        t = "${default_theme}";
         setTheme(t);
     }
     return t;
