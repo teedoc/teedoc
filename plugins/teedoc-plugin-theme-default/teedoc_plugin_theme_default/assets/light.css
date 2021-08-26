@@ -630,7 +630,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
 /* #to_top_wrapper {
 } */
 #to_top {
-    background: url(/static/image/theme_default/to-top.svg);
+    background: url("${site_root_url}static/image/theme_default/to-top.svg");
     background-size: 2em;
     background-repeat: no-repeat;
     background-position: center;
