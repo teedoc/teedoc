@@ -154,6 +154,7 @@ code {
 #navbar {
     display: flex;
     justify-content: start;
+    z-index: 89;
 }
 #navbar * {
     display: flex;
@@ -739,7 +740,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
 }
 #page_footer {
     min-height: 2em;
-    margin-top: 5em;
+    /* margin-top: 5em; */
     display: flex;
     padding: 1em;
     transition: 0.4s;
