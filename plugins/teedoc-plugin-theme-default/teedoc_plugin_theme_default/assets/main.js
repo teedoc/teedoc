@@ -12,6 +12,11 @@
 window.onload = function(){
 }
 
+var sleep = function(time) {
+    var startTime = new Date().getTime() + parseInt(time, 10);
+    while(new Date().getTime() < startTime) {}
+};
+
 $(document).ready(function(){
     $("#sidebar ul .show").slideDown(200);
     registerSidebarClick();
@@ -25,6 +30,7 @@ $(document).ready(function(){
     registerOnWindowResize(has_sidebar);
     hello();
     imageViewer();
+    addPrintPage();
 });
 
 var sidebar_width = "${sidebar_width}";
@@ -243,6 +249,8 @@ function registerOnWindowResize(has_sidebar){
 function focusSidebar(){
     var windowH = window.innerHeight;
     var active = $("#sidebar .active")[0];
+    if(!active)
+        return;
     var offset = active.offsetTop;
     if(offset > windowH/2){
         $("#sidebar .show").scrollTop(offset);
@@ -262,5 +270,39 @@ function addAnchor(){
         if($(this).attr("id")){
             $(this).append('<a class="anchor" href="#'+ $(this).attr("id") +'">#</a>');
         }
+    });
+}
+
+function rerender(){
+    Prism.highlightAll();
+}
+
+function addPrintPage(){
+    if(!$("#article_info_right")){
+        return;
+    }
+    $("#article_info_right").append('<div id="print_page"></div>');
+
+    var beforePrint = function(){
+        // rerender for proper output
+        rerender();
+    }
+    var afterPrint = function() {
+        // location.reload();
+    }
+    if (window.matchMedia) {
+        var mediaQueryList = window.matchMedia('print'); 
+        mediaQueryList.addListener(function(mql) {
+            if (mql.matches) {
+                beforePrint();
+            } else {
+                afterPrint();
+            }
+        });
+    }
+    window.onbeforeprint = beforePrint;
+    window.onafterprint = afterPrint;
+    $("#print_page").click(function(){
+        window.print();
     });
 }

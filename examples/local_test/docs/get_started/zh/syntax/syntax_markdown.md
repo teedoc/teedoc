@@ -22,7 +22,7 @@ desc: teedoc 的 markdown 语法介绍和实例
 title: markdown 语法
 tags: teedoc, markdown, 语法
 keywords: teedoc, markdown, 语法
-desc: teedoc 的 markdown 语法介绍和实例
+desc: teedoc 的 markdown 语法介绍和实例 teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例
 id: zh_readme
 class: zh_readme
 ---

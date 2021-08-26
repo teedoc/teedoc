@@ -1,6 +1,7 @@
 import os, sys
 import re
 from collections import OrderedDict
+from datetime import datetime
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
@@ -57,14 +58,36 @@ class Plugin(Plugin_Base):
             if ext.endswith("ipynb"):
                 html = convert_ipynb_to_html(file)
                 html.body = self._update_link_html(html.body)
+                metadata = html.metadata
+                date = None
+                ts = int(os.stat(file).st_mtime)
+                if "date" in metadata:
+                    date = metadata["date"].strip().lower()
+                    # set date to false to disable date display
+                    if date and (date == "false" or date == "none"):
+                        date = ""
+                    else:
+                        GMT_FORMAT = '%Y-%m-%d'
+                        try:
+                            date_obj = datetime.strptime(date, GMT_FORMAT)
+                            ts = int(date_obj.timestamp())
+                        except Exception as e:
+                            pass
+                if "author" in metadata:
+                    author = metadata["author"]
+                else:
+                    author = ""
                 result["htmls"][file] = {
                     "title": html.title,
                     "desc": html.desc,
                     "keywords": html.keywords,
                     "tags": html.tags,
                     "body": html.body,
+                    "author": author,
+                    "date": date,
+                    "ts": ts,
                     "toc": html.toc,
-                    "metadata": html.metadata,
+                    "metadata": metadata,
                     "raw": html.raw
                 }
             else:

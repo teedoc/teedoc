@@ -4,6 +4,8 @@ keywords: teedoc, markdown, jupyter notebook, html, 文档生成, 替代gitbook,
 desc: teedoc， 将 markdown 或者 jupyter notbook 转换成 html 静态网页
 id: zh_readme
 class: zh_readme
+date: 2021-08-26
+author: neucrack
 ---
 
 

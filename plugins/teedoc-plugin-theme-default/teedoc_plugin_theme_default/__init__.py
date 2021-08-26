@@ -97,7 +97,8 @@ class Plugin(Plugin_Base):
             "/static/image/theme_default/menu.svg": os.path.join(self.assets_abs_path, "menu.svg"),
             "/static/image/theme_default/to-top.svg": os.path.join(self.assets_abs_path, "to-top.svg"),
             "/static/image/theme_default/light_mode.svg": os.path.join(self.assets_abs_path, "light_mode.svg"),
-            "/static/image/theme_default/dark_mode.svg": os.path.join(self.assets_abs_path, "dark_mode.svg")
+            "/static/image/theme_default/dark_mode.svg": os.path.join(self.assets_abs_path, "dark_mode.svg"),
+            "/static/image/theme_default/print.svg": os.path.join(self.assets_abs_path, "print.svg")
         }
         # set site_root_url env value
         self.config['env']["site_root_url"] = self.site_config["site_root_url"]

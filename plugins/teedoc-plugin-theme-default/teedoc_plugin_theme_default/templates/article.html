@@ -63,7 +63,7 @@
                             </ul>
                         </div>
                         <div id="article_info">
-                        <div>
+                        <div id="article_info_left">
                             <span class="article_author">
                                 {% if author %}{{ author }}{% endif %}
                             </span>
@@ -71,7 +71,7 @@
                                 {% if date %}{{ date }}{% endif %}
                             </span>
                         </div>
-                        <div>
+                        <div id="article_info_right">
                             {% if show_source %}
                             <div id="source_link">
                                 <a href="{{ source_url }}" target="_blank">
