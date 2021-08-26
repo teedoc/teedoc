@@ -30,7 +30,9 @@ $(document).ready(function(){
     registerOnWindowResize(has_sidebar);
     hello();
     imageViewer();
-    addPrintPage();
+    if(${show_print_page}){
+        addPrintPage();
+    }
 });
 
 var sidebar_width = "${sidebar_width}";

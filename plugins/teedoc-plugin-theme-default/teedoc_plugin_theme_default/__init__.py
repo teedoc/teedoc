@@ -21,6 +21,7 @@ class Plugin(Plugin_Base):
         "dark": True,
         "default_dark": True,
         "mobile_navbar_collapsed": True,
+        "show_print_page": True,
         "env": {
             "main_color": "#4caf7d",
             "sidebar_width": "300px",
@@ -49,6 +50,10 @@ class Plugin(Plugin_Base):
             self.config["env"]["default_theme"] = "dark"
         else:
             self.config["env"]["default_theme"] = "light"
+        if self.config["show_print_page"]:
+            self.config["env"]["show_print_page"] = "true"
+        else:
+            self.config["env"]["show_print_page"] = "false"
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
