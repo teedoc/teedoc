@@ -52,6 +52,30 @@ try{
     alert('plugin theme env sidebar_width value error, e.g. 300 or "300px" or "30%", not ' + sidebar_width);
 }
 
+function menu_show(show)
+{
+    if(show){
+        $("#menu").addClass("m_menu_fixed");
+        $("#menu").addClass("close");
+        $("#to_top").addClass("m_hide");
+        $("#sidebar_wrapper").show(100);
+        $(".gutter").css("display", "block");
+    }else{
+        $("#menu").removeClass("m_menu_fixed");
+        $("#menu").removeClass("close");
+        $("#to_top").removeClass("m_hide");
+        $("#sidebar_wrapper").hide(100);
+        $(".gutter").css("display", "none");
+    }
+}
+function menu_toggle(){
+    if(!$("#sidebar_wrapper").is(':visible')){ // show
+        menu_show(true);
+    }else{ // hide
+        menu_show(false);
+    }
+}
+
 function registerSidebarClick(){
     function show_collapse_item(a_obj){
         var o_ul = a_obj.next();
@@ -81,19 +105,7 @@ function registerSidebarClick(){
         }
     });
     $("#menu").bind("click", function(e){
-        if(!$("#sidebar_wrapper").is(':visible')){ // show
-            $("#menu").addClass("m_menu_fixed");
-            $("#menu").addClass("close");
-            $("#to_top").addClass("m_hide");
-            $("#sidebar_wrapper").show(100);
-            $(".gutter").css("display", "block");
-        }else{ // hide
-            $("#menu").removeClass("m_menu_fixed");
-            $("#menu").removeClass("close");
-            $("#to_top").removeClass("m_hide");
-            $("#sidebar_wrapper").hide(100);
-            $(".gutter").css("display", "none");
-        }
+        menu_toggle();
     });
     $("#navbar_menu_btn").bind("click", function(e){
         $("#navbar_items").toggle();
@@ -286,6 +298,8 @@ function addPrintPage(){
     $("#article_info_right").append('<div id="print_page"></div>');
 
     var beforePrint = function(){
+        // update style changed by js:
+        $("#article").css("width", "100%");
         // rerender for proper output
         rerender();
     }
