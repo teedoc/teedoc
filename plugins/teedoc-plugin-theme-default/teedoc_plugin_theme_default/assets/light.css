@@ -241,7 +241,6 @@ code {
     transition: 0.2s;
     border-radius: 5px;
     display: block;
-    z-index: 99;
 }
 
 .gutter.gutter-horizontal {
