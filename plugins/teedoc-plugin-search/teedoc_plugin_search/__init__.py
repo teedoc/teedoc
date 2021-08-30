@@ -21,7 +21,15 @@ class Plugin(Plugin_Base):
     name = "teedoc-plugin-search"
     desc = "search support for teedoc"
     defautl_config = {
+        "content_type": "raw", # supported_content_type
+        "search_hint" : "Search",
+        "input_hint" : "Keywords separated by space",
+        "loading_hint" : "Loading, wait please ...",
+        "download_err_hint" : "Download error, please check network and refresh again",
+        "other_docs_result_hint" : "Result from other docs",
+        "curr_doc_result_hint" : "Result from current doc"
     }
+    supported_content_type = ["raw", "html"]
 
     def on_init(self, config, doc_src_path, site_config, logger = None):
         '''
@@ -35,6 +43,12 @@ class Plugin(Plugin_Base):
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
+        if not self.config["content_type"] in self.supported_content_type:
+            self.logger.e("-- plugin <{}> config content_type error: {}, should be in {}".format(self.name, self.config["content_type"], self.supported_content_type))
+        if self.config["content_type"] == "raw":
+            self.content_from = "raw"
+        else:
+            self.content_from = "body"
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
         self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_search")
         if os.path.exists(self.temp_dir):
@@ -118,35 +132,29 @@ class Plugin(Plugin_Base):
         '''
             @config config cover self.config
         '''
-        search_hint = "Search"
-        search_input_hint = "Keywords separated by space"
-        search_loading_hint = "Loading, wait please ..."
-        search_download_err_hint = "Download error, please check network and refresh again"
-        search_other_docs_result_hint = "Result from other docs"
-        search_curr_doc_result_hint = "Result from current doc"
         if "search_hint" in new_config:
             search_hint = new_config["search_hint"]
-        elif "search_hint" in self.config:
+        else:
             search_hint = self.config["search_hint"]
         if "input_hint" in new_config:
             search_input_hint = new_config["input_hint"]
-        elif "input_hint" in self.config:
+        else:
             search_input_hint = self.config["input_hint"]
         if "loading_hint" in new_config:
             search_loading_hint = new_config["loading_hint"]
-        elif "loading_hint" in self.config:
+        else:
             search_loading_hint = self.config["loading_hint"]
         if "download_err_hint" in new_config:
             search_download_err_hint = new_config["download_err_hint"]
-        elif "download_err_hint" in self.config:
+        else:
             search_download_err_hint = self.config["download_err_hint"]
         if "other_docs_result_hint" in new_config:
             search_other_docs_result_hint = new_config["other_docs_result_hint"]
-        elif "other_docs_result_hint" in self.config:
+        else:
             search_other_docs_result_hint = self.config["other_docs_result_hint"]
         if "curr_doc_result_hint" in new_config:
             search_curr_doc_result_hint = new_config["curr_doc_result_hint"]
-        elif "curr_doc_result_hint" in self.config:
+        else:
             search_curr_doc_result_hint = self.config["curr_doc_result_hint"] 
         search_btn = '''<a id="search"><span class="icon"></span><span class="placeholder">{}</span>
                             <div id="search_hints">
@@ -185,6 +193,7 @@ class Plugin(Plugin_Base):
         #     self.content["articles"][html["url"]] = html["raw"]
         # for file, html in htmls_pages.items():
         #     self.content["pages"][html["url"]] = html["raw"]
+        self.logger.i("generate search index")
         if htmls_blog:
             htmls_pages.update(copy.deepcopy(htmls_blog))
         docs_url = list(htmls_files.keys())
@@ -197,17 +206,27 @@ class Plugin(Plugin_Base):
             path = os.path.join(self.temp_dir, "index_{}.json".format(i))
             sub_index_path.append(path)
             #   write content to sub index file
+            content = {}
+            for page_url in htmls_files[url]:
+                content[page_url] = {
+                    "title": htmls_files[url][page_url]["title"],
+                    "content": htmls_files[url][page_url][self.content_from]
+                }
             with open(path, "w", encoding="utf-8") as f:
-                htmls_files[url]["body"] = "" # remove body, only use raw
-                json.dump(htmls_files[url], f, ensure_ascii=False)
+                json.dump(content, f, ensure_ascii=False)
         for i, url in enumerate(pages_url, len(docs_url)):
             index_content[url] = "{}static/search_index/index_{}.json".format(self.site_config["site_root_url"], i)
             path = os.path.join(self.temp_dir, "index_{}.json".format(i))
             sub_index_path.append(path)
             #   write content to sub index file
+            content = {}
+            for page_url in htmls_pages[url]:
+                content[page_url] = {
+                    "title": htmls_pages[url][page_url]["title"],
+                    "content": htmls_pages[url][page_url][self.content_from]
+                }
             with open(path, "w", encoding="utf-8") as f:
-                htmls_pages[url]["body"] = "" # remove body, only use raw
-                json.dump(htmls_pages[url], f, ensure_ascii=False)
+                json.dump(content, f, ensure_ascii=False)
         # write content to files
         #   index file
         index_path = os.path.join(self.temp_dir, "index.json")

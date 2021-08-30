@@ -237,19 +237,18 @@ class Plugin(Plugin_Base):
             # except blog index.html
             if url == os.path.join(blog_url, "index.html"):
                 continue
-            item.pop("body")
-            item.pop("raw")
-            item.pop("footer")
-            item.pop("file_path")
-            if "show_source" in item:
-                item.pop("show_source")
-            item.pop("navbar")
-            item.pop("toc")
-            item["metadata"].pop("title")
-            item["metadata"].pop("desc")
-            item["metadata"].pop("keywords")
-            item["url"] = url
-            self.index_content["items"][url] = item
+            new_item = {
+                "title": item["title"],
+                "desc": item["desc"],
+                "keywords": item["keywords"],
+                "tags": item["tags"],
+                "url": url,
+                "date": item["date"],
+                "ts": item["ts"],
+                "author": item["author"],
+                "brief": item["brief"],
+            }
+            self.index_content["items"][url] = new_item
         # sort by date
         self.index_content["items"] = OrderedDict(sorted(self.index_content["items"].items(), key=lambda v: v[1]["ts"], reverse=True))
         #   write content to sub index file
