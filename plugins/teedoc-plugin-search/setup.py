@@ -13,7 +13,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc-plugin-search',
-    version="1.2.10",
+    version="1.2.11",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 

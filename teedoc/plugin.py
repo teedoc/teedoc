@@ -33,7 +33,7 @@ class Plugin_Base:
 
     def on_htmls(self, htmls_files, htmls_pages, htmls_blog=None):
         '''
-            update htmls, may not all html, just partially
+            update htmls, may not all html, just partially, DO NOT change params' value, read only, or will lead to other plugins error
             htmls_files: {
                 "/get_started/zh":{
                     "url":{

@@ -149,8 +149,8 @@ $(document).ready(function(){
                         find = true;
                     }
                 }
-                if(content["raw"] && content["raw"].length > 0){
-                    find_strs = search(keywords, content["raw"]);
+                if(content["content"] && content["content"].length > 0){
+                    find_strs = search(keywords, content["content"]);
                     if(find_strs.length > 0){
                         find = true; 
                     }
