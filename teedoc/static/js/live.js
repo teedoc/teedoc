@@ -161,7 +161,7 @@
   
           // check if an html resource is our current url, then reload                               
           case "text/html":
-            if (url != document.location.href)
+            if (Live.removeArgsId(url) != Live.removeArgsId(document.location.href))
               return;
   
             // local javascript changes cause a reload as well
@@ -170,6 +170,19 @@
           case "application/x-javascript":
             document.location.reload();
         }
+      },
+
+      // remove args and id in url
+      removeArgsId: function(url){
+        var idx = url.indexOf("?");
+        if(idx >= 0){
+          url = url.substr(0, idx);
+        }
+        idx = url.indexOf("#");
+        if(idx >= 0){
+          url = url.substr(0, idx);
+        }
+        return url;
       },
   
       // removes the old stylesheet rules only once the new one has finished loading
