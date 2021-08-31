@@ -66,6 +66,7 @@ function menu_show(show)
         $("#to_top").removeClass("m_hide");
         $("#sidebar_wrapper").hide(100);
         $(".gutter").css("display", "none");
+        $("#article").css("width", "100%"); // recover set by splitter
     }
 }
 function menu_toggle(){
