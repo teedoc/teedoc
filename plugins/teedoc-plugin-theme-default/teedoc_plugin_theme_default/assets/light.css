@@ -764,6 +764,7 @@ div.code-toolbar > .toolbar a:hover, div.code-toolbar > .toolbar a:focus, div.co
     flex-direction: column;
     align-items: center;
     width: 100%;
+    line-height: 1em;
 }
 #footer ul {
     list-style: none;
