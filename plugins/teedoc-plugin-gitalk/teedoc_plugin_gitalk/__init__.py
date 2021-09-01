@@ -20,7 +20,7 @@ class Plugin(Plugin_Base):
     name = "teedoc-plugin-baidu-tongji"
     desc = "baidu tongji support for teedoc"
     defautl_config = {
-        "contrainer": "comment-container",
+        "contrainer": "comments-container",
         "env":{
             "clientID": 'GitHub Application Client ID',
             "clientSecret": 'GitHub Application Client Secret',
