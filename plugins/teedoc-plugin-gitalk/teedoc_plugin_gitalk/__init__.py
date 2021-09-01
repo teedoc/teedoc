@@ -20,10 +20,7 @@ class Plugin(Plugin_Base):
     name = "teedoc-plugin-baidu-tongji"
     desc = "baidu tongji support for teedoc"
     defautl_config = {
-        "classes": [
-            "type_doc",
-            "type_blog"
-        ],
+        "contrainer": "comment-container",
         "env":{
             "clientID": 'GitHub Application Client ID',
             "clientSecret": 'GitHub Application Client Secret',
@@ -72,7 +69,7 @@ class Plugin(Plugin_Base):
         os.makedirs(self.temp_dir)
             
         vars = {
-            "supported_classes": '"{}"'.format('","'.join(self.config["classes"])),
+            "comment_contrainer_id": self.config["contrainer"],
             "config": json.dumps(self.config["env"])
         }
         self.files_to_copy  = self._update_file_var(self.files_to_copy, vars, self.temp_dir)
