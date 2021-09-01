@@ -21,6 +21,7 @@ from collections import OrderedDict
 import multiprocessing
 import threading
 import math
+import copy
 from queue import Queue, Empty
 from datetime import datetime
 
@@ -663,6 +664,17 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
             files[file] = None
         else:
             renderer = renderer0
+            metadata = copy.deepcopy(html["metadata"])
+            if "title" in metadata:
+                metadata.pop("title")
+            if "keywords" in metadata:
+                metadata.pop("keywords")
+            if "desc" in metadata:
+                metadata.pop("desc")
+            if "tags" in metadata:
+                metadata.pop("tags")
+            if "id" in metadata:
+                metadata.pop("id")
             if "layout" in html["metadata"]:
                 layout = os.path.join(template_root, html["metadata"]["layout"])
                 if os.path.exists(layout):
@@ -683,6 +695,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
                                 "title": sidebar_list[file]["next"][1]
                             }
                 vars = {
+                    "metadata": metadata,
                     "page_id" : id,
                     "page_classes" : classes,
                     "keywords" : html["keywords"],
@@ -723,6 +736,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
                 rendered_html = renderer.render(**vars)
             else:
                 vars = {
+                    "metadata": metadata,
                     "page_id" : id,
                     "page_classes" : classes,
                     "keywords" : html["keywords"],

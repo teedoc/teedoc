@@ -12,15 +12,15 @@ packages = find_packages()
 print("packages:", packages)
 
 setup(
-    name='teedoc-plugin-theme-default',
-    version="1.13.0",
+    name='teedoc-plugin-gitalk',
+    version="1.0.0",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
-    description='default theme for teedoc',
+    description='gitalk comment plugin for teedoc',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/Neutree/teedoc',
+    url='https://github.com/teedoc/teedoc',
     license='MIT',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -36,7 +36,7 @@ setup(
         'Programming Language :: Python :: 3'
     ],
 
-    keywords='doc website markdown jupyter notbook generator teedoc theme',
+    keywords='gitalk comment teedoc plugin',
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -65,7 +65,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        "teedoc_plugin_theme_default" : ['assets/*', 'templates/*'],
+        "teedoc_plugin_gitalk" : ['assets/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
