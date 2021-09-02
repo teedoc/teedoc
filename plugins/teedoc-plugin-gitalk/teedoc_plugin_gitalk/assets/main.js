@@ -25,6 +25,9 @@
   }else{
     config["id"] = location.pathname;
   }
+  if(!("idFrom" in config)){
+    config["idFrom"] = "title";
+  }
   // get attr from html attr set in md metadata
   for (var i=0;i<html.attributes.length;i++){
     var v = html.attributes[i];
@@ -37,7 +40,6 @@
       }
     }
   }
-  console.log(config);
   var gitalk = new Gitalk(config);
   gitalk.render('gitalk-container');
   
