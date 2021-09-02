@@ -21,6 +21,16 @@ class Meta_Parser:
         meta_kvs = {}
         text_strip = text.strip()
         if not text_strip.startswith("---"):
+            idx = text_strip.find("\n")
+            if idx > 0:
+                if text_strip.startswith("# "): # h1 header
+                    meta_kvs["title"] = text_strip[2:idx]
+                    text = text_strip[idx+1:].strip()
+                elif text_strip[idx+1:].startswith("==="): # h1 header
+                    idx2 = text_strip[idx+1:].find("\n")
+                    if idx2 > 0:
+                        meta_kvs["title"] = text_strip[:idx]
+                        text = text_strip[ idx2 + idx + 1:].strip()
             return meta_kvs, text
         m = self.re_meta_flag.match(text_strip)
         if not m:

@@ -19,7 +19,7 @@ class Plugin(Plugin_Base):
     desc = "default theme for teedoc"
     defautl_config = {
         "dark": True,
-        "default_dark": True,
+        "default_dark": False,
         "mobile_navbar_collapsed": True,
         "show_print_page": True,
         "env": {
