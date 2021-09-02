@@ -13,7 +13,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc-plugin-gitalk',
-    version="1.1.2",
+    version="1.1.3",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
