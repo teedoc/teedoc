@@ -59,7 +59,6 @@ class Plugin(Plugin_Base):
         }
         self.html_header_items = [
             '<link rel="stylesheet" href="{}" type="text/css"/>'.format("/static/css/gitalk/gitalk.css"),
-            '<link rel="stylesheet" href="{}" type="text/css"/>'.format("/static/css/gitalk/custom_gitalk.css")
         ]
         self.html_js_items = [
             '<script src="{}"></script>'.format("/static/js/gitalk/gitalk.min.js"),
@@ -74,6 +73,8 @@ class Plugin(Plugin_Base):
         # custom main color
         custom_color_vars = {}
         if "main_color" in self.config["env"]:
+            self.logger.i("-- plugin <{}> get main_color {}".format(self.name, self.config["env"]["main_color"]))
+            self.html_header_items.append('<link rel="stylesheet" href="{}" type="text/css"/>'.format("/static/css/gitalk/custom_gitalk.css"))
             self.files_to_copy["/static/css/gitalk/custom_gitalk.css"] = os.path.join(self.assets_abs_path, "custom_gitalk.css")
             # remove color vars from env, for env used by js
             if not "second_color" in self.config["env"]:
@@ -82,6 +83,8 @@ class Plugin(Plugin_Base):
             custom_color_vars["second_color"] = self.config["env"]["second_color"]
             self.config["env"].pop("main_color")
             self.config["env"].pop("second_color")
+        else:
+            self.logger.i("-- plugin <{}> use default color")
         vars = {
             "comment_contrainer_id": self.config["contrainer"],
             "config": json.dumps(self.config["env"])

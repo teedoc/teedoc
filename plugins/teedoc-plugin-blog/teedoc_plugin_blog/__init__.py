@@ -26,7 +26,7 @@ from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 class Plugin(Plugin_Base):
-    name = "teedoc-plugin-markdown-parser"
+    name = "teedoc-plugin-blog"
     desc = "markdown parser plugin for teedoc"
     defautl_config = {
         "parse_files": ["md"]
