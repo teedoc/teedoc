@@ -29,7 +29,9 @@ class Plugin(Plugin_Base):
             "admin": ['GitHub repo owner and collaborators, only these guys can initialize github issues'],
             # "id": location.pathname,      // Ensure uniqueness and length less than 50
             # "distractionFreeMode": false  // Facebook-like distraction free mode
-        }
+            # "main_color": "#4caf7d",
+            # "second_color": "#0a7d43"
+        },
     }
 
     def on_init(self, config, doc_src_path, site_config, logger = None):
@@ -53,10 +55,11 @@ class Plugin(Plugin_Base):
         self.files_to_copy = {
             "/static/js/gitalk/gitalk.min.js": os.path.join(self.assets_abs_path, "gitalk.min.js"),
             "/static/js/gitalk/main.js": os.path.join(self.assets_abs_path, "main.js"),
-            "/static/css/gitalk/gitalk.css": os.path.join(self.assets_abs_path, "gitalk.css"),
+            "/static/css/gitalk/gitalk.css": os.path.join(self.assets_abs_path, "gitalk.css")
         }
         self.html_header_items = [
-            '<link rel="stylesheet" href="{}" type="text/css"/>'.format("/static/css/gitalk/gitalk.css")
+            '<link rel="stylesheet" href="{}" type="text/css"/>'.format("/static/css/gitalk/gitalk.css"),
+            '<link rel="stylesheet" href="{}" type="text/css"/>'.format("/static/css/gitalk/custom_gitalk.css")
         ]
         self.html_js_items = [
             '<script src="{}"></script>'.format("/static/js/gitalk/gitalk.min.js"),
@@ -68,10 +71,23 @@ class Plugin(Plugin_Base):
             shutil.rmtree(self.temp_dir)
         os.makedirs(self.temp_dir)
             
+        # custom main color
+        custom_color_vars = {}
+        if "main_color" in self.config["env"]:
+            self.files_to_copy["/static/css/gitalk/custom_gitalk.css"] = os.path.join(self.assets_abs_path, "custom_gitalk.css")
+            # remove color vars from env, for env used by js
+            if not "second_color" in self.config["env"]:
+                self.config["env"]["second_color"] = self.config["env"]["main_color"]
+            custom_color_vars["main_color"] = self.config["env"]["main_color"]
+            custom_color_vars["second_color"] = self.config["env"]["second_color"]
+            self.config["env"].pop("main_color")
+            self.config["env"].pop("second_color")
         vars = {
             "comment_contrainer_id": self.config["contrainer"],
             "config": json.dumps(self.config["env"])
         }
+        vars.update(custom_color_vars)
+        print(custom_color_vars)
         self.files_to_copy  = self._update_file_var(self.files_to_copy, vars, self.temp_dir)
 
 
