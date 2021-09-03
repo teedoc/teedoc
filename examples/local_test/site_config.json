@@ -57,8 +57,6 @@
                     "main_color": "#4caf7d",
                     "sidebar_width": "300px"
                 },
-                "css": "/static/css/custom.css",
-                "js": "/static/js/custom.js",
                 "code_highlight_css": "/static/css/prism.css",
                 "code_highlight_js": "/static/js/prism.js"
             }
@@ -73,6 +71,20 @@
             "from": "../../plugins/teedoc-plugin-baidu-tongji",
             "config": {
                 "code": "90c693aa2475224142e727c14a50bb49"
+            }
+        },
+        "teedoc-plugin-assets": {
+            "from": "../../plugins/teedoc-plugin-assets",
+            "config": {
+                "header_items": [
+                    "/static/css/custom.css"
+                ],
+                "footer_items": [
+                    "/static/js/custom.js"
+                ],
+                "env":{
+                    "main_color": "#4caf7d"
+                }
             }
         }
     },

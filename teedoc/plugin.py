@@ -17,7 +17,7 @@ class Plugin_Base:
         self._pid = os.getpid()
         self.on_init(config, doc_src_path, site_config, logger)
 
-    def on_init(self):
+    def on_init(self, doc_src_path, site_config, logger):
         pass
 
     def on_copy_files(self):

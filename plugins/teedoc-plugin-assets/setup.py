@@ -12,12 +12,12 @@ packages = find_packages()
 print("packages:", packages)
 
 setup(
-    name='teedoc-plugin-gitalk',
-    version="1.1.9",
+    name='teedoc-plugin-assets',
+    version="1.0.0",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
-    description='gitalk comment plugin for teedoc',
+    description='assets plugin for teedoc to add css and js assets to pages or other custom items to pages',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/teedoc/teedoc',
@@ -36,7 +36,7 @@ setup(
         'Programming Language :: Python :: 3'
     ],
 
-    keywords='gitalk comment teedoc plugin',
+    keywords='assets css js teedoc plugin',
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -65,7 +65,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        "teedoc_plugin_gitalk" : ['assets/*'],
+        # "teedoc_plugin_assets" : ['assets/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

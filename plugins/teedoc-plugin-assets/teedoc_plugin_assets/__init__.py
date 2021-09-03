@@ -17,19 +17,12 @@ from teedoc import Fake_Logger
 
 
 class Plugin(Plugin_Base):
-    name = "teedoc-plugin-gitalk"
-    desc = "gitalk comment support for teedoc"
+    name = "teedoc-plugin-assets"
+    desc = "add assets(css js) support for teedoc"
     defautl_config = {
-        "contrainer": "comments-container",
-        "env":{
-            "clientID": 'GitHub Application Client ID',
-            "clientSecret": 'GitHub Application Client Secret',
-            "repo": 'GitHub repo',
-            "owner": 'GitHub repo owner',
-            "admin": ['GitHub repo owner and collaborators, only these guys can initialize github issues'],
-            # "id": location.pathname,      // Ensure uniqueness and length less than 50
-            # "distractionFreeMode": false  // Facebook-like distraction free mode
-        }
+        "header_items": [],
+        "footer_items": [],
+        "env":{}
     }
 
     def on_init(self, config, doc_src_path, site_config, logger = None):
@@ -48,38 +41,56 @@ class Plugin(Plugin_Base):
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
-        self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
-        self.files_to_copy = {
-            "/static/js/gitalk/gitalk.min.js": os.path.join(self.assets_abs_path, "gitalk.min.js"),
-            "/static/js/gitalk/main.js": os.path.join(self.assets_abs_path, "main.js"),
-            "/static/css/gitalk/gitalk.css": os.path.join(self.assets_abs_path, "gitalk.css"),
-        }
-        self.html_header_items = [
-            '<link rel="stylesheet" href="{}" type="text/css"/>'.format("/static/css/gitalk/gitalk.css")
-        ]
-        self.html_js_items = [
-            '<script src="{}"></script>'.format("/static/js/gitalk/gitalk.min.js"),
-            '<script src="{}"></script>'.format("/static/js/gitalk/main.js")
-        ]
+        self.files_to_copy = {}
+        self.html_header_items = []
+        self.html_footer_items = []
+        for item in self.config["header_items"]:
+            if item.startswith("/"):
+                path = os.path.join(self.doc_src_path, item[1:])
+                if os.path.exists(path):
+                    if path.endswith(".js"):
+                        self.html_header_items.append(f'<script src="{item}"></script>')
+                        self.files_to_copy[item] = path
+                    elif path.endswith(".css"):
+                        self.html_header_items.append(f'<link rel="stylesheet" href="{item}" type="text/css"/>')
+                        self.files_to_copy[item] = path
+                    else:
+                        self.logger.e(f"config: url {item} not support! you can use html tag instead")
+                else:
+                    self.logger.e(f"config: url {item} wrong, file {path} no found ")
+            else:
+                self.html_header_items.append(item)
+        for item in self.config["footer_items"]:
+            if item.startswith("/"):
+                path = os.path.join(self.doc_src_path, item[1:])
+                if os.path.exists(path):
+                    if path.endswith(".js"):
+                        self.html_footer_items.append(f'<script src="{item}"></script>')
+                        self.files_to_copy[item] = path
+                    elif path.endswith(".css"):
+                        self.html_footer_items.append(f'<link rel="stylesheet" href="{item}" type="text/css"/>')
+                        self.files_to_copy[item] = path
+                    else:
+                        self.logger.e(f"config: url {item} not support! you can use html tag instead")
+                else:
+                    self.logger.e(f"config: url {item} wrong, file {path} no found ")
+            else:
+                self.html_footer_items.append(item)
 
-        self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_gitalk")
+        self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_assets")
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         os.makedirs(self.temp_dir)
             
-        vars = {
-            "comment_contrainer_id": self.config["contrainer"],
-            "config": json.dumps(self.config["env"])
-        }
-        self.files_to_copy  = self._update_file_var(self.files_to_copy, vars, self.temp_dir)
+        self.files_to_copy  = self._update_file_var(self.files_to_copy, self.config["env"], self.temp_dir)
 
 
     def on_add_html_header_items(self):
         return self.html_header_items
 
     def on_add_html_js_items(self):
-        return self.html_js_items
+        return self.html_footer_items
 
     def on_copy_files(self):
         res = self.files_to_copy
