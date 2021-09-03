@@ -87,7 +87,6 @@ class Plugin(Plugin_Base):
             "config": json.dumps(self.config["env"])
         }
         vars.update(custom_color_vars)
-        print(custom_color_vars)
         self.files_to_copy  = self._update_file_var(self.files_to_copy, vars, self.temp_dir)
 
 

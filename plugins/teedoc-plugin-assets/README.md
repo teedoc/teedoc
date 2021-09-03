@@ -15,7 +15,7 @@ Add css and js items(/files) to pages or other custom items to pages
             },
         },
     "plugins": {
-        "teedoc-plugin-markdown-parser":{
+        "teedoc-plugin-assets":{
             "from": "pypi",
             "config": {
                 "header_items": [

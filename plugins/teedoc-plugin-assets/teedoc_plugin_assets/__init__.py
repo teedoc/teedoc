@@ -75,6 +75,13 @@ class Plugin(Plugin_Base):
                         self.logger.e(f"config: url {item} not support! you can use html tag instead")
                 else:
                     self.logger.e(f"config: url {item} wrong, file {path} no found ")
+            elif item.startswith("http"):
+                if item.endswith(".js"):
+                    self.html_footer_items.append(f'<script src="{item}"></script>')
+                elif item.endswith(".css"):
+                    self.html_footer_items.append(f'<link rel="stylesheet" href="{item}" type="text/css"/>')
+                else:
+                    self.logger.e(f"config: url {item} not support! you can use html tag instead")
             else:
                 self.html_footer_items.append(item)
 
