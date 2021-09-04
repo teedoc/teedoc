@@ -12,8 +12,8 @@ packages = find_packages()
 print("packages:", packages)
 
 setup(
-    name='teedoc-plugin-gitalk',
-    version="1.2.6",
+    name='teedoc-plugin-comments-gitalk',
+    version="1.3.0",
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 
@@ -65,7 +65,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        "teedoc_plugin_gitalk" : ['assets/*'],
+        "teedoc_plugin_comments_gitalk" : ['assets/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

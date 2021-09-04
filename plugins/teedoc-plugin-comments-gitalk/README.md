@@ -1,4 +1,4 @@
-teedoc-plugin-gitalk
+teedoc-plugin-comments-gitalk
 ====
 
 
@@ -8,7 +8,7 @@ Create [applications](https://github.com/settings/applications/new) first, callb
 
 config example:
 ```json
-"teedoc-plugin-gitalk": {
+"teedoc-plugin-comments-gitalk": {
             "from": "pypi",
             "config": {
                 "classes": [

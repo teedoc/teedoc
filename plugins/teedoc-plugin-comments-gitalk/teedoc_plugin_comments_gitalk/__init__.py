@@ -17,7 +17,7 @@ from teedoc import Fake_Logger
 
 
 class Plugin(Plugin_Base):
-    name = "teedoc-plugin-gitalk"
+    name = "teedoc-plugin-comments-gitalk"
     desc = "gitalk comment support for teedoc"
     defautl_config = {
         "contrainer": "comments-container",
@@ -65,7 +65,7 @@ class Plugin(Plugin_Base):
             '<script src="{}"></script>'.format("/static/js/gitalk/main.js")
         ]
 
-        self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_gitalk")
+        self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_comments_gitalk")
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
         os.makedirs(self.temp_dir)
