@@ -251,7 +251,7 @@ def load_config(doc_dir, config_template_dir, config_name="config", default = {}
 
 def load_doc_config(doc_dir, config_template_dir):
     default = {
-        "locale": "en"
+        "locale": None
     }
     config = load_config(doc_dir, config_template_dir, default=default)
     return config
@@ -687,6 +687,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                 if os.path.exists(layout):
                     renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], html_templates_i18n_dirs, lang=doc_config["locale"])
             id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
+            lang = doc_config["locale"].replace("_", "-") if doc_config["locale"] else None
             if "sidebar" in html:
                 previous_article = None
                 next_article = None
@@ -702,6 +703,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                                 "title": sidebar_list[file]["next"][1]
                             }
                 vars = {
+                    "lang": lang,
                     "metadata": metadata,
                     "page_id" : id,
                     "page_classes" : classes,
@@ -743,6 +745,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                 rendered_html = renderer.render(**vars)
             else:
                 vars = {
+                    "lang": lang,
                     "metadata": metadata,
                     "page_id" : id,
                     "page_classes" : classes,

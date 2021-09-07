@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html {% if page_id %} id="{{ page_id }}" {% endif %} class="{% for c in page_classes%} {{ c }} {% endfor%}" {% for k,v in metadata.items() %} {{ k }}="{{ v }}" {% endfor%}>
+<html {% if lang %}lang="{{ lang }}"{% endif %} {% if page_id %}id="{{ page_id }}"{% endif %} class="{% for c in page_classes%} {{ c }} {% endfor%}" {% for k,v in metadata.items() %} {{ k }}="{{ v }}" {% endfor%}>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
