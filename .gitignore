@@ -134,3 +134,6 @@ out
 .vscode
 
 local_test2
+
+# translation bin files
+*.mo

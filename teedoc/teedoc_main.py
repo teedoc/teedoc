@@ -213,17 +213,17 @@ def update_config(old, update, level = 0):
             new[key] = update[key]
     return new
 
-def load_config(doc_dir, config_template_dir, config_name="config"):
+def load_config(doc_dir, config_template_dir, config_name="config", default = {}):
     '''
         @doc_dir doc diretory, abspath
         @config_dir config template files dir, abspath
     '''
-    config = None
+    config = default
     config_path = os.path.join(doc_dir, config_name + ".json")
     if os.path.exists(config_path):
         with open(config_path, encoding="utf-8") as f:
             try:
-                config = json.load(f)
+                config_load = json.load(f)
             except Exception as e:
                 raise Exception('\n\ncan not parse json file "{}"\njson format error: {}'.format(config_path, e))
     else:
@@ -234,9 +234,11 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
             raise Exception("can not open file: {}".format(config_path))
         with open(config_path, encoding="utf-8") as f:
             try:
-                config = yaml.load(f.read(), Loader=yaml.Loader)
+                config_load = yaml.load(f.read(), Loader=yaml.Loader)
             except Exception as e:
                 raise Exception('\ncan not parse yaml file "{}"\nyaml format error: {}'.format(config_path, e))
+    config.update(config_load)
+
     if "import" in config:
         # update parent config
         config_name = config["import"]
@@ -246,8 +248,13 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
         config = update_config(config_parent, config)
     return config
 
+
 def load_doc_config(doc_dir, config_template_dir):
-    return load_config(doc_dir, config_template_dir)
+    default = {
+        "locale": "en"
+    }
+    config = load_config(doc_dir, config_template_dir, default=default)
+    return config
 
 def get_sidebar(doc_dir, config_template_dir):
     return load_config(doc_dir, config_template_dir, config_name="sidebar")
@@ -636,7 +643,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
-def construct_html(html_template, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs):
+def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs):
     '''
         @htmls  {
             "title": "",
@@ -656,7 +663,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
     '''
     template_root = os.path.join(doc_src_path, site_config["layout_root_dir"]) if "layout_root_dir" in site_config else os.path.join(doc_src_path, "layout")
     theme_layout_root = os.path.dirname(html_template)
-    renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root])
+    renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root], html_templates_i18n_dirs, lang=doc_config["locale"])
     files = {}
     items = list(htmls.items())
     for i, (file, html) in enumerate(items):
@@ -678,7 +685,7 @@ def construct_html(html_template, htmls, header_items_in, js_items_in, site_conf
             if "layout" in html["metadata"]:
                 layout = os.path.join(template_root, html["metadata"]["layout"])
                 if os.path.exists(layout):
-                    renderer = Renderer(html["metadata"]["layout"], search_paths=[template_root, theme_layout_root])
+                    renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], html_templates_i18n_dirs, lang=doc_config["locale"])
             id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
             if "sidebar" in html:
                 previous_article = None
@@ -886,7 +893,7 @@ def generate_return(plugins_objs, ok):
         p.on_new_process_del()
     return ok
 
-def generate(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
+def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx):
     if not pipe_tx is None:
         def on_err():
             pipe_tx.send(True)
@@ -974,7 +981,7 @@ def generate(html_template, files, url, dir, doc_config, plugin_func, routes, si
                 htmls = htmls_add_source(htmls, site_config["source"], label, doc_src_path)
 
         # consturct html page
-        htmls_str = construct_html(html_template, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs)
+        htmls_str = construct_html(html_template, html_templates_i18n_dirs, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs)
         if is_err():
             return generate_return(plugins_objs, False)
         # check abspath
@@ -1002,7 +1009,7 @@ def generate(html_template, files, url, dir, doc_config, plugin_func, routes, si
     log.i("generate ok")
     return generate_return(plugins_objs, True)
 
-def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files, max_threads_num, html_template):
+def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items, sidebar, allow_no_navbar, update_files, max_threads_num, html_template, html_templates_i18n_dirs):
     '''
         @return {
             "doc_url", {
@@ -1044,6 +1051,7 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             all_files = get_files(dir, warn = log.w)
         log.i("parse {}: {}, url:{}".format(name, dir, url))
         doc_config = load_doc_config(dir, config_template_dir)
+        log.i("locale: {}".format(doc_config["locale"]))
         # get sidebar config
         sidebar_dict = {}
         if sidebar is True:
@@ -1080,14 +1088,14 @@ def parse(name, plugin_func, routes, site_config, doc_src_path, config_template_
             ts = []
             pipe_rx, pipe_tx = multiprocessing.Pipe()
             for files in all_files:
-                p = multiprocessing.Process(target=generate, args=(html_template, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx))
+                p = multiprocessing.Process(target=generate, args=(html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, pipe_rx, pipe_tx))
                 p.start()
                 ts.append(p)
             for p in ts:
                 p.join()
                 # log.i("{} generate ok".format(p.name))
         else:
-            ok = generate(html_template, all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None)
+            ok = generate(html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func, routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, plugins_new_config, navbar, footer, queue, None, None)
             if not ok:
                 return False, None
     htmls = {}
@@ -1123,6 +1131,8 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         "article": None,
         "blog": None
     }
+    #     get html template i18n dir
+    html_templates_i18n_dirs = []
     for plugin in plugins_objs:
         items = plugin.on_add_html_header_items()
         _js_items = plugin.on_add_html_js_items()
@@ -1142,23 +1152,30 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         temp = plugin.on_blog_html_template()
         if temp and os.path.exists(temp):
             html_templates["blog"] = temp
+        temp = plugin.on_html_template_i18n_dir()
+        if temp and os.path.exists(temp):
+            html_templates_i18n_dirs.append(temp)
     if not html_templates["page"] or not html_templates["article"] or not html_templates["blog"]:
         log.e("no html templates, please install theme plugin")
         return False
+    log.i("html_templates_i18n_dirs: {}".format(html_templates_i18n_dirs))
+
     # preview_mode js file
     if preview_mode:
         js_items.append('<script type="text/javascript" src="{}static/js/live.js"></script>'.format(site_config['site_root_url']))
     # parse all docs
     routes = site_config["route"]["docs"]
     ok, htmls_files = parse("docs", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, html_template = html_templates["article"])
+                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num,
+                 html_template = html_templates["article"], html_templates_i18n_dirs=html_templates_i18n_dirs)
     if not ok:
         return False
 
     # parse all pages
     routes = site_config["route"]["pages"]
     ok, htmls_pages = parse("pages", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, html_template = html_templates["page"])
+                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num,
+                 html_template = html_templates["page"], html_templates_i18n_dirs=html_templates_i18n_dirs)
     if not ok:
         return False
     # parse all blogs
@@ -1166,7 +1183,8 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     if "blog" in site_config["route"]:
         routes = site_config["route"]["blog"]
         ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, header_items, js_items,
-                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, html_template = html_templates["blog"])
+                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num,
+                    html_template = html_templates["blog"], html_templates_i18n_dirs=html_templates_i18n_dirs)
         if not ok:
             return False
 
@@ -1420,6 +1438,7 @@ def main():
                     plugin_import_name = plugin.replace("-", "_")
                     module = __import__(plugin_import_name)
                     plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
+                    plugin_obj.module_path = os.path.abspath(os.path.dirname(module.__file__))
                     plugins_objs.append(plugin_obj)
             # execute command
             if args.command == "install":

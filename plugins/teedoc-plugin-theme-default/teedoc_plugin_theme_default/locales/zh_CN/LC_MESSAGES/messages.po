@@ -1,0 +1,40 @@
+# Chinese (Simplified, China) translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-09-07 16:55+0800\n"
+"PO-Revision-Date: 2021-09-07 16:55+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_Hans_CN\n"
+"Language-Team: zh_Hans_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: program.py:18 templates/base.html:4
+msgid "title"
+msgstr "标题"
+
+#: program.py:19 templates/base.html:8
+msgid "body"
+msgstr "正文3"
+
+#: program.py:19 templates/base.html:8
+msgid "body"
+msgstr "正文2"
+
+#: program.py:20
+msgid "hello i18n"
+msgstr "你好 i18n"
+
+#: program.py:41
+msgid "content"
+msgstr "内容"
+
