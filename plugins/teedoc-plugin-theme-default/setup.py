@@ -65,7 +65,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        "teedoc_plugin_theme_default" : ['assets/*', 'templates/*', 'locales/*/*/*.po', 'locales/*.pot'],
+        "teedoc_plugin_theme_default" : ['assets/*', 'templates/*', 'locales/*/*/*.po', 'locales/*/*/*.mo', 'locales/*.pot'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

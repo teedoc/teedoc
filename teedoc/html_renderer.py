@@ -1,26 +1,29 @@
 from jinja2 import Environment, FileSystemLoader
 import os
-from babel.support import Translations
+from babel.support import Translations, NullTranslations
 
 class Renderer:
-    def __init__(self, template_name, search_paths, html_templates_i18n_dirs = [], lang = None):
+    def __init__(self, template_name, search_paths, html_templates_i18n_dirs = [], locale = None):
         '''
             @template_name e.g. "base.html"
             @search_paths list type, start elements has high priority
         '''
+        self.env = None
         if html_templates_i18n_dirs:
-            if not lang:
-                lang = "en"
-            self.env = Environment(
-                extensions=['jinja2.ext.i18n'],
-                loader=FileSystemLoader(search_paths)
-            )
-            translations_merge = Translations.load(html_templates_i18n_dirs[0], [lang])
-            for dir in html_templates_i18n_dirs[1:]:
-                translations = Translations.load(dir, [lang])
-                translations_merge.merge(translations)
-            self.env.install_gettext_translations(translations_merge)
-        else:    
+            if not locale:
+                locale = "en"
+            translations_merge = Translations.load(html_templates_i18n_dirs[0], [locale])
+            if type(translations_merge) != NullTranslations:
+                for dir in html_templates_i18n_dirs[1:]:
+                    translations = Translations.load(dir, [locale])
+                    if type(translations) != NullTranslations:
+                        translations_merge.merge(translations)
+                self.env = Environment(
+                    extensions=['jinja2.ext.i18n'],
+                    loader=FileSystemLoader(search_paths)
+                )
+                self.env.install_gettext_translations(translations_merge)
+        if not self.env:
             self.env = Environment(
                     loader=FileSystemLoader(search_paths)
                 )

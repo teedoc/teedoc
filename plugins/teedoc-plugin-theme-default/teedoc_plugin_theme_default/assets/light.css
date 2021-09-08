@@ -418,7 +418,7 @@ code {
     padding: 0;
     color: ${main_color};
 }
-.language_zh #article_content #blog_list h2:before {
+html[lang^=zh] #article_content #blog_list h2:before {
     content: "";
 }
 #blog_list .blog_tags {
@@ -488,10 +488,11 @@ code {
 	counter-increment: toc_l2;
     content: counter(toc_l1, decimal) "." counter(toc_l2, decimal) "、";
 }
-.language_zh #toc > div > ul > li > a:before, .language_zh #toc > div > ol > li > a:before {
+html[lang^=zh] #toc > div > ul > li > a:before, html[lang^=zh] #toc > div > ol > li > a:before {
     content: counter(toc_l1, simp-chinese-informal) "、";
 }
-.language_zh #toc > div > ul > li > ul > li > a:before, .language_zh #toc > div > ul > li > ol > li > a:before {
+html[lang^=zh] #toc > div > ul > li > ul > li > a:before,
+html[lang^=zh] #toc > div > ul > li > ol > li > a:before {
 	content: counter(toc_l1, decimal) "." counter(toc_l2, decimal) "、";
 }
 /* add numbers for titles toc*/
@@ -558,13 +559,13 @@ code {
 	counter-increment: h4section;
 	content: counter(h2section, decimal) "." counter(h3section, decimal) "." counter(h4section, decimal) "、";
 }
-.language_zh #article_content h2:before {
+html[lang^=zh] #article_content h2:before {
     content: counter(h2section, simp-chinese-informal) "、";
 }
-.language_zh #article_content h3:before {
+html[lang^=zh] #article_content h3:before {
 	content: counter(h2section, decimal) "." counter(h3section, decimal) "、";
 }
-.language_zh #article_content h4:before {
+html[lang^=zh] #article_content h4:before {
     content: counter(h2section, decimal) "." counter(h3section, decimal) "." counter(h4section, decimal) "、";
 }
 /* add numbers for titles end*/

@@ -50,7 +50,8 @@ class Plugin(Plugin_Base):
             self.content_from = "raw"
         else:
             self.content_from = "body"
-        self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+        self.module_path = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+        self.assets_abs_path = os.path.join(self.module_path, "assets")
         self.temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_search")
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
@@ -123,6 +124,7 @@ class Plugin(Plugin_Base):
         return files
 
     def on_parse_start(self, type_name, doc_config, new_config):
+        self.doc_locale = doc_config["locale"] if "locale" in doc_config else None
         self.new_config = copy.deepcopy(self.config)
         self.new_config = update_config(self.new_config, new_config)
 
@@ -136,6 +138,30 @@ class Plugin(Plugin_Base):
         '''
             @config config cover self.config
         '''
+        # i18n
+        have_i18n = False
+        if self.doc_locale:
+            import gettext
+            try:
+                lang = gettext.translation('messages', localedir=os.path.join(self.module_path, 'locales'), languages=[self.doc_locale])
+                lang.install()
+                _ = lang.gettext
+                have_i18n = True
+                search_hint = _("search_hint")
+                search_input_hint = _("search_input_hint")
+                search_loading_hint = _("search_loading_hint")
+                search_download_err_hint = _("search_download_err_hint")
+                search_other_docs_result_hint = _("search_other_docs_result_hint")
+                search_curr_doc_result_hint = _("search_curr_doc_result_hint")
+            except Exception as e:
+                pass
+        if not have_i18n: # locale not set, default from self.new_config
+            search_hint = self.new_config["search_hint"]
+            search_input_hint = self.new_config["input_hint"]
+            search_loading_hint = self.new_config["loading_hint"]
+            search_download_err_hint = self.new_config["download_err_hint"]
+            search_other_docs_result_hint = self.new_config["other_docs_result_hint"]
+            search_curr_doc_result_hint = self.new_config["curr_doc_result_hint"] 
         search_btn = '''<a id="search"><span class="icon"></span><span class="placeholder">{}</span>
                             <div id="search_hints">
                                 <span id="search_input_hint">{}</span>
@@ -143,9 +169,7 @@ class Plugin(Plugin_Base):
                                 <span id="search_download_err_hint">{}</span>
                                 <span id="search_other_docs_result_hint">{}</span>
                                 <span id="search_curr_doc_result_hint">{}</span>
-                            </div></a>'''.format(
-                        self.new_config["search_hint"], self.new_config["input_hint"], self.new_config["loading_hint"],
-                        self.new_config["download_err_hint"], self.new_config["other_docs_result_hint"], self.new_config["curr_doc_result_hint"])
+                            </div></a>'''.format(search_hint, search_input_hint, search_loading_hint, search_download_err_hint, search_other_docs_result_hint, search_curr_doc_result_hint)
         items = [search_btn]
         return items
     

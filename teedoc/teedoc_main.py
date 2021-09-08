@@ -177,12 +177,12 @@ def write_to_file(files_content, in_path, out_path):
                     f.write(s.read())
     return True, ""
 
-def load_config(doc_dir, config_template_dir, config_name="config", default = {}):
+def load_config(doc_dir, config_template_dir, config_name="config"):
     '''
         @doc_dir doc diretory, abspath
         @config_dir config template files dir, abspath
     '''
-    config = default
+    config = {}
     config_path = os.path.join(doc_dir, config_name + ".json")
     if os.path.exists(config_path):
         with open(config_path, encoding="utf-8") as f:
@@ -214,10 +214,7 @@ def load_config(doc_dir, config_template_dir, config_name="config", default = {}
 
 
 def load_doc_config(doc_dir, config_template_dir):
-    default = {
-        "locale": "en"
-    }
-    config = load_config(doc_dir, config_template_dir, default=default)
+    config = load_config(doc_dir, config_template_dir)
     return config
 
 def get_sidebar(doc_dir, config_template_dir):
@@ -623,7 +620,9 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
     '''
     template_root = os.path.join(doc_src_path, site_config["layout_root_dir"]) if "layout_root_dir" in site_config else os.path.join(doc_src_path, "layout")
     theme_layout_root = os.path.dirname(html_template)
-    renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root], html_templates_i18n_dirs, lang=doc_config["locale"])
+    locale = doc_config["locale"].replace("-", "_") if "locale" in doc_config else None
+    lang = locale.replace("_", "-") if locale else None
+    renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root], html_templates_i18n_dirs, locale=locale)
     files = {}
     items = list(htmls.items())
     for i, (file, html) in enumerate(items):
@@ -645,7 +644,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
             if "layout" in html["metadata"]:
                 layout = os.path.join(template_root, html["metadata"]["layout"])
                 if os.path.exists(layout):
-                    renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], html_templates_i18n_dirs, lang=doc_config["locale"])
+                    renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], html_templates_i18n_dirs, locale=locale)
             id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
             if "sidebar" in html:
                 previous_article = None
@@ -662,6 +661,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                                 "title": sidebar_list[file]["next"][1]
                             }
                 vars = {
+                    "lang": lang,
                     "metadata": metadata,
                     "page_id" : id,
                     "page_classes" : classes,
@@ -703,6 +703,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                 rendered_html = renderer.render(**vars)
             else:
                 vars = {
+                    "lang": lang,
                     "metadata": metadata,
                     "page_id" : id,
                     "page_classes" : classes,
@@ -1012,7 +1013,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         # load doc config
         log.i("parse {}: {}, url:{}".format(type_name, dir, url))
         doc_config = load_doc_config(dir, config_template_dir)
-        if not doc_config["locale"]:
+        if not "locale" in doc_config:
             log.w('doc\'s locale not set, value can be "zh" "zh_CN" "en" "en_US" etc.')
         else:
             log.i("locale: {}".format(doc_config["locale"]))
