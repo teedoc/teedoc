@@ -51,7 +51,7 @@ var _hmt = _hmt || [];
         self.html_header_items = [baidu_tongji_code]
 
 
-    def on_add_html_header_items(self):
+    def on_add_html_header_items(self, type_name):
         return self.html_header_items
 
 

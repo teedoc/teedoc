@@ -93,10 +93,10 @@ class Plugin(Plugin_Base):
         self.files_to_copy  = self._update_file_var(self.files_to_copy, vars, self.temp_dir)
 
 
-    def on_add_html_header_items(self):
+    def on_add_html_header_items(self, type_name):
         return self.html_header_items
 
-    def on_add_html_js_items(self):
+    def on_add_html_footer_js_items(self, type_name):
         return self.html_js_items
 
     def on_copy_files(self):

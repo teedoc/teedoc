@@ -144,14 +144,14 @@ class Plugin(Plugin_Base):
             except Exception:
                 pass
 
-    def on_article_html_template(self):
-        return os.path.join(curr_path, "templates", "article.html")
-
-    def on_page_html_template(self):
-        return os.path.join(curr_path, "templates", "page.html")
-
-    def on_blog_html_template(self):
-        return os.path.join(curr_path, "templates", "article.html")
+    def on_html_template(self, type_name):
+        if type_name == "doc":
+            return os.path.join(curr_path, "templates", "article.html")
+        elif type_name == "page":
+            return os.path.join(curr_path, "templates", "page.html")
+        elif type_name == "blog":
+            return os.path.join(curr_path, "templates", "article.html")
+        return None
 
     def _generate_html_header_items(self):
         items = []
@@ -211,13 +211,13 @@ class Plugin(Plugin_Base):
         return files
         
 
-    def on_add_html_header_items(self):
+    def on_add_html_header_items(self, type_name):
         return self.html_header_items
     
-    def on_add_html_js_items(self):
+    def on_add_html_footer_js_items(self, type_name):
         return self.html_js_items
     
-    def on_add_navbar_items(self, new_config):
+    def on_add_navbar_items(self):
         items = [self.themes_btn]
         return items
     

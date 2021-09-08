@@ -120,18 +120,21 @@ class Plugin(Plugin_Base):
                     fw.write(content)
                 files[url] = temp_path
         return files
-        
 
-    def on_add_html_header_items(self):
+    def on_parse_start(self, type_name, doc_config, new_config):
+        self.new_config = new_config
+
+    def on_add_html_header_items(self, type_name):
         return self.html_header_items
     
-    def on_add_html_js_items(self):
+    def on_add_html_footer_js_items(self, type_name):
         return self.html_js_items
     
-    def on_add_navbar_items(self, new_config):
+    def on_add_navbar_items(self):
         '''
             @config config cover self.config
         '''
+        new_config = self.new_config
         if "search_hint" in new_config:
             search_hint = new_config["search_hint"]
         else:

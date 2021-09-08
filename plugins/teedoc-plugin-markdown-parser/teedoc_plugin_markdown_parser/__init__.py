@@ -50,7 +50,7 @@ class Plugin(Plugin_Base):
         del self.md_parser
         del self.meta_parser
 
-    def on_parse_files(self, files, new_config=None):
+    def on_parse_files(self, files):
         # result, format must be this
         result = {
             "ok": False,
@@ -131,12 +131,12 @@ class Plugin(Plugin_Base):
         result['ok'] = True
         return result
     
-    def on_parse_pages(self, files, new_config=None):
-        result = self.on_parse_files(files, new_config=new_config)
+    def on_parse_pages(self, files):
+        result = self.on_parse_files(files)
         return result
 
     
-    def on_add_html_header_items(self):
+    def on_add_html_header_items(self, type_name):
         items = []
         items.append('<meta name="markdown-generator" content="teedoc-plugin-markdown-parser">')
         return items
