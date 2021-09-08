@@ -4,13 +4,13 @@ try:
     from .logger import Logger
     from .http_server import HTTP_Server
     from .version import __version__
-    from .utils import sidebar_summary2dict
+    from .utils import sidebar_summary2dict, update_config
     from .html_renderer import Renderer
 except Exception:
     from logger import Logger
     from http_server import HTTP_Server
     from version import __version__
-    from utils import sidebar_summary2dict
+    from utils import sidebar_summary2dict, update_config
     from html_renderer import Renderer
 import os, sys
 import json, yaml
@@ -177,42 +177,6 @@ def write_to_file(files_content, in_path, out_path):
                     f.write(s.read())
     return True, ""
 
-def update_config(old, update, level = 0):
-    new = old.copy()
-    for key in update.keys():
-        if key == "import":
-            continue
-        if not key in old:
-            new[key] = update[key]
-            continue
-        if type(update[key]) == dict:
-            new[key] = update_config(old[key], update[key], level + 1)
-        elif type(update[key]) == list:
-            # convert list to OrderedDict
-            old_list_item = OrderedDict()
-            for i, item in enumerate(old[key]):
-                if "id" in item:
-                    old_list_item[item["id"]] = item
-                else:
-                    old_list_item[str(i)] = item\
-            # update item
-            for i, item in enumerate(update[key]):
-                if "id" in item:
-                    if type(old_list_item[item["id"]]) == dict:
-                        old_list_item[item["id"]] = update_config(old_list_item[item["id"]], item, level + 1)
-                    else:
-                        old_list_item[item["id"]] = item
-                else:
-                    old_list_item["n{}".format(i)] = item
-            # convert back to list
-            items = []
-            for id in old_list_item:
-                items.append(old_list_item[id])
-            new[key] = items
-        else:
-            new[key] = update[key]
-    return new
-
 def load_config(doc_dir, config_template_dir, config_name="config", default = {}):
     '''
         @doc_dir doc diretory, abspath
@@ -245,7 +209,7 @@ def load_config(doc_dir, config_template_dir, config_name="config", default = {}
         if config_name.endswith(".json") or config_name.endswith(".yaml"):
             config_name = config_name[:-5]
         config_parent = load_config(config_template_dir, config_template_dir, config_name = config_name)
-        config = update_config(config_parent, config)
+        config = update_config(config_parent, config, ignore=["import"])
     return config
 
 

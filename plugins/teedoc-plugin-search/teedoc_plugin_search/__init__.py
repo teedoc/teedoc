@@ -14,6 +14,7 @@ except Exception:
     pass
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
+from teedoc.utils import update_config
 
 
 
@@ -122,7 +123,8 @@ class Plugin(Plugin_Base):
         return files
 
     def on_parse_start(self, type_name, doc_config, new_config):
-        self.new_config = new_config
+        self.new_config = copy.deepcopy(self.config)
+        self.new_config = update_config(self.new_config, new_config)
 
     def on_add_html_header_items(self, type_name):
         return self.html_header_items
@@ -134,31 +136,6 @@ class Plugin(Plugin_Base):
         '''
             @config config cover self.config
         '''
-        new_config = self.new_config
-        if "search_hint" in new_config:
-            search_hint = new_config["search_hint"]
-        else:
-            search_hint = self.config["search_hint"]
-        if "input_hint" in new_config:
-            search_input_hint = new_config["input_hint"]
-        else:
-            search_input_hint = self.config["input_hint"]
-        if "loading_hint" in new_config:
-            search_loading_hint = new_config["loading_hint"]
-        else:
-            search_loading_hint = self.config["loading_hint"]
-        if "download_err_hint" in new_config:
-            search_download_err_hint = new_config["download_err_hint"]
-        else:
-            search_download_err_hint = self.config["download_err_hint"]
-        if "other_docs_result_hint" in new_config:
-            search_other_docs_result_hint = new_config["other_docs_result_hint"]
-        else:
-            search_other_docs_result_hint = self.config["other_docs_result_hint"]
-        if "curr_doc_result_hint" in new_config:
-            search_curr_doc_result_hint = new_config["curr_doc_result_hint"]
-        else:
-            search_curr_doc_result_hint = self.config["curr_doc_result_hint"] 
         search_btn = '''<a id="search"><span class="icon"></span><span class="placeholder">{}</span>
                             <div id="search_hints">
                                 <span id="search_input_hint">{}</span>
@@ -167,7 +144,8 @@ class Plugin(Plugin_Base):
                                 <span id="search_other_docs_result_hint">{}</span>
                                 <span id="search_curr_doc_result_hint">{}</span>
                             </div></a>'''.format(
-                        search_hint, search_input_hint, search_loading_hint, search_download_err_hint, search_other_docs_result_hint, search_curr_doc_result_hint)
+                        self.new_config["search_hint"], self.new_config["input_hint"], self.new_config["loading_hint"],
+                        self.new_config["download_err_hint"], self.new_config["other_docs_result_hint"], self.new_config["curr_doc_result_hint"])
         items = [search_btn]
         return items
     

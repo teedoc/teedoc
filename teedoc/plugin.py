@@ -49,6 +49,9 @@ class Plugin_Base:
             @doc_config config of doc, get from config.json or config.yaml
             @new_config this plugin's config from doc_config
         '''
+        # can update plugin config from site_config with new_config by teedoc.utils.update_config
+        # self.new_config = copy.deepcopy(self.config)
+        # self.new_config = update_config(self.new_config, new_config)
         pass
 
     def on_parse_end(self):

@@ -1,4 +1,5 @@
 import re
+from collections import OrderedDict
 
 
 def sidebar_summary2dict(content):
@@ -93,4 +94,120 @@ def sidebar_summary2dict(content):
     }
     return sidebar
 
+def update_config(old, update, level = 0, ignore=[]):
+    '''
+        update config by new config, merge a new config
+        if value of key is list and item is dict, new config will append,
+        but if dict has "id" key, it will be update, e.g.
+        ```
+            "g": [
+                {
+                    "id": "id0",
+                    "h": 123
+                },
+                {
+                    "h": 123
+                }
+            ]
+        ```
+        update with
+        ```
+            "g":[
+                {
+                    "id": "id0",
+                    "h": 789
+                },
+                {
+                    "h": 234
+                }
+            ]
+        ```
+        will be 
+        ```
+            'g': [
+                {
+                   'id': 'id0',
+                   'h': 789
+                }, {
+                   'h': 123
+                }, {
+                   'h': 234
+                }
+            ]
+        ```
+    '''
+    new = old.copy()
+    for key in update.keys():
+        if key in ignore:
+            continue
+        if not key in old:
+            new[key] = update[key]
+            continue
+        if type(update[key]) == dict:
+            new[key] = update_config(old[key], update[key], level + 1)
+        elif type(update[key]) == list and len(update[key]) > 0 and type(update[key][0]) == dict:
+            # some dict in list, add item, or replace if exist id
+            # convert list to OrderedDict
+            old_list_item = OrderedDict()
+            for i, item in enumerate(old[key]):
+                if "id" in item:
+                    old_list_item[item["id"]] = item
+                else:
+                    old_list_item[str(i)] = item
+            # update item
+            for i, item in enumerate(update[key]):
+                if "id" in item:
+                    if type(old_list_item[item["id"]]) == dict:
+                        old_list_item[item["id"]] = update_config(old_list_item[item["id"]], item, level + 1)
+                    else:
+                        old_list_item[item["id"]] = item
+                else:
+                    old_list_item["n{}".format(i)] = item
+            # convert back to list
+            items = []
+            for id in old_list_item:
+                items.append(old_list_item[id])
+            new[key] = items
+        else:
+            new[key] = update[key]
+    return new
+
+if __name__ == "__main__":
+    a = {
+        "a": 1,
+        "b": 2,
+        "c": {
+            "d": 3,
+            "e": {
+                "f": 4
+            }
+        },
+        "g": [
+            {
+                "id": "id0",
+                "h": 123
+            },
+            {
+                "h": 123
+            }
+        ]
+    }
+
+    b = {
+        "c": {
+            "e": 5
+        },
+        "a": [1, 2, 3],
+        "g":[
+            {
+                "id": "id0",
+                "h": 789
+            },
+            {
+                "h": 234
+            }
+        ]
+    }
+    c = update_config(a, b)
+    print(c)
 
