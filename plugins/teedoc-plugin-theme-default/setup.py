@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 import os
+from teedoc_plugin_theme_default import __version__
 
 curr_dir = os.path.abspath(os.path.dirname(__file__))
 readme_path = os.path.join(curr_dir, "README.md")
@@ -13,7 +14,7 @@ print("packages:", packages)
 
 setup(
     name='teedoc-plugin-theme-default',
-    version="1.13.3",
+    version=__version__,
     author='Neucrack',
     author_email='CZD666666@gmail.com',
 

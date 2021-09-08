@@ -1,6 +1,18 @@
 teedoc update history
 ========
 
+## 2021-09-8 v1.19.0
+
+* Add i18n support for plugins and templates
+* Add comment plugin teedoc-plugin-comments-gitalk
+* Add print page support
+* Add anchor for titles
+* Add warning log for wrong sidebar item
+* Fix bug: not auto refresh page when content changed in previwe mode
+* Fix search index file too large bug
+* Fix navbar list item z-index error
+* Fix toc smooth scroll bug when id is escaped charactors
+
 ## 2021-08-7 v1.17.1
 
 * Add layout template customize support(Jinja2)

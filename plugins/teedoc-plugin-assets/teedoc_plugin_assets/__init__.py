@@ -14,7 +14,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-
+__version__ = "1.1.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-assets"
