@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-search"
@@ -123,10 +123,16 @@ class Plugin(Plugin_Base):
                 files[url] = temp_path
         return files
 
+    def _get_conf(self, config, new_config, conf_name):
+        if conf_name in new_config:
+            return True, new_config[conf_name]
+        return False, config[conf_name]
+
     def on_parse_start(self, type_name, doc_config, new_config):
         self.doc_locale = doc_config["locale"] if "locale" in doc_config else None
-        self.new_config = copy.deepcopy(self.config)
-        self.new_config = update_config(self.new_config, new_config)
+        # self.new_config = copy.deepcopy(self.config)
+        # self.new_config = update_config(self.new_config, new_config)
+        self.new_config = new_config
 
     def on_add_html_header_items(self, type_name):
         return self.html_header_items
@@ -139,37 +145,42 @@ class Plugin(Plugin_Base):
             @config config cover self.config
         '''
         # i18n
-        have_i18n = False
-        if self.doc_locale:
+        # set default or custom settings
+        names = ["search_hint", "input_hint", "loading_hint", "download_err_hint", "other_docs_result_hint", "curr_doc_result_hint"]
+        flags = [False] * len(names) # flags have costum settings
+        configs = [""] * len(names)
+        for i, conf in enumerate(names):
+            flags[i], configs[i] = self._get_conf(self.config, self.new_config, conf)
+        # get translation if don't have custom setting
+        if False in flags and self.doc_locale:
             import gettext
             try:
                 lang = gettext.translation('messages', localedir=os.path.join(self.module_path, 'locales'), languages=[self.doc_locale])
                 lang.install()
                 _ = lang.gettext
-                have_i18n = True
-                search_hint = _("search_hint")
-                search_input_hint = _("search_input_hint")
-                search_loading_hint = _("search_loading_hint")
-                search_download_err_hint = _("search_download_err_hint")
-                search_other_docs_result_hint = _("search_other_docs_result_hint")
-                search_curr_doc_result_hint = _("search_curr_doc_result_hint")
+                if not flags[0]:
+                    configs[0] = _("search_hint")
+                if not flags[1]:
+                    configs[1] = _("search_input_hint")
+                if not flags[2]:
+                    configs[2] = _("search_loading_hint")
+                if not flags[3]:
+                    configs[3] = _("search_download_err_hint")
+                if not flags[4]:
+                    configs[4] = _("search_other_docs_result_hint")
+                if not flags[5]:
+                    configs[5] = _("search_curr_doc_result_hint")
             except Exception as e:
                 pass
-        if not have_i18n: # locale not set, default from self.new_config
-            search_hint = self.new_config["search_hint"]
-            search_input_hint = self.new_config["input_hint"]
-            search_loading_hint = self.new_config["loading_hint"]
-            search_download_err_hint = self.new_config["download_err_hint"]
-            search_other_docs_result_hint = self.new_config["other_docs_result_hint"]
-            search_curr_doc_result_hint = self.new_config["curr_doc_result_hint"] 
-        search_btn = '''<a id="search"><span class="icon"></span><span class="placeholder">{}</span>
+        configs = tuple(configs)
+        search_btn = '''<a id="search"><span class="icon"></span><span class="placeholder">%s</span>
                             <div id="search_hints">
-                                <span id="search_input_hint">{}</span>
-                                <span id="search_loading_hint">{}</span>
-                                <span id="search_download_err_hint">{}</span>
-                                <span id="search_other_docs_result_hint">{}</span>
-                                <span id="search_curr_doc_result_hint">{}</span>
-                            </div></a>'''.format(search_hint, search_input_hint, search_loading_hint, search_download_err_hint, search_other_docs_result_hint, search_curr_doc_result_hint)
+                                <span id="search_input_hint">%s</span>
+                                <span id="search_loading_hint">%s</span>
+                                <span id="search_download_err_hint">%s</span>
+                                <span id="search_other_docs_result_hint">%s</span>
+                                <span id="search_curr_doc_result_hint">%s</span>
+                            </div></a>''' % configs
         items = [search_btn]
         return items
     

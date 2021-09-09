@@ -115,5 +115,12 @@
             }
         ]
     },
+    "plugins": {
+        "teedoc-plugin-search":{
+            "config": {
+                "search_hint": "搜索啊哈哈"
+            }
+        }
+    },
     "show_source": "编辑页面"
 }
