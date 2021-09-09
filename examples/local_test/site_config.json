@@ -48,6 +48,12 @@
 
             }
         },
+        "teedoc-plugin-google-translate": {
+            "from": "../../plugins/teedoc-plugin-google-translate",
+            "config": {
+                "default": "zh-CN"
+            }
+        },
         "teedoc-plugin-theme-default": {
             "from": "../../plugins/teedoc-plugin-theme-default",
             "config": {

@@ -246,3 +246,17 @@ class Plugin_Base:
         return vars
 
     ############### run in new process end ######################
+
+    ####################### utils ###############################
+    def update_file_var(self, files, vars, temp_dir):
+        for url, path in files.items():
+            with open(path, encoding='utf-8') as f:
+                content = f.read()
+                for k, v in vars.items():
+                    content = content.replace("${}{}{}".format("{", k.strip(), "}"), v)
+                temp_path = os.path.join(temp_dir, os.path.basename(path))
+                with open(temp_path, "w", encoding='utf-8') as fw:
+                    fw.write(content)
+                files[url] = temp_path
+        return files
+

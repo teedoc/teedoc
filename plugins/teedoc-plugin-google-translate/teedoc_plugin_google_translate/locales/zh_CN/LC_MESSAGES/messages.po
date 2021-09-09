@@ -1,0 +1,44 @@
+# Chinese (Simplified, China) translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-09-08 18:41+0800\n"
+"PO-Revision-Date: 2021-09-08 15:14+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_Hans_CN\n"
+"Language-Team: zh_Hans_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: __init__.py:150
+msgid "search_hint"
+msgstr "搜索"
+
+#: __init__.py:151
+msgid "search_input_hint"
+msgstr "输入关键词，多关键词空格隔开"
+
+#: __init__.py:152
+msgid "search_loading_hint"
+msgstr "正在加载，请稍候。。。"
+
+#: __init__.py:153
+msgid "search_download_err_hint"
+msgstr "下载文件失败，请刷新重试或检查网络"
+
+#: __init__.py:154
+msgid "search_other_docs_result_hint"
+msgstr "来自其它文档的结果"
+
+#: __init__.py:155
+msgid "search_curr_doc_result_hint"
+msgstr "当前文档搜索结果"
+

@@ -913,6 +913,14 @@ a.toc-link {
     background: #2d2d2d;
 }
 
+/* google translate */
+#navbar #google_translate_element {
+    padding: 0;
+}
+#navbar #google_translate_element .goog-te-gadget-simple {
+    border-radius: 5px;
+}
+
 @media screen and (max-width: 900px) {
     #navbar {
         display: block;
