@@ -16,12 +16,13 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-google-translate"
     desc = "Google translate support for teedoc"
     defautl_config = {
+        "lang": "auto"  # source page language
     }
 
     def on_init(self, config, doc_src_path, site_config, logger = None):
@@ -41,26 +42,22 @@ class Plugin(Plugin_Base):
     def on_del(self):
         pass
 
-    # def on_parse_start(self, type_name, doc_config, new_config):
-    #     self.doc_locale = doc_config["locale"] if "locale" in doc_config else None
-    #     self.new_config = copy.deepcopy(self.config)
-    #     self.new_config = update_config(self.new_config, new_config)
+    def on_parse_start(self, type_name, doc_config, new_config):
+        # self.doc_locale = doc_config["locale"] if "locale" in doc_config else None
+        self.new_config = copy.deepcopy(self.config)
+        self.new_config = update_config(self.new_config, new_config)
 
     def on_add_html_header_items(self, type_name):
         return []
     
     def on_add_html_footer_js_items(self, type_name):
+        lang = self.new_config["lang"]
         return [
             '''<script type="text/javascript">
-                function googleTranslateElementInit() {
-                    var html=document.getElementsByTagName("html")[0];
-                    var lang = 'auto';
-                    if(html.lang){
-                        lang = html.lang;
-                    }
-                    new google.translate.TranslateElement({pageLanguage: lang, layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
-                }</script>
-            ''',
+                function googleTranslateElementInit() {{
+                    new google.translate.TranslateElement({{pageLanguage: '{}', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}}, 'google_translate_element');
+                }}</script>
+            '''.format(lang),
             '<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>'
         ]
     
