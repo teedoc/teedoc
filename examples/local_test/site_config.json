@@ -51,6 +51,7 @@
         "teedoc-plugin-google-translate": {
             "from": "../../plugins/teedoc-plugin-google-translate",
             "config": {
+                "doc_types": ["blog"]
             }
         },
         "teedoc-plugin-theme-default": {

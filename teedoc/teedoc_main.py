@@ -1198,6 +1198,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             if not os.path.isabs(src):
                 log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
             if not copy_file(src, dst):
+                log.e("copy plugin <{}> file {} to {} error".format(plugin.name, src, dst))
                 return False
     if not update_files:
         # preview mode js
