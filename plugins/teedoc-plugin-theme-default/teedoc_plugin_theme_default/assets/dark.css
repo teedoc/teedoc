@@ -97,6 +97,14 @@ a:hover {
     background-color: #2d2d2d;
 }
 
+/* google translate */
+#navbar #google_translate_element .goog-te-gadget-simple {
+    background-color: #1b1b1b;
+}
+#navbar #google_translate_element .goog-te-gadget-simple .goog-te-menu-value {
+    color: #8a8a8a;
+}
+
 @media screen and (max-width: 900px) {
     #sidebar_wrapper {
         background-color: #1b1b1b;

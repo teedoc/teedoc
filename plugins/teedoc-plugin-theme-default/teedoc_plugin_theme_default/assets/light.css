@@ -919,6 +919,10 @@ a.toc-link {
 }
 #navbar #google_translate_element .goog-te-gadget-simple {
     border-radius: 5px;
+    transition: 0.4s;
+}
+#navbar #google_translate_element .goog-te-gadget-simple .goog-te-menu-value {
+    transition: 0.4s;
 }
 
 @media screen and (max-width: 900px) {
