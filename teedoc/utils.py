@@ -173,9 +173,38 @@ def update_config(old, update, level = 0, ignore=[]):
     return new
 
 
-def check_sidebar_diff(a, b, log):
-    # TODO:
-    pass
+def check_sidebar_diff(a, b, urla, urlb, dira, dirb, doc_root, log):
+    '''
+        @a {
+            "file_path": {
+                "curr": (url, label),     # e.g. ('/get_started/zh/index.html', 'teedoc 简介')
+                "previous": (url, label),
+                "next": (url, label),
+            }
+        }
+        @b {
+            "file_path": {
+                "file": "sidebar file item",  # e.g. install/README.md
+                "curr": (url, label),         # e.g. ('/get_started/zh/index.html', 'teedoc 简介')
+                "previous": (url, label),
+                "next": (url, label),
+            }
+        }
+        @urla, urlb e.g. "/get_started/zh/", "/get_started/en/"
+    '''
+    for f in a:
+        w = False
+        itema = a[f]
+        k = f.replace(dira, dirb)
+        if not k in b:
+            w = True
+        else:
+            itemb = b[k]
+            if itema["file"] != itemb["file"]:
+                w = True
+        if w:
+            log.w(f'doc <{dira.replace(doc_root, "")}> and translate <{dirb.replace(doc_root, "")}> sidebar item [{itema["file"]}-"{itema["curr"][1]}"] different')
+
 
 if __name__ == "__main__":
     a = {

@@ -4,3 +4,4 @@ watchdog
 nbconvert
 PyYAML
 jinja2
+babel
