@@ -1,0 +1,76 @@
+items:
+-   label: Brief
+-   label: teedoc brief
+    file: README.md
+-   label: Install teedoc
+    file: install/README.md
+-   label: Start write
+    file: usage/start.md
+-   label: 自定义
+-   label: 插件
+    file: plugins/README.md
+    collapsed: false
+    items:
+    -   label: 主题插件
+        file: plugins/themes.md
+    -   label: 其它插件
+        file: plugins/others.md
+-   label: markdown 语法
+    file: syntax/syntax_markdown.md
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法
+    file: syntax/syntax_notebook.ipynb
+-   label: 部署
+    file: usage/deploy.md
+    items:
+    -   label: 部署到 github
+        file: usage/deploy_github_pages.md
+    -   label: 使用 nginx 部署到服务器
+        file: usage/deploy_nginx.md
+    -   label: 使用 CDN 加速网站
+        file: usage/deploy_cdn.md
+-   label: 使用了 teedoc 的网站
+    file: usage/sites.md
+-   label: testtest
+    file: syntax/syntax_markdown.md
+-   label: 更多样例
+-   label: 更多样例
+    items:
+    -   label: 二级子目录样例
+        items:
+        -   label: 三级子目录样例
+            items:
+            -   label: 文章1
+                file: more/example_docs/doc1.md
+        -   label: 文章2
+            file: more/example_docs/doc2.md
+    -   label: 这是一个链接
+        url: https://github.com/teedoc/teedoc
+        target: _blank

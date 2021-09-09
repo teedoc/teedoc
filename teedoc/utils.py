@@ -172,6 +172,11 @@ def update_config(old, update, level = 0, ignore=[]):
             new[key] = update[key]
     return new
 
+
+def check_sidebar_diff(a, b, log):
+    # TODO:
+    pass
+
 if __name__ == "__main__":
     a = {
         "a": 1,

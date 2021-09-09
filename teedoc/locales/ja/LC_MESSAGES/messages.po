@@ -1,0 +1,32 @@
+# Japanese translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-09-09 20:48+0800\n"
+"PO-Revision-Date: 2021-09-09 20:17+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ja\n"
+"Language-Team: ja <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: teedoc_main.py:1148
+msgid "no_translate_title"
+msgstr "ページはまだ翻訳されていません"
+
+#: teedoc_main.py:1149
+msgid "no_translate_hint"
+msgstr "このページは翻訳されていません"
+
+#: teedoc_main.py:1150
+msgid "visit_hint"
+msgstr "来てください"
+

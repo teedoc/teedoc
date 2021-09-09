@@ -3,6 +3,10 @@ import os
 from teedoc import __version__
 from glob import glob
 
+print("generate locale files")
+os.system("cd teedoc && ./trans_prepare.sh && ./trans_finish.sh")
+print("generate locale files complete")
+
 curr_dir = os.path.abspath(os.path.dirname(__file__))
 readme_path = os.path.join(curr_dir, "README.md")
 
@@ -19,7 +23,7 @@ packages = find_packages()
 print("packages:", packages)
 os.chdir("teedoc")
 tempalte_files = glob("template/**", recursive=True)
-package_data_files = ['static/js/*']
+package_data_files = ['static/js/*', "locales/*/*/*.?o", "templates/*"]
 package_data_files.extend(tempalte_files)
 package_data_files.append("template/.gitignore")
 print(package_data_files)

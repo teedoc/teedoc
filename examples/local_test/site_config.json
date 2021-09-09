@@ -9,7 +9,6 @@
     "route": {
         "docs": {
             "/get_started/zh/": "docs/get_started/zh",
-            "/get_started/en/": "docs/get_started/en",
             "/develop/zh/": "docs/develop/zh",
             "/develop/en/": "docs/develop/en"
         },
@@ -23,6 +22,16 @@
         },
         "blog": {
             "/blog/": "blog"
+        }
+    },
+    "translate": {
+        "docs":{
+            "/get_started/zh/": [ {
+                    "locale": "en",
+                    "url": "/get_started/en/",
+                    "src": "docs/get_started/en"
+                }
+            ]
         }
     },
     "executable": {

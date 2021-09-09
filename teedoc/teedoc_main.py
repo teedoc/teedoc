@@ -4,13 +4,13 @@ try:
     from .logger import Logger
     from .http_server import HTTP_Server
     from .version import __version__
-    from .utils import sidebar_summary2dict, update_config
+    from .utils import sidebar_summary2dict, update_config, check_sidebar_diff
     from .html_renderer import Renderer
 except Exception:
     from logger import Logger
     from http_server import HTTP_Server
     from version import __version__
-    from utils import sidebar_summary2dict, update_config
+    from utils import sidebar_summary2dict, update_config, check_sidebar_diff
     from html_renderer import Renderer
 import os, sys
 import json, yaml
@@ -24,6 +24,8 @@ import math
 import copy
 from queue import Queue, Empty
 from datetime import datetime
+import tempfile
+import gettext
 
 class RebuildException(Exception):
     pass
@@ -229,20 +231,26 @@ def get_plugins_config(doc_dir, config_template_dir):
 def get_footer(doc_dir, config_template_dir):
     return load_config(doc_dir, config_template_dir)["footer"]
 
-def get_url_by_file_rel(file_path, doc_url):
+def get_url_by_file_rel(file_path, doc_url = "", rel = False):
+    '''
+        @rel relative url
+    '''
     url = os.path.splitext(file_path)[0]
     tmp = os.path.split(url)
     if tmp[1].lower() == "readme":
         url = "{}/index".format(tmp[0])
         if url.startswith("/"):
             url = url[1:]
+    url = url + ".html"
+    if rel:
+        return url
     if(doc_url.endswith("/")):
-        url = "{}{}.html".format(doc_url, url)
+        url = "{}{}".format(doc_url, url)
     else:
-        url = "{}/{}.html".format(doc_url, url)
+        url = "{}/{}".format(doc_url, url)
     return url
 
-def get_sidebar_list(sidebar, doc_path, doc_url, log):
+def get_sidebar_list(sidebar, doc_path, doc_url, log, redirect_err_file = False, redirct_url=f"no_translate.html", ref_doc_url=""):
     '''
         @return {
             "file_path": {
@@ -263,16 +271,20 @@ def get_sidebar_list(sidebar, doc_path, doc_url, log):
         is_dir = "items" in config
         items = OrderedDict()
         if "label" in config and "file" in config and config["file"] != None and config["file"] != "null":
-            url = get_url_by_file_rel(config["file"], doc_url)
             file_abs = os.path.join(doc_path, config["file"]).replace("\\", "/")
+            url = get_url_by_file_rel(config["file"], doc_url)
             if not os.path.exists(file_abs):
-                log.w("file {} not found, but set in {} sidebar config file, maybe letter case wrong?".format(file_abs, doc_path))
+                if redirect_err_file:
+                    url_rel = get_url_by_file_rel(config["file"], rel = True)
+                    url = f'{redirct_url}?ref={ref_doc_url}{url_rel}&from={url}'
+                else:
+                    log.w("file {} not found, but set in {} sidebar config file, maybe letter case wrong?".format(file_abs, doc_path))
             items[file_abs] = {
                 "curr": (url, config["label"])
             }
         if is_dir:
             for item in config["items"]:
-                _items = get_sidebar_list(item, doc_path, doc_url, log)
+                _items = get_sidebar_list(item, doc_path, doc_url, log, redirect_err_file = redirect_err_file, redirct_url=redirct_url, ref_doc_url=ref_doc_url)
                 items.update(_items)
         return items
 
@@ -293,7 +305,7 @@ def get_sidebar_list(sidebar, doc_path, doc_url, log):
         dict_items[path]= item
     return dict_items
 
-def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html):
+def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html, redirect_err_file=False, redirct_url="", ref_doc_url=""):
     '''
         @htmls  {
                 "file1_path": {
@@ -322,7 +334,12 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html)
         collapsed = False if ("collapsed" in config and config["collapsed"] == False) else True
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
+                file_abs = os.path.join(doc_path, config["file"]).replace("\\", "/")
                 url = get_url_by_file_rel(config["file"], doc_url)
+                if not os.path.exists(file_abs):
+                    if redirect_err_file:
+                        url_rel = get_url_by_file_rel(config["file"], rel = True)
+                        url = f'{redirct_url}?ref={ref_doc_url}{url_rel}&from={url}'
                 if config["file"].startswith("./"):
                     active = doc_path_relative.lower() == config["file"][2:].lower()
                 else:
@@ -856,7 +873,8 @@ def generate_return(plugins_objs, ok):
 
 def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes,
              site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
-             sidebar, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, pipe_rx, pipe_tx):
+             sidebar, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
+             redirect_err_file, redirct_url, ref_doc_url):
     if not pipe_tx is None:
         def on_err():
             pipe_tx.send(True)
@@ -919,7 +937,8 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
         htmls = result_htmls
         # generate sidebar to html
         if sidebar:
-            htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "")
+            htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "",
+                                        redirect_err_file=redirect_err_file, redirct_url=redirct_url, ref_doc_url=ref_doc_url)
         if is_err():
             return generate_return(plugins_objs, False)
         # generate navbar to html
@@ -968,7 +987,8 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
     log.i("generate ok")
     return generate_return(plugins_objs, True)
 
-def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode):
+def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode,
+            translate = False, ref_doc_url=""):
     '''
         @return {
             "doc_url", {
@@ -992,10 +1012,10 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
     queue = manager.Queue()
     site_root_url = site_config["site_root_url"]
     # parse all docs in route
-    for url, dir in routes.items():
+    for url, _dir in routes.items():
         if not url.startswith("/"):
             url = "{}{}".format("/", url)
-        dir = os.path.abspath(os.path.join(doc_src_path, dir)).replace("\\", "/")
+        dir = os.path.abspath(os.path.join(doc_src_path, _dir)).replace("\\", "/")
         if not os.path.exists(dir):
             log.w("dir {} not exists!!!".format(dir))
             continue
@@ -1014,8 +1034,10 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         log.i("parse {}: {}, url:{}".format(type_name, dir, url))
         doc_config = load_doc_config(dir, config_template_dir)
         if not "locale" in doc_config:
-            log.w('doc\'s locale not set, value can be "zh" "zh_CN" "en" "en_US" etc.')
+            locale = "en"
+            log.w(f'locale of <{_dir}> not set, value can be "zh" "zh_CN" "en" "en_US" etc.')
         else:
+            locale = doc_config["locale"]
             log.i("locale: {}".format(doc_config["locale"]))
         # inform plugin parse doc start
         try:
@@ -1082,9 +1104,13 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             footer = doc_config['footer']
         except Exception as e:
             footer = None
-
+        redirect_err_file = translate,
+        redirct_url=f"{url}no_translate.html"
         if sidebar_dict:
-            sidebar_list = get_sidebar_list(sidebar_dict, dir, url, log)
+            sidebar_list = get_sidebar_list(sidebar_dict, dir, url, log,
+                                redirect_err_file = redirect_err_file,
+                                redirct_url=redirct_url,
+                                ref_doc_url = ref_doc_url)
         else:
             sidebar_list = {}
         if max_threads_num > 1 and len(all_files) > 10:
@@ -1096,7 +1122,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                                             args=(html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func,
                                             routes, site_config, doc_src_path, log, out_dir, plugins_objs, 
                                             header_items, footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar,
-                                            site_root_url, navbar, footer, queue, pipe_rx, pipe_tx))
+                                            site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
+                                            redirect_err_file, redirct_url, ref_doc_url))
                 p.start()
                 ts.append(p)
             for p in ts:
@@ -1105,9 +1132,42 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         else:
             ok = generate(html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
                           routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
-                          footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None)
+                          footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None,
+                          redirect_err_file, redirct_url, ref_doc_url)
             if not ok:
                 return False, None
+        # create no_translate.html
+        if translate:
+            temp = os.path.join(dir, "no_translate.html")
+            if not os.path.exists(temp) and not os.path.exists(os.path.join(dir, "no_translate.md")):
+                root_dir = os.path.abspath(os.path.dirname(__file__))
+                try:
+                    lang = gettext.translation('messages', localedir=os.path.join(root_dir, 'locales'), languages=[locale])
+                    lang.install()
+                    _ = lang.gettext
+                    no_translate_title = _("no_translate_title")
+                    no_translate_hint = _("no_translate_hint")
+                    visit_hint = _("visit_hint")
+                except Exception as e:
+                    no_translate_hint = "This page not translated yet"
+                    visit_hint = "Please visit"
+                    no_translate_title = "no translation"
+                with open(os.path.join(root_dir, "templates", "no_translate.md"), "r") as f:
+                    content = f.read().replace('<div id="no_translate_hint"></div>', f'<div id="no_translate_hint">{no_translate_hint}</div>').replace(
+                        '<span id="visit_hint"></span>', f'<span id="visit_hint">{visit_hint}</span>').replace(
+                            "no_translate_title", no_translate_title
+                        )
+                dir = tempfile.gettempdir()
+                all_files = [os.path.join(dir, "no_translate.md")]
+                with open(all_files[0], "w") as f:
+                    f.write(content)
+                ok = generate(html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
+                          routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
+                          footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None,
+                          redirect_err_file, redirct_url, ref_doc_url)
+                if not ok:
+                    return False, None
+
     htmls = {}
     for i in range(queue.qsize()):
         url, _htmls = queue.get()
@@ -1115,6 +1175,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             htmls[url] = {}
         htmls[url].update(_htmls)
     for plugin in plugins_objs:
+
         plugin.on_parse_end()
     return True, htmls
 
@@ -1155,6 +1216,37 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                     sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode)
         if not ok:
             return False
+    
+    # parse all translate docs
+    if "translate" in site_config:
+        if "docs" in site_config["translate"]:
+            docs_translates = site_config["translate"]["docs"]
+            routes = {}
+            for src in docs_translates:
+                for dst in docs_translates[src]:
+                    check_sidebar_diff(os.path.join(doc_src_path, site_config["route"]["docs"][src]), os.path.join(doc_src_path, dst["src"]), log)
+                    routes[dst["url"]] = dst["src"]
+                #    pase mannually translated files, and change links of sidebar items that no mannually translated file
+                ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                            sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                            translate=True, ref_doc_url=src)
+                #    create
+                if not ok:
+                    return False
+        if "pages" in site_config["translate"]:
+            docs_translates = site_config["translate"]["pages"]
+            routes = {}
+            for src in docs_translates:
+                for dst in docs_translates[src]:
+                    check_sidebar_diff(os.path.join(doc_src_path, site_config["route"]["docs"][src]), os.path.join(doc_src_path, dst["src"]), log)
+                    routes[dst["url"]] = dst["src"]
+                #    pase mannually translated files, and change links of sidebar items that no mannually translated file
+                ok, htmls_files = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                            sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                            translate=True, ref_doc_url=src)
+                #    create
+                if not ok:
+                    return False
 
     # generate sitemap.xml
     if not update_files: # only generate when build all

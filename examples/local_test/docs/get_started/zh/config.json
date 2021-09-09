@@ -11,12 +11,12 @@
                 "items": [
                     {
                         "id": "zh",
-                        "url": "/get_started/zh",
+                        "url": "/get_started/zh/",
                         "label": "中文"
                     },
                     {
                         "id": "en",
-                        "url": "/get_started/en",
+                        "url": "/get_started/en/",
                         "label": "English"
                     }
                 ]
