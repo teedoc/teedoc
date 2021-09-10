@@ -279,6 +279,8 @@ def update_navbar_language(navbar, nav_lang_items):
     new_items = []
     for item in navbar["items"]:
         if "type" in item and item["type"] == "language":
+            if not nav_lang_items:
+                continue
             item["type"] = "selection"
             item["items"] = nav_lang_items
         new_items.append(item)
@@ -1197,8 +1199,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             sidebar_dict = sidebar
         try:
             navbar = doc_config['navbar']
-            if nav_lang_items:
-                navbar = update_navbar_language(navbar, nav_lang_items)
+            # remove empty language item, update valid language item to selection item
+            navbar = update_navbar_language(navbar, nav_lang_items)
         except Exception as e:
             if not allow_no_navbar:
                 log.e("parse config.json navbar fail: {}".format(e))
@@ -1424,7 +1426,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
     class FileEventHandler(RegexMatchingEventHandler):
         def __init__(self, doc_src_path):
             ignore = "{}/out/.*".format(doc_src_path)
-            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*", r".*/.git/.*"])
+            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*", r".*\.git.*"])
             self.update_files = []
             self.doc_src_path = doc_src_path
             self.lock = threading.Lock()
