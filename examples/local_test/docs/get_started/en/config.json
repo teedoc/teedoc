@@ -28,16 +28,7 @@
             {
                 "label": "Language: ",
                 "position": "right",
-                "items": [
-                    {
-                        "url": "/get_started/zh/",
-                        "label": "中文"
-                    },
-                    {
-                        "url": "/get_started/en/",
-                        "label": "English"
-                    }
-                ]
+                "type": "language"
             }
         ]
     },

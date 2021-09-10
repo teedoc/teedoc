@@ -27,7 +27,6 @@
     "translate": {
         "docs":{
             "/get_started/zh/": [ {
-                    "locale": "en",
                     "url": "/get_started/en/",
                     "src": "docs/get_started/en"
                 }

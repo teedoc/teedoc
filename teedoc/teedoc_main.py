@@ -26,6 +26,7 @@ from queue import Queue, Empty
 from datetime import datetime
 import tempfile
 import gettext
+from babel import Locale
 
 class RebuildException(Exception):
     pass
@@ -214,6 +215,21 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
         config = update_config(config_parent, config, ignore=["import"])
     return config
 
+def check_routes(routes, doc_src_path, log):
+    '''
+        @routes {url: dir, }
+        @return {url: [dir, dir_abs], }
+    '''
+    valid_routes = {}
+    for url, _dir in routes.items():
+        if not url.startswith("/"):
+            url = "{}{}".format("/", url)
+        dir_abs = os.path.abspath(os.path.join(doc_src_path, _dir)).replace("\\", "/")
+        if not os.path.exists(dir_abs):
+            log.w("dir {} not exists!!!".format(dir_abs))
+            continue
+        valid_routes[url] = [_dir, dir_abs]
+    return valid_routes
 
 def load_doc_config(doc_dir, config_template_dir):
     config = load_config(doc_dir, config_template_dir)
@@ -230,6 +246,44 @@ def get_plugins_config(doc_dir, config_template_dir):
 
 def get_footer(doc_dir, config_template_dir):
     return load_config(doc_dir, config_template_dir)["footer"]
+
+def generate_navbar_language_items(routes, doc_configs, addtion_items={}):
+    '''
+        @routes {url: dir, }
+        @doc_configs {url: doc_config_dict, }, doc_config_dict must have "locale" keyword
+        @addtion_items {url: locale, }
+    '''
+    items = []
+    for url, dir in routes.items():
+        locale = Locale.parse(doc_configs[url]["locale"])
+        item = {
+            "url": url,
+            "label": locale.language_name
+        }
+        items.append(item)
+    for url, locale in addtion_items.items():
+        locale = Locale.parse(locale)
+        item = {
+            "url": url,
+            "label": locale.language_name
+        }
+        items.append(item)
+    return items
+
+def update_navbar_language(navbar, nav_lang_items):
+    '''
+        add language items to navbar which type == "language", and change type to "selection"
+        @navbar dict
+        @nav_lang_items list, return by generate_navbar_language_items
+    '''
+    new_items = []
+    for item in navbar["items"]:
+        if "type" in item and item["type"] == "language":
+            item["type"] = "selection"
+            item["items"] = nav_lang_items
+        new_items.append(item)
+    navbar["items"] = new_items
+    return navbar
 
 def get_url_by_file_rel(file_path, doc_url = "", rel = False):
     '''
@@ -989,8 +1043,59 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
     log.i("generate ok")
     return generate_return(plugins_objs, True)
 
+def get_configs(routes, config_template_dir, log):
+    doc_configs = {}
+    for url, dir in routes.items():
+        _dir, dir = dir
+        # load doc config
+        log.i("load config from {}".format(_dir))
+        doc_config = load_doc_config(dir, config_template_dir)
+        if not "locale" in doc_config:
+            doc_config["locale"] = "en"
+            log.w(f'locale of <{_dir}> not set, will default as "en", value can be "zh" "zh_CN" "en" "en_US" etc.')
+        else:
+            log.i("locale: {}".format(doc_config["locale"]))
+        doc_configs[url] = doc_config
+    return doc_configs
+
+def get_nav_translate_lang_items(doc_url, site_config, doc_src_path, config_template_dir, type_name, log):
+    '''
+        "translate": {
+            "docs":{
+                "/get_started/zh/": [ {
+                        "locale": "en",
+                        "url": "/get_started/en/",
+                        "src": "docs/get_started/en"
+                    }
+                ]
+            }
+        }
+    '''
+    #   check translation add navbar language items
+    lang_items = []
+    keys = {
+        "doc": "docs",
+        "page": "pages",
+        "blog": "blog"
+    }
+    type_name = keys[type_name]
+    if "translate" in site_config and type_name in site_config["translate"] and doc_url in site_config["translate"][type_name]:
+        docs_translates = site_config["translate"][type_name][doc_url]
+        routes = {}
+        for dst in docs_translates:
+            routes[dst["url"]] = dst["src"]
+        routes = check_routes(routes, doc_src_path, log)
+        src_dir = os.path.join(doc_src_path, site_config["route"][type_name][doc_url]).replace("\\", "/")
+        config = load_doc_config(src_dir, config_template_dir)
+        if not "locale" in config:
+            config["locale"] = "en"
+        doc_configs = get_configs(routes, config_template_dir, log)
+        lang_items = generate_navbar_language_items(routes, doc_configs, addtion_items={doc_url: config["locale"]})
+    return lang_items
+
 def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode,
-            translate = False, ref_doc_url="", ref_doc_dir = "", translate_src_sidebar_list = None):
+            translate = False, ref_doc_url="", ref_doc_dir = "", ref_locale = "en", translate_src_sidebar_list = None,
+            doc_configs = {}, nav_lang_items = []):
     '''
         @return {
             "doc_url", {
@@ -1013,14 +1118,17 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
     manager = multiprocessing.Manager()
     queue = manager.Queue()
     site_root_url = site_config["site_root_url"]
+    if not doc_configs:
+        doc_configs = get_configs(routes, config_template_dir, log)
+
     # parse all docs in route
-    for url, _dir in routes.items():
-        if not url.startswith("/"):
-            url = "{}{}".format("/", url)
-        dir = os.path.abspath(os.path.join(doc_src_path, _dir)).replace("\\", "/")
-        if not os.path.exists(dir):
-            log.w("dir {} not exists!!!".format(dir))
-            continue
+    for url, dir in routes.items():
+        _dir, dir = dir
+        log.i("parse {}: {}, url:{}".format(type_name, dir, url))
+        if translate:
+            nav_lang_items = get_nav_translate_lang_items(ref_doc_url, site_config, doc_src_path, config_template_dir, type_name, log)
+        else:
+            nav_lang_items = get_nav_translate_lang_items(url, site_config, doc_src_path, config_template_dir, type_name, log)
         # get files
         if update_files:
             all_files = []
@@ -1032,15 +1140,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             log.i("update file:", all_files)
         else:
             all_files = get_files(dir, warn = log.w)
-        # load doc config
-        log.i("parse {}: {}, url:{}".format(type_name, dir, url))
-        doc_config = load_doc_config(dir, config_template_dir)
-        if not "locale" in doc_config:
-            locale = "en"
-            log.w(f'locale of <{_dir}> not set, value can be "zh" "zh_CN" "en" "en_US" etc.')
-        else:
-            locale = doc_config["locale"]
-            log.i("locale: {}".format(doc_config["locale"]))
+        doc_config = doc_configs[url]
         # inform plugin parse doc start
         try:
             plugins_new_config = doc_config['plugins']
@@ -1097,6 +1197,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             sidebar_dict = sidebar
         try:
             navbar = doc_config['navbar']
+            if nav_lang_items:
+                navbar = update_navbar_language(navbar, nav_lang_items)
         except Exception as e:
             if not allow_no_navbar:
                 log.e("parse config.json navbar fail: {}".format(e))
@@ -1201,13 +1303,16 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     '''
     # parse all docs
     routes = site_config["route"]["docs"]
+    routes = check_routes(routes, doc_src_path, log)
     ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode)
+                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                 )
     if not ok:
         return False
 
     # parse all pages
     routes = site_config["route"]["pages"]
+    routes = check_routes(routes, doc_src_path, log)
     ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                  sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode)
     if not ok:
@@ -1216,41 +1321,45 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     htmls_blog = None
     if "blog" in site_config["route"]:
         routes = site_config["route"]["blog"]
+        routes = check_routes(routes, doc_src_path, log)
         ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                     sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode)
         if not ok:
             return False
-    
+
     # parse all translate docs
     if "translate" in site_config:
         if "docs" in site_config["translate"]:
             docs_translates = site_config["translate"]["docs"]
-            routes = {}
             for src in docs_translates:
+                routes = {}
                 for dst in docs_translates[src]:
-                    # check_sidebar_diff(os.path.join(doc_src_path, site_config["route"]["docs"][src]), os.path.join(doc_src_path, dst["src"]), log)
                     routes[dst["url"]] = dst["src"]
+                routes = check_routes(routes, doc_src_path, log)
                 src_dir = os.path.join(doc_src_path, site_config["route"]["docs"][src]).replace("\\", "/")
                 sidebar_dict = get_sidebar(src_dir, config_template_dir) # must be success
                 sidebar_list = get_sidebar_list(sidebar_dict, src_dir, src, log)
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                            translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list)
+                            translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list,
+                            )
                 #    create
                 if not ok:
                     return False
         if "pages" in site_config["translate"]:
             docs_translates = site_config["translate"]["pages"]
-            routes = {}
             for src in docs_translates:
+                routes = {}
                 for dst in docs_translates[src]:
-                    # check_sidebar_diff(os.path.join(doc_src_path, site_config["route"]["docs"][src]), os.path.join(doc_src_path, dst["src"]), log)
                     routes[dst["url"]] = dst["src"]
+                routes = check_routes(routes, doc_src_path, log)
+                src_dir = os.path.join(doc_src_path, site_config["route"]["pages"][src]).replace("\\", "/")
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                            translate=True, ref_doc_url=src, ref_doc_dir=src_dir)
+                            translate=True, ref_doc_url=src, ref_doc_dir=src_dir,
+                            )
                 #    create
                 if not ok:
                     return False
