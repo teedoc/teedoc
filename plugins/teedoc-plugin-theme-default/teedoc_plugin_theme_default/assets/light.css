@@ -1065,7 +1065,8 @@ a.toc-link {
     #sidebar_wrapper, .gutter, #menu_wrapper,
     #toc, #to_top, #doc_footer,
     #previous_next,
-    #source_link, #print_page {
+    #source_link, #print_page,
+    #comments-container {
         display: none;
     }
     #article {
