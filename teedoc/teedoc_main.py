@@ -258,14 +258,14 @@ def generate_navbar_language_items(routes, doc_configs, addtion_items={}):
         locale = Locale.parse(doc_configs[url]["locale"])
         item = {
             "url": url,
-            "label": locale.language_name + locale.script_name
+            "label": locale.language_name + (" " + locale.script_name if locale.script_name else "")
         }
         items.append(item)
     for url, locale in addtion_items.items():
         locale = Locale.parse(locale)
         item = {
             "url": url,
-            "label": locale.language_name + locale.script_name
+            "label": locale.language_name + (" " + locale.script_name if locale.script_name else "")
         }
         items.append(item)
     return items
