@@ -31,13 +31,13 @@ documentation generate tool from markdown and jupyter notebook to html
 - [x] Multiple theme support(support by plugin)
 - [x] Control the style accurate to the page through css (implemented by customizing the id and class of each page)
 - [x] Multi-level directory support
-- [x] Multiple language support(manually translate)
-- [ ] Multiple language support(auto translate)
+- [x] Multi-language support (manual translation) (Internationalization/i18n)
+- [x] Multilingual support (translation plugin)
 - [x] Multiple version support
 - [x] Search support
 - [x] SEO friendly
 - [x] Real-time preview file changes
-- [x] Multiple thread support, faster build speed
+- [x] Parallel build, faster build speed
 - [x] Blog support
 - [x] Jinja2 HTML layout template support
 
