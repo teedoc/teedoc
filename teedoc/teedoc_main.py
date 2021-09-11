@@ -1,28 +1,14 @@
-import argparse
-import sys
+import os, sys
 try:
-    from .logger import Logger
-    from .http_server import HTTP_Server
-    from .version import __version__
-    from .utils import sidebar_summary2dict, update_config, check_sidebar_diff
     from .html_renderer import Renderer
 except Exception:
-    from logger import Logger
-    from http_server import HTTP_Server
-    from version import __version__
-    from utils import sidebar_summary2dict, update_config, check_sidebar_diff
     from html_renderer import Renderer
-import os, sys
-import json, yaml
 import subprocess
 import shutil
 import re
 from collections import OrderedDict
 import multiprocessing
-import threading
-import math
 import copy
-from queue import Queue, Empty
 from datetime import datetime
 import tempfile
 import gettext
@@ -75,6 +61,7 @@ def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
 
 
 def split_list(obj, n):
+    import math
     dist = math.ceil(len(obj)/n)
     for i in range(0, len(obj), dist):
         yield obj[i:i+dist]
@@ -185,6 +172,12 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
         @doc_dir doc diretory, abspath
         @config_dir config template files dir, abspath
     '''
+    import json, yaml
+    try:
+        from .utils import update_config
+    except Exception:
+        from utils import update_config
+
     config = {}
     config_path = os.path.join(doc_dir, config_name + ".json")
     if os.path.exists(config_path):
@@ -1193,6 +1186,11 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             }
         }
     '''
+    # import threading
+    try:
+        from .utils import check_sidebar_diff
+    except Exception:
+        from utils import check_sidebar_diff
     manager = multiprocessing.Manager()
     queue = manager.Queue()
     site_root_url = site_config["site_root_url"]
@@ -1301,12 +1299,14 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             ts = []
             pipe_rx, pipe_tx = multiprocessing.Pipe()
             for files in all_files:
-                p = multiprocessing.Process(target=generate,
-                                            args=(html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func,
+                args = (html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func,
                                             routes, site_config, doc_src_path, log, out_dir, plugins_objs, 
                                             header_items, footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar,
                                             site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
-                                            redirect_err_file, redirct_url, ref_doc_url))
+                                            redirect_err_file, redirct_url, ref_doc_url)
+                p = multiprocessing.Process(target=generate, args=args)
+                # p = threading.Thread(target=generate, args=args)
+                # p.setDaemon(True)
                 p.start()
                 ts.append(p)
             for p in ts:
@@ -1436,7 +1436,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 routes = {}
                 for dst in docs_translates[src]:
                     routes[dst["url"]] = dst["src"]
-                src_dir = os.path.join(doc_src_path, site_config["route"]["pages"][src]).replace("\\", "/")
+                src_dir = site_config["route"]["pages"][src][1]
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
@@ -1503,6 +1503,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
     from watchdog.observers import Observer
     from watchdog.events import RegexMatchingEventHandler
     import time
+    import threading
  
     class FileEventHandler(RegexMatchingEventHandler):
         def __init__(self, doc_src_path):
@@ -1574,6 +1575,22 @@ def files_watch(doc_src_path, log, delay_time, queue):
 
 
 def main():
+    try:
+        from .logger import Logger
+        from .http_server import HTTP_Server
+        from .version import __version__
+        from .utils import sidebar_summary2dict
+    except Exception:
+        from logger import Logger
+        from http_server import HTTP_Server
+        from version import __version__
+        from utils import sidebar_summary2dict
+    import argparse
+    import json, yaml
+    import threading
+    from queue import Queue, Empty
+    
+    
     parser = argparse.ArgumentParser(prog="teedoc", description="teedoc, a doc generator, generate html from markdown and jupyter notebook\nrun 'teedoc install && teedoc serve'")
     parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
     parser.add_argument("-f", "--file", type=str, default="", help="file path for json2yaml or yaml2json command")
