@@ -106,5 +106,6 @@
     "robots": {
         "User-agent": "*"
     },
-    "layout_root_dir": "layout"
+    "layout_root_dir": "layout",
+    "layout_i18n_dirs": "locales"
 }

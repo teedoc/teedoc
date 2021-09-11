@@ -1095,7 +1095,36 @@ def get_nav_translate_lang_items(doc_url, site_config, doc_src_path, config_temp
         lang_items = generate_navbar_language_items(routes, doc_configs, addtion_items={doc_url: config["locale"]})
     return lang_items
 
-def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs, sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode,
+def get_templates_i18n_dirs(site_config, doc_src_path, log):
+    '''
+        get template_i18n_dirs from site_config's  layout_i18n_dirs key, key canbe path str, or list
+        @return list, dirs path list, if no, return []
+    '''
+    def is_dir_valid(dir, rel_dir):
+        if not os.path.isabs(dir):
+            dir = os.path.join(rel_dir, dir).replace("\\", "/")
+        if os.path.exists(dir):
+            return dir
+        return False
+    html_templates_i18n_dirs = []
+    if "layout_i18n_dirs" in site_config:
+        if type(site_config["layout_i18n_dirs"]) == str:
+            abs_dir = is_dir_valid(site_config["layout_i18n_dirs"], doc_src_path)
+            if abs_dir:
+                html_templates_i18n_dirs.append(abs_dir)
+            else:
+                log.w("setting layout_i18n_dirs {} from site_config, dir not found".format(site_config["layout_i18n_dirs"]))
+        elif type(site_config["layout_i18n_dirs"]) == list:
+            for dir in site_config["layout_i18n_dirs"]:
+                abs_dir = is_dir_valid(dir, doc_src_path)
+                if abs_dir:
+                    html_templates_i18n_dirs.append(abs_dir)
+                else:
+                    log.w("setting layout_i18n_dirs {} from site_config, dir not found".format(dir))
+    return html_templates_i18n_dirs
+
+def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+            sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode, html_templates_i18n_dirs=[],
             translate = False, ref_doc_url="", ref_doc_dir = "", ref_locale = "en", translate_src_sidebar_list = None,
             doc_configs = {}, nav_lang_items = []):
     '''
@@ -1160,8 +1189,6 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         footer_js_items = []
         #     get html template from plugins
         html_template = None
-        #     get html template i18n dir
-        html_templates_i18n_dirs = []
         for plugin in plugins_objs:
             items = plugin.on_add_html_header_items(type_name)
             _js_items = plugin.on_add_html_footer_js_items(type_name)
@@ -1303,12 +1330,14 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             "/blog": "blog"
         }
     '''
+    #     get html template i18n dir
+    html_templates_i18n_dirs = get_templates_i18n_dirs(site_config, doc_src_path, log)
     # parse all docs
     routes = site_config["route"]["docs"]
     routes = check_routes(routes, doc_src_path, log)
     ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                  sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                 )
+                 html_templates_i18n_dirs = html_templates_i18n_dirs)
     if not ok:
         return False
 
@@ -1316,7 +1345,8 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     routes = site_config["route"]["pages"]
     routes = check_routes(routes, doc_src_path, log)
     ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode)
+                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                 html_templates_i18n_dirs = html_templates_i18n_dirs)
     if not ok:
         return False
     # parse all blogs
@@ -1325,7 +1355,8 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         routes = site_config["route"]["blog"]
         routes = check_routes(routes, doc_src_path, log)
         ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode)
+                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                    html_templates_i18n_dirs = html_templates_i18n_dirs)
         if not ok:
             return False
 
@@ -1344,6 +1375,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                            html_templates_i18n_dirs = html_templates_i18n_dirs,
                             translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list,
                             )
                 #    create
@@ -1360,6 +1392,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                            html_templates_i18n_dirs = html_templates_i18n_dirs,
                             translate=True, ref_doc_url=src, ref_doc_dir=src_dir,
                             )
                 #    create
