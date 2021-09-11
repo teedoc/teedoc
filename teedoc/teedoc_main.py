@@ -215,21 +215,69 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
         config = update_config(config_parent, config, ignore=["import"])
     return config
 
-def check_routes(routes, doc_src_path, log):
+def check_udpate_routes(site_config, doc_root, log):
     '''
-        @routes {url: dir, }
-        @return {url: [dir, dir_abs], }
+        @return True, or False if have fatal error
+                and will change all src dir to list [dir, abs_dir], e.g.
+                "/get_started/zh": "docs/get_started/zh", to 
+                "/get_started/zh": ["docs/get_started/zh", "/home/xxx/site/docs/get_started/zh"],
     '''
-    valid_routes = {}
-    for url, _dir in routes.items():
+    def validate_url(url):
         if not url.startswith("/"):
             url = "{}{}".format("/", url)
-        dir_abs = os.path.abspath(os.path.join(doc_src_path, _dir)).replace("\\", "/")
+        if not url.endswith("/"):
+            url = "{}{}".format(url, "/")
+        return url
+
+    def is_dir_valid(rel_dir, doc_root, check_config = True):
+        if rel_dir[0] == "/":
+            rel_dir = rel_dir[1:]
+        if rel_dir[-1] == "/":
+            rel_dir = rel_dir[:-1]
+        dir_abs = os.path.abspath(os.path.join(doc_root, rel_dir)).replace("\\", "/")
         if not os.path.exists(dir_abs):
             log.w("dir {} not exists!!!".format(dir_abs))
-            continue
-        valid_routes[url] = [_dir, dir_abs]
-    return valid_routes
+            return "no", rel_dir
+        if check_config and not os.path.exists(os.path.join(dir_abs, "config.json")) and not os.path.exists(os.path.join(dir_abs, "config.yaml")):
+            log.e("dir {} not have config file!!!".format(dir_abs))
+            return "fatal", rel_dir
+        return dir_abs, rel_dir
+    # "route" key
+    types = [["docs", True], ["pages", True], ["assets", False], ["blog", True]]
+    for type_name, check_config in types:
+        if type_name in site_config["route"]:
+            new_conf = {}
+            for url in site_config["route"][type_name]:
+                rel_dir = site_config["route"][type_name][url]
+                res, rel_dir = is_dir_valid(rel_dir, doc_root, check_config)
+                if res == "fatal":
+                    return False
+                elif res == "no":
+                    continue
+                new_conf[validate_url(url)] = [rel_dir, res]
+            site_config["route"][type_name] = new_conf
+    # "translate" key
+    types = ["docs", "pages"]
+    if "blog" in site_config["translate"]:
+        log.w("not support blog translate yet")
+    for type_name in types:
+        if type_name in site_config["translate"]:
+            new_conf = {}
+            for url in site_config["translate"][type_name]:
+                new_items = []
+                for item in site_config["translate"][type_name][url]:
+                    res, rel_dir = is_dir_valid(item["src"], doc_root)
+                    if res == "fatal":
+                        return False
+                    elif res == "no":
+                        continue
+                    new_items.append({
+                        "url": validate_url(item["url"]),
+                        "src": [rel_dir, res]
+                    })
+                new_conf[validate_url(url)] = new_items
+            site_config["translate"][type_name] = new_conf
+    return True
 
 def load_doc_config(doc_dir, config_template_dir):
     config = load_config(doc_dir, config_template_dir)
@@ -1086,8 +1134,7 @@ def get_nav_translate_lang_items(doc_url, site_config, doc_src_path, config_temp
         routes = {}
         for dst in docs_translates:
             routes[dst["url"]] = dst["src"]
-        routes = check_routes(routes, doc_src_path, log)
-        src_dir = os.path.join(doc_src_path, site_config["route"][type_name][doc_url]).replace("\\", "/")
+        src_dir = site_config["route"][type_name][doc_url][1]
         config = load_doc_config(src_dir, config_template_dir)
         if not "locale" in config:
             config["locale"] = "en"
@@ -1189,6 +1236,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         footer_js_items = []
         #     get html template from plugins
         html_template = None
+        html_templates_i18n_dirs = []
         for plugin in plugins_objs:
             items = plugin.on_add_html_header_items(type_name)
             _js_items = plugin.on_add_html_footer_js_items(type_name)
@@ -1204,7 +1252,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                 html_template = temp
             temp = plugin.on_html_template_i18n_dir(type_name)
             if temp and os.path.exists(temp):
-                html_templates_i18n_dirs.append(temp)
+                html_templates_i18n_dirs.append(temp.replace("\\", "/"))
         if not html_template:
             log.e("no html templates for {}, please install theme plugin".format(type_name))
             return False
@@ -1330,30 +1378,32 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             "/blog": "blog"
         }
     '''
-    #     get html template i18n dir
+    # get html template i18n dir
     html_templates_i18n_dirs = get_templates_i18n_dirs(site_config, doc_src_path, log)
-    # parse all docs
-    routes = site_config["route"]["docs"]
-    routes = check_routes(routes, doc_src_path, log)
-    ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                 html_templates_i18n_dirs = html_templates_i18n_dirs)
-    if not ok:
+    # check routes
+    if not check_udpate_routes(site_config, doc_src_path, log):
         return False
+    # parse all docs
+    if "docs" in site_config["route"]:
+        routes = site_config["route"]["docs"]
+        ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                    sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                    html_templates_i18n_dirs = html_templates_i18n_dirs)
+        if not ok:
+            return False
 
     # parse all pages
-    routes = site_config["route"]["pages"]
-    routes = check_routes(routes, doc_src_path, log)
-    ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                 html_templates_i18n_dirs = html_templates_i18n_dirs)
-    if not ok:
-        return False
+    if "pages" in site_config["route"]:
+        routes = site_config["route"]["pages"]
+        ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                    sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                    html_templates_i18n_dirs = html_templates_i18n_dirs)
+        if not ok:
+            return False
     # parse all blogs
     htmls_blog = None
     if "blog" in site_config["route"]:
         routes = site_config["route"]["blog"]
-        routes = check_routes(routes, doc_src_path, log)
         ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                     sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                     html_templates_i18n_dirs = html_templates_i18n_dirs)
@@ -1368,8 +1418,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 routes = {}
                 for dst in docs_translates[src]:
                     routes[dst["url"]] = dst["src"]
-                routes = check_routes(routes, doc_src_path, log)
-                src_dir = os.path.join(doc_src_path, site_config["route"]["docs"][src]).replace("\\", "/")
+                src_dir = site_config["route"]["docs"][src][1]
                 sidebar_dict = get_sidebar(src_dir, config_template_dir) # must be success
                 sidebar_list = get_sidebar_list(sidebar_dict, src_dir, src, log)
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
@@ -1387,7 +1436,6 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 routes = {}
                 for dst in docs_translates[src]:
                     routes[dst["url"]] = dst["src"]
-                routes = check_routes(routes, doc_src_path, log)
                 src_dir = os.path.join(doc_src_path, site_config["route"]["pages"][src]).replace("\\", "/")
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
@@ -1414,7 +1462,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     log.i("copy assets files")
     assets = site_config["route"]["assets"]
     for target_dir, from_dir in assets.items(): 
-        in_path  = os.path.join(doc_src_path, from_dir)
+        in_path  = from_dir[1]
         if target_dir.startswith("/"):
             target_dir = target_dir[1:]
         out_path = os.path.join(out_dir, target_dir).replace("\\", "/")
