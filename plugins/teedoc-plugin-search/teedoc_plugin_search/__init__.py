@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.3.1"
+__version__ = "1.3.2"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-search"
@@ -32,7 +32,7 @@ class Plugin(Plugin_Base):
     }
     supported_content_type = ["raw", "html"]
 
-    def on_init(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object

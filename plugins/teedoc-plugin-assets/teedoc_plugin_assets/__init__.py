@@ -14,7 +14,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-assets"
@@ -25,7 +25,7 @@ class Plugin(Plugin_Base):
         "env":{}
     }
 
-    def on_init(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object

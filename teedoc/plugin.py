@@ -13,12 +13,12 @@ class Plugin_Base:
                 on_add_html_footer_js_items
                 on_html_template
                 on_html_template_i18n_dir
-                    (new multiprocess)
-                    on_new_process_init
+                    (new multiprocess or threads)
+                    on_new_process_init (only multiprocess)
                     on_parse_files / on_parse_pages / on_parse_blog
                     on_add_navbar_items
                     on_render_vars
-                    on_new_process_del
+                    on_new_process_del (only multiprocess)
                 on_parse_end
             on_htmls
             on_copy_files
@@ -30,16 +30,26 @@ class Plugin_Base:
     defautl_config = {
     }
 
-    def __init__(self, config, doc_src_path, site_config, logger = None):
+    def __init__(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @attention DO NOT overwrite this function, if have to, please call super().__init__() first
             @config a dict object
             @logger teedoc.logger.Logger object
+            @multiprocess multiple process mode is enabled or not,
+                          in multiple process mode, all vars have a copy,
+                          but thread mode them share the memory, so, be careful to use variables in new threads or new process
         '''
         self._pid = os.getpid()
-        self.on_init(config, doc_src_path, site_config, logger)
+        self.on_init(config, doc_src_path, site_config, logger, multiprocess = multiprocess, **kw_args)
 
-    def on_init(self, doc_src_path, site_config, logger):
+    def on_init(self, config, doc_src_path, site_config, logger, multiprocess = True, **kw_args):
+        '''
+            @config a dict object
+            @logger teedoc.logger.Logger object
+            @multiprocess multiple process mode is enabled or not,
+                          in multiple process mode, all vars have a copy,
+                          but thread mode them share the memory, so, be careful to use variables in new threads or new process
+        '''
         pass
 
     def on_parse_start(self, type_name, doc_config, new_config):
@@ -181,6 +191,8 @@ class Plugin_Base:
         '''
             for multiple processing, for below func, will be called in new process,
             every time create a new process, this func will be invoke
+            @attention only call in multiple process mode on, thread mode not call this func
+                        in multiple process mode, all vars have a copy, but thread mode them share the memory, so, be careful
         '''
         pass
 
@@ -188,6 +200,8 @@ class Plugin_Base:
         '''
             for multiple processing, for below func, will be called in new process,
             every time exit a new process, this func will be invoke
+            @attention only call in multiple process mode on, thread mode not call this func
+                        in multiple process mode, all vars have a copy, but thread mode them share the memory, so, be careful
         '''
         pass
         

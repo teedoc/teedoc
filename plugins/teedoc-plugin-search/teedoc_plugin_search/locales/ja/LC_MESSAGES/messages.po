@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-08 18:41+0800\n"
+"POT-Creation-Date: 2021-09-12 23:45+0800\n"
 "PO-Revision-Date: 2021-09-08 18:41+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
@@ -18,27 +18,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: __init__.py:150
+#: __init__.py:162
 msgid "search_hint"
 msgstr "検索"
 
-#: __init__.py:151
+#: __init__.py:164
 msgid "search_input_hint"
 msgstr "キーワードを入力し、複数のキーワードをスペースで区切ります"
 
-#: __init__.py:152
+#: __init__.py:166
 msgid "search_loading_hint"
 msgstr "読み込み中です。しばらくお待ちください..."
 
-#: __init__.py:153
+#: __init__.py:168
 msgid "search_download_err_hint"
 msgstr "ファイルのダウンロードに失敗しました。更新して再試行するか、ネットワークを確認してください"
 
-#: __init__.py:154
+#: __init__.py:170
 msgid "search_other_docs_result_hint"
 msgstr "他のドキュメントからの結果"
 
-#: __init__.py:155
+#: __init__.py:172
 msgid "search_curr_doc_result_hint"
 msgstr "現在のドキュメント検索結果"
 

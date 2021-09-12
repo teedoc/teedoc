@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, time
 try:
     from .html_renderer import Renderer
 except Exception:
@@ -965,12 +965,13 @@ def htmls_add_source(htmls, repo_addr, label, doc_src_path):
 
     return htmls
 
-def generate_return(plugins_objs, ok):
-    for p in plugins_objs:
-        p.on_new_process_del()
+def generate_return(plugins_objs, ok, multiprocess):
+    if multiprocess:
+        for p in plugins_objs:
+            p.on_new_process_del()
     return ok
 
-def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes,
+def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes,
              site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
              sidebar, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
              redirect_err_file, redirct_url, ref_doc_url):
@@ -994,8 +995,9 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
 
     try:
         # call init in new process
-        for p in plugins_objs:
-            p.on_new_process_init()
+        if multiprocess:
+            for p in plugins_objs:
+                p.on_new_process_init()
 
         if url.startswith("/"):
             rel_url = url[1:]
@@ -1016,13 +1018,13 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
                 if not result['ok']:
                     log.e("plugin <{}> {} error: {}".format(plugin.name, plugin_func, result['msg']))
                     on_err()
-                    return generate_return(plugins_objs, False)
+                    return generate_return(plugins_objs, False, multiprocess)
                 else:
                     for key in result['htmls']:
                         if result['htmls'][key]:
                             result_htmls[key] = result['htmls'][key] # will cover the before
             if is_err():
-                return generate_return(plugins_objs, False)
+                return generate_return(plugins_objs, False, multiprocess)
         # copy not parsed files
         for path in files:
             if not path in result_htmls:
@@ -1031,7 +1033,7 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
         if not result_htmls:
             log.d("parse files empty: {}".format(files))
             # on_err()
-            return generate_return(plugins_objs, True)
+            return generate_return(plugins_objs, True, multiprocess)
             
         htmls = result_htmls
         # generate sidebar to html
@@ -1039,14 +1041,14 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
             htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "",
                                         redirect_err_file=redirect_err_file, redirct_url=redirct_url, ref_doc_url=ref_doc_url)
         if is_err():
-            return generate_return(plugins_objs, False)
+            return generate_return(plugins_objs, False, multiprocess)
         # generate navbar to html
         if navbar:
             htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
         if footer:
             htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
         if is_err():
-            return generate_return(plugins_objs, False)
+            return generate_return(plugins_objs, False, multiprocess)
         # show source code url
         if "source" in site_config:
             label = None
@@ -1060,20 +1062,20 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
         # consturct html page
         htmls_str = construct_html(html_template, html_templates_i18n_dirs, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs)
         if is_err():
-            return generate_return(plugins_objs, False)
+            return generate_return(plugins_objs, False, multiprocess)
         # check abspath
         if site_root_url != "/":
             htmls_str = update_html_abs_path(htmls_str, site_root_url)
         if is_err():
-            return generate_return(plugins_objs, False)
+            return generate_return(plugins_objs, False, multiprocess)
         # write to file
         ok, msg = write_to_file(htmls_str, in_path, out_path)
         if not ok:
             log.e("write files error: {}".format(msg))
             on_err()
-            return generate_return(plugins_objs, False)
+            return generate_return(plugins_objs, False, multiprocess)
         if is_err():
-            return generate_return(plugins_objs, False)
+            return generate_return(plugins_objs, False, multiprocess)
         # add url, add "url" keyword for htmls, will remove empty html items
         htmls = add_url_item(htmls, rel_url, dir, site_root_url)
         if len(htmls) > 0:
@@ -1081,10 +1083,9 @@ def generate(html_template, html_templates_i18n_dirs, files, url, dir, doc_confi
     except Exception as e:
         log.e("generate html fail: {}".format(e))
         on_err()
-        raise e
-        return generate_return(plugins_objs, False)
+        return generate_return(plugins_objs, False, multiprocess)
     log.i("generate ok")
-    return generate_return(plugins_objs, True)
+    return generate_return(plugins_objs, True, multiprocess)
 
 def get_configs(routes, config_template_dir, log):
     doc_configs = {}
@@ -1164,7 +1165,7 @@ def get_templates_i18n_dirs(site_config, doc_src_path, log):
     return html_templates_i18n_dirs
 
 def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-            sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode, html_templates_i18n_dirs=[],
+            sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode, html_templates_i18n_dirs=[], multiprocess = True,
             translate = False, ref_doc_url="", ref_doc_dir = "", ref_locale = "en", translate_src_sidebar_list = None,
             doc_configs = {}, nav_lang_items = []):
     '''
@@ -1186,7 +1187,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             }
         }
     '''
-    # import threading
+    if not multiprocess:
+        import threading
     try:
         from .utils import check_sidebar_diff
     except Exception:
@@ -1299,21 +1301,23 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             ts = []
             pipe_rx, pipe_tx = multiprocessing.Pipe()
             for files in all_files:
-                args = (html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func,
+                args = (multiprocess, html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func,
                                             routes, site_config, doc_src_path, log, out_dir, plugins_objs, 
                                             header_items, footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar,
                                             site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
-                                            redirect_err_file, redirct_url, ref_doc_url)
-                p = multiprocessing.Process(target=generate, args=args)
-                # p = threading.Thread(target=generate, args=args)
-                # p.setDaemon(True)
+                                            redirect_err_file, redirct_url, ref_doc_url,)
+                if multiprocess:
+                    p = multiprocessing.Process(target=generate, args=args)
+                else:
+                    p = threading.Thread(target=generate, args=args)
+                    p.setDaemon(True)
                 p.start()
                 ts.append(p)
             for p in ts:
                 p.join()
                 # log.i("{} generate ok".format(p.name))
         else:
-            ok = generate(html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
+            ok = generate(multiprocess, html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
                           routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
                           footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None,
                           redirect_err_file, redirct_url, ref_doc_url)
@@ -1344,7 +1348,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                 all_files = [os.path.join(dir, "no_translate.md")]
                 with open(all_files[0], "w") as f:
                     f.write(content)
-                ok = generate(html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
+                ok = generate(multiprocess, html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
                           routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
                           footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None,
                           redirect_err_file, redirct_url, ref_doc_url)
@@ -1362,7 +1366,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         plugin.on_parse_end()
     return True, htmls
 
-def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False, max_threads_num = 1):
+def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False, max_threads_num = 1, multiprocess=True):
     '''
         "route": {
             "docs": {
@@ -1388,7 +1392,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         routes = site_config["route"]["docs"]
         ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                     sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                    html_templates_i18n_dirs = html_templates_i18n_dirs)
+                    html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
         if not ok:
             return False
 
@@ -1397,7 +1401,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         routes = site_config["route"]["pages"]
         ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                     sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                    html_templates_i18n_dirs = html_templates_i18n_dirs)
+                    html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
         if not ok:
             return False
     # parse all blogs
@@ -1406,7 +1410,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         routes = site_config["route"]["blog"]
         ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                     sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                    html_templates_i18n_dirs = html_templates_i18n_dirs)
+                    html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
         if not ok:
             return False
 
@@ -1424,7 +1428,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                            html_templates_i18n_dirs = html_templates_i18n_dirs,
+                            html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
                             translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list,
                             )
                 #    create
@@ -1440,7 +1444,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
                 ok, htmls_files = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                            html_templates_i18n_dirs = html_templates_i18n_dirs,
+                            html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
                             translate=True, ref_doc_url=src, ref_doc_dir=src_dir,
                             )
                 #    create
@@ -1589,6 +1593,7 @@ def main():
     import json, yaml
     import threading
     from queue import Queue, Empty
+    import platform
     
     
     parser = argparse.ArgumentParser(prog="teedoc", description="teedoc, a doc generator, generate html from markdown and jupyter notebook\nrun 'teedoc install && teedoc serve'")
@@ -1602,6 +1607,7 @@ def main():
     parser.add_argument("--thread", type=int, default=0, help="how many threads use to building, default 0 will use max CPU supported")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="host address for serve command")
     parser.add_argument("--port", type=int, default=2333, help="port for serve command")
+    parser.add_argument("-m", "--multiprocess", action="store_true", default=platform.system().lower() != 'windows', help="use multiple process instead of threads, default mutiple process in unix like systems" )
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
 
@@ -1716,7 +1722,7 @@ def main():
                         sys.path.insert(0, path)
                     plugin_import_name = plugin.replace("-", "_")
                     module = __import__(plugin_import_name)
-                    plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log)
+                    plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log, multiprocess = args.multiprocess)
                     plugin_obj.module_path = os.path.abspath(os.path.dirname(module.__file__))
                     plugins_objs.append(plugin_obj)
             # execute command
@@ -1773,7 +1779,8 @@ def main():
                 log.i("all plugins install complete")
             elif args.command == "build":
                 # parse files
-                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=args.preview, max_threads_num=max_threads_num):
+                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log,
+                            preview_mode=args.preview, max_threads_num=max_threads_num, multiprocess=args.multiprocess):
                     return 1
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
@@ -1781,7 +1788,8 @@ def main():
                 from http.server import SimpleHTTPRequestHandler
                 from http import HTTPStatus
 
-                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, preview_mode=True, max_threads_num=max_threads_num):
+                if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log,
+                            preview_mode=True, max_threads_num=max_threads_num, multiprocess=args.multiprocess):
                     return 1
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")

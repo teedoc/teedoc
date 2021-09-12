@@ -16,7 +16,7 @@ try:
 except Exception:
     from jupyter_convert import convert_ipynb_to_html
 
-__version__ = "1.1.6"
+__version__ = "1.1.7"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-jupyter-notebook-parser"
@@ -25,7 +25,7 @@ class Plugin(Plugin_Base):
         "parse_files": ["ipynb"]
     }
 
-    def on_init(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object

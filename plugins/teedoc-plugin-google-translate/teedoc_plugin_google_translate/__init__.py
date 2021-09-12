@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-google-translate"
@@ -27,7 +27,7 @@ class Plugin(Plugin_Base):
         "domain": "/"   # translate.google.com / translate.google.cn
     }
 
-    def on_init(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object

@@ -26,7 +26,7 @@ from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 
-__version__ = "1.0.14"
+__version__ = "1.0.15"
 
 
 class Plugin(Plugin_Base):
@@ -36,11 +36,12 @@ class Plugin(Plugin_Base):
         "parse_files": ["md"]
     }
 
-    def on_init(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object
         '''
+        self.multiprocess = multiprocess
         self.logger = Fake_Logger() if not logger else logger
         self.doc_src_path = doc_src_path
         self.site_config = site_config
@@ -111,8 +112,14 @@ class Plugin(Plugin_Base):
                     is_blog_index = file.lower() == blog_index_file_path
                     if is_blog_index:
                         content += '\n<div id="blog_list"></div>'
-                    metadata, content_no_meta = self.meta_parser.parse_meta(content)
-                    html = self.md_parser(content_no_meta)
+                    if not self.multiprocess:
+                        md_parser = create_markdown_parser()
+                        meta_parser = Meta_Parser()
+                    else:
+                        md_parser = self.md_parser
+                        meta_parser = self.meta_parser
+                    metadata, content_no_meta = meta_parser.parse_meta(content)
+                    html = md_parser(content_no_meta)
                     if "<!-- more -->" in html:
                         brief = html[:html.find("<!-- more -->")].strip()
                     else:

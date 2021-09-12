@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.14.3"
+__version__ = "1.14.4"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
@@ -28,7 +28,7 @@ class Plugin(Plugin_Base):
         }
     }
 
-    def on_init(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object

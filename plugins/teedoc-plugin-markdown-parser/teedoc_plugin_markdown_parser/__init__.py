@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "2.1.3"
+__version__ = "2.1.4"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -21,11 +21,12 @@ class Plugin(Plugin_Base):
         "parse_files": ["md"]
     }
 
-    def on_init(self, config, doc_src_path, site_config, logger = None):
+    def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
         '''
             @config a dict object
             @logger teedoc.logger.Logger object
         '''
+        self.multiprocess = multiprocess
         self.logger = Fake_Logger() if not logger else logger
         self.doc_src_path = doc_src_path
         self.site_config = site_config
@@ -33,6 +34,11 @@ class Plugin(Plugin_Base):
         self.config.update(config)
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
+        if not self.multiprocess:
+            from .renderer import create_markdown_parser
+            from .parse_metadata import Meta_Parser
+            self.create_markdown_parser = create_markdown_parser 
+            self.Meta_Parser = Meta_Parser
 
     def on_new_process_init(self):
         '''
@@ -43,6 +49,7 @@ class Plugin(Plugin_Base):
         from .parse_metadata import Meta_Parser
         self.md_parser = create_markdown_parser()
         self.meta_parser = Meta_Parser()
+
 
     def on_new_process_del(self):
         '''
@@ -73,8 +80,14 @@ class Plugin(Plugin_Base):
                     content = f.read().strip()
                     content = self._update_link(content)
                     try:
-                        metadata, content_no_meta = self.meta_parser.parse_meta(content)
-                        html = self.md_parser(content_no_meta)
+                        if not self.multiprocess:
+                            md_parser = self.create_markdown_parser()
+                            meta_parser = self.Meta_Parser()
+                        else:
+                            md_parser = self.md_parser
+                            meta_parser = self.meta_parser
+                        metadata, content_no_meta = meta_parser.parse_meta(content)
+                        html = md_parser(content_no_meta)
                     except Exception as e:
                         import io, traceback
                         traceback.print_exc()

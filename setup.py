@@ -4,7 +4,11 @@ from teedoc import __version__
 from glob import glob
 
 print("generate locale files")
-os.system("cd teedoc && ./trans_prepare.sh && ./trans_finish.sh")
+# os.system("cd teedoc && ./trans_prepare.sh && ./trans_finish.sh")
+os.chdir("teedoc")
+exec(open("trans_prepare.py").read())
+exec(open("trans_finish.py").read())
+os.chdir("..")
 print("generate locale files complete")
 
 curr_dir = os.path.abspath(os.path.dirname(__file__))
