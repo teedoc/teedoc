@@ -251,25 +251,26 @@ def check_udpate_routes(site_config, doc_root, log):
             site_config["route"][type_name] = new_conf
     # "translate" key
     types = ["docs", "pages"]
-    if "blog" in site_config["translate"]:
-        log.w("not support blog translate yet")
-    for type_name in types:
-        if type_name in site_config["translate"]:
-            new_conf = {}
-            for url in site_config["translate"][type_name]:
-                new_items = []
-                for item in site_config["translate"][type_name][url]:
-                    res, rel_dir = is_dir_valid(item["src"], doc_root)
-                    if res == "fatal":
-                        return False
-                    elif res == "no":
-                        continue
-                    new_items.append({
-                        "url": validate_url(item["url"]),
-                        "src": [rel_dir, res]
-                    })
-                new_conf[validate_url(url)] = new_items
-            site_config["translate"][type_name] = new_conf
+    if "translate" in site_config:
+        if "blog" in site_config["translate"]:
+            log.w("not support blog translate yet")
+        for type_name in types:
+            if type_name in site_config["translate"]:
+                new_conf = {}
+                for url in site_config["translate"][type_name]:
+                    new_items = []
+                    for item in site_config["translate"][type_name][url]:
+                        res, rel_dir = is_dir_valid(item["src"], doc_root)
+                        if res == "fatal":
+                            return False
+                        elif res == "no":
+                            continue
+                        new_items.append({
+                            "url": validate_url(item["url"]),
+                            "src": [rel_dir, res]
+                        })
+                    new_conf[validate_url(url)] = new_items
+                site_config["translate"][type_name] = new_conf
     return True
 
 def load_doc_config(doc_dir, config_template_dir):
