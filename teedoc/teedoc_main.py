@@ -1427,12 +1427,13 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 sidebar_dict = get_sidebar(src_dir, config_template_dir) # must be success
                 sidebar_list = get_sidebar_list(sidebar_dict, src_dir, src, log)
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
-                ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                ok, htmls_files2 = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                             html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
                             translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list,
                             )
                 #    create
+                htmls_files.update(htmls_files2)
                 if not ok:
                     return False
         if "pages" in site_config["translate"]:
@@ -1443,12 +1444,13 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                     routes[dst["url"]] = dst["src"]
                 src_dir = site_config["route"]["pages"][src][1]
                 #    pase mannually translated files, and change links of sidebar items that no mannually translated file
-                ok, htmls_files = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                ok, htmls_pages2 = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                             sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                             html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
                             translate=True, ref_doc_url=src, ref_doc_dir=src_dir,
                             )
                 #    create
+                htmls_pages.update(htmls_pages2)
                 if not ok:
                     return False
 
