@@ -1092,13 +1092,11 @@ def get_configs(routes, config_template_dir, log):
     for url, dir in routes.items():
         _dir, dir = dir
         # load doc config
-        log.i("load config from {}".format(_dir))
+        # log.i("load config from {}".format(_dir))
         doc_config = load_doc_config(dir, config_template_dir)
         if not "locale" in doc_config:
             doc_config["locale"] = "en"
             log.w(f'locale of <{_dir}> not set, will default as "en", value can be "zh" "zh_CN" "en" "en_US" etc.')
-        else:
-            log.i("locale: {}".format(doc_config["locale"]))
         doc_configs[url] = doc_config
     return doc_configs
 
@@ -1202,11 +1200,6 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
     # parse all docs in route
     for url, dir in routes.items():
         _dir, dir = dir
-        log.i("parse {}: {}, url:{}".format(type_name, dir, url))
-        if translate:
-            nav_lang_items = get_nav_translate_lang_items(ref_doc_url, site_config, doc_src_path, config_template_dir, type_name, log)
-        else:
-            nav_lang_items = get_nav_translate_lang_items(url, site_config, doc_src_path, config_template_dir, type_name, log)
         # get files
         if update_files:
             all_files = []
@@ -1218,6 +1211,12 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             log.i("update file:", all_files)
         else:
             all_files = get_files(dir, warn = log.w)
+        if not update_files:
+            log.i("parse {}:\n -- dir: {}\n -- url: {}".format(type_name, dir, url))
+        if translate:
+            nav_lang_items = get_nav_translate_lang_items(ref_doc_url, site_config, doc_src_path, config_template_dir, type_name, log)
+        else:
+            nav_lang_items = get_nav_translate_lang_items(url, site_config, doc_src_path, config_template_dir, type_name, log)
         doc_config = doc_configs[url]
         # inform plugin parse doc start
         try:
@@ -1256,7 +1255,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         if not html_template:
             log.e("no html templates for {}, please install theme plugin".format(type_name))
             return False
-        log.i("html_templates_i18n_dirs: {}".format(html_templates_i18n_dirs))
+        if not update_files:
+            log.i("html_templates_i18n_dirs: {}".format("\n -- "+"\n -- ".join(html_templates_i18n_dirs)))
 
         # preview_mode js file
         if preview_mode:
@@ -1385,8 +1385,9 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     # get html template i18n dir
     html_templates_i18n_dirs = get_templates_i18n_dirs(site_config, doc_src_path, log)
     # check routes
-    if not check_udpate_routes(site_config, doc_src_path, log):
-        return False
+    if not update_files:
+        if not check_udpate_routes(site_config, doc_src_path, log):
+            return False
     # parse all docs
     if "docs" in site_config["route"]:
         routes = site_config["route"]["docs"]
@@ -1463,7 +1464,8 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             return False
 
     # copy assets
-    log.i("copy assets files")
+    if not update_files:
+        log.i("copy assets files")
     assets = site_config["route"]["assets"]
     for target_dir, from_dir in assets.items(): 
         in_path  = from_dir[1]
@@ -1483,19 +1485,19 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             if not copy_dir(in_path, out_path):
                 return False
     # copy files from pulgins
-    log.i("copy assets files of plugins")
-    for plugin in plugins_objs:
-        files = plugin.on_copy_files()
-        for dst,src in files.items():
-            if dst.startswith("/"):
-                dst = dst[1:]
-            dst = os.path.join(out_dir, dst)
-            if not os.path.isabs(src):
-                log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
-            if not copy_file(src, dst):
-                log.e("copy plugin <{}> file {} to {} error".format(plugin.name, src, dst))
-                return False
     if not update_files:
+        log.i("copy assets files of plugins")
+        for plugin in plugins_objs:
+            files = plugin.on_copy_files()
+            for dst,src in files.items():
+                if dst.startswith("/"):
+                    dst = dst[1:]
+                dst = os.path.join(out_dir, dst)
+                if not os.path.isabs(src):
+                    log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
+                if not copy_file(src, dst):
+                    log.e("copy plugin <{}> file {} to {} error".format(plugin.name, src, dst))
+                    return False
         # preview mode js
         if preview_mode:
             js_out_dir = os.path.join(out_dir, "static/js")
