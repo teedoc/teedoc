@@ -124,8 +124,8 @@
             </div>
         </div>
     </div>
+    {% for item in footer_js_items %}
+        {{ item|safe }}
+    {% endfor %}
 </body>
-{% for item in footer_js_items %}
-    {{ item|safe }}
-{% endfor %}
 </html>

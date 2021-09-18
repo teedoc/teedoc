@@ -10,3 +10,4 @@ layout: home.html
 
 <h1 style="width: 100%; text-align: center;">欢迎使用 teedoc</h1>
 
+[这是一个不存在会触发404的链接](/error_link)

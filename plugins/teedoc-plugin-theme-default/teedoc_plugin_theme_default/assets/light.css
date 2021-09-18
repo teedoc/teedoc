@@ -125,6 +125,28 @@ code {
     color: ${main_color};
 }
 
+.btn,
+#page_content .btn,
+#content_body .btn {
+    color: white;
+    border-radius: 5px;
+    transition: 0.2s;
+    padding: 1em;
+    cursor: pointer;
+    background: ${main_color};
+}
+.btn:hover,
+#page_content .btn:hover,
+#content_body .btn:hover {
+    background: #4caf7d;
+    box-shadow: 1px 1px 5px 0px green;
+}
+.btn:visited,
+#page_content .btn:visited,
+#content_body .btn:visited {
+    color: white;
+}
+
 /* wrapper */
 #wrapper {
     display: flex;
@@ -148,6 +170,9 @@ code {
 #page_content > div {
     flex-grow: 1;
     align-self: center;
+}
+#page_content a {
+    color: #c33a3a;
 }
 
 /* navbar */

@@ -215,11 +215,15 @@ def check_udpate_routes(site_config, doc_root, log):
                 "/get_started/zh": "docs/get_started/zh", to 
                 "/get_started/zh": ["docs/get_started/zh", "/home/xxx/site/docs/get_started/zh"],
     '''
-    def validate_url(url):
+    def validate_url(url, check_translate_url = False):
         if not url.startswith("/"):
             url = "{}{}".format("/", url)
         if not url.endswith("/"):
             url = "{}{}".format(url, "/")
+        if check_translate_url:
+            locale = url[:-1].split("/")[-1]
+            if "-" in locale or ("_" in locale and not locale.split("_")[1].isupper()):
+                log.w('translate doc url {} error! Should be end with locale name and format should be like "/zh_CN/" "/en_US/" "/en/" "/zh/"'.format(url))
         return url
 
     def is_dir_valid(rel_dir, doc_root, check_config = True):
@@ -235,6 +239,7 @@ def check_udpate_routes(site_config, doc_root, log):
             log.e("dir {} not have config file!!!".format(dir_abs))
             return "fatal", rel_dir
         return dir_abs, rel_dir
+
     # "route" key
     types = [["docs", True], ["pages", True], ["assets", False], ["blog", True]]
     for type_name, check_config in types:
@@ -266,7 +271,7 @@ def check_udpate_routes(site_config, doc_root, log):
                         elif res == "no":
                             continue
                         new_items.append({
-                            "url": validate_url(item["url"]),
+                            "url": validate_url(item["url"], check_translate_url = True),
                             "src": [rel_dir, res]
                         })
                     new_conf[validate_url(url)] = new_items
@@ -717,7 +722,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
-def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs):
+def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs, log):
     '''
         @htmls  {
             "title": "",
@@ -739,7 +744,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
     theme_layout_root = os.path.dirname(html_template)
     locale = doc_config["locale"].replace("-", "_") if "locale" in doc_config else None
     lang = locale.replace("_", "-") if locale else None
-    renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root], html_templates_i18n_dirs, locale=locale)
+    renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root], log, html_templates_i18n_dirs, locale=locale)
     files = {}
     items = list(htmls.items())
     for i, (file, html) in enumerate(items):
@@ -759,9 +764,13 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
             if "id" in metadata:
                 metadata.pop("id")
             if "layout" in html["metadata"]:
+                if not html["metadata"]["layout"].endswith(".html"):
+                    html["metadata"]["layout"] = html["metadata"]["layout"] + ".html"
                 layout = os.path.join(template_root, html["metadata"]["layout"])
+                if not os.path.exists(layout):
+                    layout = os.path.join(theme_layout_root, html["metadata"]["layout"])
                 if os.path.exists(layout):
-                    renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], html_templates_i18n_dirs, locale=locale)
+                    renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], log, html_templates_i18n_dirs, locale=locale)
             id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
             if "sidebar" in html:
                 previous_article = None
@@ -1061,7 +1070,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
                 htmls = htmls_add_source(htmls, site_config["source"], label, doc_src_path)
 
         # consturct html page
-        htmls_str = construct_html(html_template, html_templates_i18n_dirs, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs)
+        htmls_str = construct_html(html_template, html_templates_i18n_dirs, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs, log)
         if is_err():
             return generate_return(plugins_objs, False, multiprocess)
         # check abspath

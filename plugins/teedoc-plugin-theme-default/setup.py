@@ -2,6 +2,16 @@ from setuptools import setup, find_packages
 import os
 from teedoc_plugin_theme_default import __version__
 
+
+print("generate locale files")
+# os.system("cd teedoc && ./trans_prepare.sh && ./trans_finish.sh")
+os.chdir("teedoc_plugin_theme_default")
+exec(open("trans_prepare.py").read())
+exec(open("trans_finish.py").read())
+os.chdir("..")
+print("generate locale files complete")
+
+
 curr_dir = os.path.abspath(os.path.dirname(__file__))
 readme_path = os.path.join(curr_dir, "README.md")
 

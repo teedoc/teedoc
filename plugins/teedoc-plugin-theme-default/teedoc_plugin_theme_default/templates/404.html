@@ -1,0 +1,71 @@
+
+{% extends "page_base.html" %}
+
+{% block title %}
+    <title>{% if title %}{{ title }} - {% else %}404{% trans %}Page not found{% endtrans %}{% endif %}{{ site_name }}</title>
+{% endblock %}
+
+{% block head_end %}
+<script>
+  function getQueryVariable(variable)
+  {
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+              if(pair[0] == variable){return pair[1];}
+      }
+      return(false);
+  }
+  var jump = getQueryVariable("404Jump");
+  var from = getQueryVariable("from");
+  var pageLang = a=document.getElementsByTagName("html")[0].lang.toLowerCase(); // en -> zh-cn
+  var browerLang =(navigator.language || navigator.browserLanguage).toLowerCase();    // zh-cn
+  if(!from){
+    from = document.referrer;
+  }
+  if(pageLang && browerLang!=pageLang){
+    var idx = browerLang.indexOf("-");
+    if(!jump){
+      if(idx > 0){ // zh-cn, jump to /zh_CN/404.html?404Jump=1
+        var url = "/" + browerLang.substr(0, idx) + "_" + browerLang.substr(idx + 1).toUpperCase() + "/404.html?404Jump=1&from="+from;
+        window.location.href=url;
+      }else{       // /zh/404.html?404Jump=3
+        var url = "/" + browerLang + "/404.html?404Jump=3&from="+from;
+        window.location.href=url;
+      }
+    }else if(jump == "1"){ // /zh-CN/404.html?404Jump=2
+      var url = "/" + browerLang.substr(0, idx) + "-" + browerLang.substr(idx + 1).toUpperCase() + "/404.html?404Jump=2&from="+from;
+      window.location.href=url;
+    }else if(jump == "2"){ // /zh/404.html?404Jump=3
+      var url = "/" + browerLang.substr(0, idx) + "/404.html?404Jump=3&from="+from;
+      window.location.href=url;
+    }
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+  {% block title_404 %}
+    <h1 style="width: 100%; text-align: center;">404 {% trans %}Page not found{% endtrans %}</h1>
+  {% endblock%}
+  {% block body_404 %}
+    {{ body|safe }}
+  {% endblock%}
+  {% block btn_404 %}
+  <div style="text-align:center;padding:1em;">
+      <a class="btn" id="previous_btn">{% trans %}Return to previous page{% endtrans %}</a> <a class="btn" href="/">{% trans %}Home{% endtrans %}</a>
+  </div>
+  <script>
+    var btn = document.getElementById("previous_btn");
+    btn.onclick = function(){
+      if(from.indexOf("/404.html") >= 0){
+        from = "/";
+      }
+      window.location.href=from;
+    };
+  </script>
+  {% endblock%}
+{% endblock %}
+
+

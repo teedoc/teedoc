@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-07 16:55+0800\n"
+"POT-Creation-Date: 2021-09-18 18:24+0800\n"
 "PO-Revision-Date: 2021-09-07 16:55+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
@@ -18,23 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: program.py:18 templates/base.html:4
-msgid "title"
-msgstr "标题"
+#: templates/404.html:5 templates/404.html:50
+msgid "Page not found"
+msgstr "页面未找到"
 
-#: program.py:19 templates/base.html:8
-msgid "body"
-msgstr "正文3"
+#: templates/404.html:57
+msgid "Return to previous page"
+msgstr "返回上一页"
 
-#: program.py:19 templates/base.html:8
-msgid "body"
-msgstr "正文2"
-
-#: program.py:20
-msgid "hello i18n"
-msgstr "你好 i18n"
-
-#: program.py:41
-msgid "content"
-msgstr "内容"
+#: templates/404.html:57
+msgid "Home"
+msgstr ""
 
