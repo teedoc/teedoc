@@ -2,7 +2,7 @@
 {% extends "page_base.html" %}
 
 {% block title %}
-    <title>{% if title %}{{ title }} - {% else %}404{% trans %}Page not found{% endtrans %}{% endif %}{{ site_name }}</title>
+    <title>{% if title %}{{ title }} - {% else %}404{% trans %}Page not found{% endtrans %} - {% endif %}{{ site_name }}</title>
 {% endblock %}
 
 {% block head_end %}
