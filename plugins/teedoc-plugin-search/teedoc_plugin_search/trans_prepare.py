@@ -1,12 +1,16 @@
 #!python
 import os
 
+with open("locales.cfg") as f:
+    exec(f.read())
+
+print(f"== translate locales: {locales} ==")
+
 print("-- extract keys from files")
 if not os.path.exists("locales"):
     os.makedirs("locales")
 os.system("pybabel extract -F babel.cfg -o locales/messages.pot ./")
 
-locales=["zh_CN", "ja"]
 
 for locale in locales:
     print(f"-- generate {locale} po files from pot files")

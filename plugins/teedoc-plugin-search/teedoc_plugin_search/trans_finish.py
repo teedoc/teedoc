@@ -2,7 +2,10 @@
 
 import os
 
-locales=["zh_CN", "ja"]
+with open("locales.cfg") as f:
+    exec(f.read())
+
+print(f"== translate locales: {locales} ==")
 
 for locale in locales:
     print(f"-- generate {locale} mo file from po files")
