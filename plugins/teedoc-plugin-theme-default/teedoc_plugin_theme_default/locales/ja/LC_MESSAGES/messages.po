@@ -28,5 +28,5 @@ msgstr "前のページに戻ります"
 
 #: templates/404.html:57
 msgid "Home"
-msgstr ""
+msgstr "ホームページ"
 
