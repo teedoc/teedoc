@@ -13,8 +13,7 @@
             "/develop/en/": "docs/develop/en"
         },
         "pages": {
-            "/": "pages/index/zh",
-            "/en/": "pages/index/en"
+            "/": "pages/index/zh"
         },
         "assets": {
             "/static/": "static",
@@ -29,6 +28,13 @@
             "/get_started/zh/": [ {
                     "url": "/get_started/en/",
                     "src": "docs/get_started/en"
+                }
+            ]
+        },
+        "pages": {
+            "/": [{
+                 "url": "/en/",
+                 "src": "pages/index/en"
                 }
             ]
         }

@@ -143,8 +143,7 @@ $(document).ready(function(){
         addSearchResultClickListener();
         function search_doc(data, containerId, doc_id="curr"){
             var doc_id_str = 'result_wrapper_' + doc_id;
-            $("#search_result_name").append('<li result_id="'+ doc_id_str +'" class="pointer">'+ data[1] +'</li>');
-            $(containerId).append('<div id="'+ doc_id_str + '"><div class="hint">'+data[1]+'</div></div>');
+            var findFlag = false;
             var items = data[2];
             for(var url in items){
                 var content = items[url];
@@ -168,6 +167,11 @@ $(document).ready(function(){
                     }
                 }
                 if(find){
+                    if(!findFlag){
+                        $("#search_result_name").append('<li result_id="'+ doc_id_str +'" class="pointer">'+ data[1] +'</li>');
+                        $(containerId).append('<div id="'+ doc_id_str + '"><div class="hint">'+data[1]+'</div></div>');
+                        findFlag = true;
+                    }
                     $("#"+doc_id_str).append('<li><a href="'+ url + '?highlight=' + search_keywords + '"><h1>'+ (content["title"]?content["title"]:url) +
                             '</h1><div>' + find_strs + '</div></a></li>');
                 }

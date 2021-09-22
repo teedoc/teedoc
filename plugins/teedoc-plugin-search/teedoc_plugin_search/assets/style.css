@@ -128,6 +128,7 @@
 }
 #search_result_content {
     overflow-y: auto;
+    flex-grow: 1;
 }
 #search_result ul {
     padding-left: 0;

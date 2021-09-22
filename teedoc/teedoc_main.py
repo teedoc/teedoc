@@ -205,7 +205,9 @@ def load_config(doc_dir, config_template_dir, config_name="config"):
         if config_name.endswith(".json") or config_name.endswith(".yaml"):
             config_name = config_name[:-5]
         config_parent = load_config(config_template_dir, config_template_dir, config_name = config_name)
+        print("---doc_dir:", doc_dir,  config_parent)
         config = update_config(config_parent, config, ignore=["import"])
+        print("---new: ", config)
     return config
 
 def check_udpate_routes(site_config, doc_root, log):
