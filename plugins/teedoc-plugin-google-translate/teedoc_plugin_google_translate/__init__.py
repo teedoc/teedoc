@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-google-translate"
@@ -55,7 +55,7 @@ class Plugin(Plugin_Base):
         }
         return res
 
-    def on_parse_start(self, type_name, doc_config, new_config):
+    def on_parse_start(self, type_name, url, dirs, doc_config, new_config):
         # self.doc_locale = doc_config["locale"] if "locale" in doc_config else None
         self.new_config = copy.deepcopy(self.config)
         self.new_config = update_config(self.new_config, new_config)

@@ -1,6 +1,7 @@
 {
     "import": "config_zh",
     "class": "language_zh",
+    "name": "上手使用文档",
     "navbar": {
         "title": "teedoc123",
         "items": [

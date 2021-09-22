@@ -1208,8 +1208,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         doc_configs = get_configs(routes, config_template_dir, log)
 
     # parse all docs in route
-    for url, dir in routes.items():
-        _dir, dir = dir
+    for url, dirs in routes.items():
+        _dir, dir = dirs
         # get files
         if update_files:
             all_files = []
@@ -1238,7 +1238,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                 new_config = plugins_new_config[plugin.name]["config"]
             else:
                 new_config = {}
-            plugin.on_parse_start(type_name, doc_config, new_config)
+            plugin.on_parse_start(type_name, url, dirs, doc_config, new_config)
         # get header footer items, and template dir
         # get html header item from plugins
         header_items = []

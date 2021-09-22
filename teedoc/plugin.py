@@ -52,10 +52,11 @@ class Plugin_Base:
         '''
         pass
 
-    def on_parse_start(self, type_name, doc_config, new_config):
+    def on_parse_start(self, type_name, url, dirs, doc_config, new_config):
         '''
             call when start parse one doc
             @type_name canbe "doc" "page" "blog"
+            #url doc url, e.g. /get_started/zh/
             @doc_config config of doc, get from config.json or config.yaml
             @new_config this plugin's config from doc_config
         '''

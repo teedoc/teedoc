@@ -61,18 +61,18 @@ $(document).ready(function(){
             }
         }
         if(search_index[curr_url]){
-            downloadJson(search_index[curr_url], onIndexDownloadOk, curr_url, true);
+            downloadJson(search_index[curr_url][1], onIndexDownloadOk, curr_url, true, search_index[curr_url][0]);
         }
         for(var i in others_url){
             url = others_url[i];
-            downloadJson(search_index[url], onIndexDownloadOk, url, false);
+            downloadJson(search_index[url][1], onIndexDownloadOk, url, false, search_index[url][0]);
         }
     }
-    function onIndexDownloadOk(data, url, is_curr){
+    function onIndexDownloadOk(data, url, is_curr, doc_name){
         if(is_curr){
-            search_content["curr"] = data;
+            search_content["curr"] = [url, doc_name, data];
         }else{
-            search_content["others"][url] = data;
+            search_content["others"][url] = [url, doc_name, data];
         }
         if(waiting_search == true){
             waiting_search = false;
@@ -94,16 +94,20 @@ $(document).ready(function(){
                     </div>\
                 </div>\
                 <div id="search_result">\
+                    <div id="search_result_name"></div>\
+                    <div id="search_result_content"></div>\
                 </div>\
             </div>\
         </div><a class="close"></a></div>');
     $("#search").bind("click", function(e){
+        $("body").css("overflow-y", "hidden");
         $("#search_wrapper").show();
         $("#search_input").focus();
         $("#wrapper").addClass("blur");
         $("#navbar").addClass("blur");
     });
     $("#search_wrapper .close").bind("click", function(e){
+        $("body").css("overflow-y", "auto");
         $("#search_wrapper").hide();
         $("#wrapper").removeClass("blur");
         $("#navbar").removeClass("blur");
@@ -114,28 +118,36 @@ $(document).ready(function(){
         }, 1000);
     });
     function onSearch(){
-        $("#search_result").empty();
-        $("#search_result").append('<ul id="search_curr_result"><div class="hint">'+ curr_doc_result_hint +'</div></ul>');
-        $("#search_result").append('<ul id="search_others_result"><div class="hint">'+ other_docs_result_hint +'</div></ul>');
+        $("#search_result_name").empty();
+        $("#search_result_content").empty();
+        $("#search_result_content").append('<ul id="search_curr_result"><div class="hint">'+ curr_doc_result_hint +'</div></ul>');
+        $("#search_result_content").append('<ul id="search_others_result"><div class="hint">'+ other_docs_result_hint +'</div></ul>');
         if(!search_index){
-            $("#search_result").append('<div class="search_loading_hint">'+ loading_hint +'</div>');
+            $("#search_result_content").append('<div class="search_loading_hint">'+ loading_hint +'</div>');
             waiting_search = true;
             return;
         }
         if(!search_content["curr"] && search_content["others"].length == 0){
-            $("#search_result").append('<div class="search_loading_hint">'+ loading_hint +'</div>');
+            $("#search_result_content").append('<div class="search_loading_hint">'+ loading_hint +'</div>');
             waiting_search = true;
             return;
         }
         $("#search_curr_result > .hint").addClass("searching");
         var search_keywords = $("#search_input").val();
         search_doc(search_content["curr"], "#search_curr_result");
+        var doc_id = 0;
         for(var url in search_content["others"]){
-            search_doc(search_content["others"][url], "#search_others_result");
+            search_doc(search_content["others"][url], "#search_others_result", doc_id);
+            doc_id += 1;
         }
-        function search_doc(data, containerId){
-            for(var url in data){
-                var content = data[url];
+        addSearchResultClickListener();
+        function search_doc(data, containerId, doc_id="curr"){
+            var doc_id_str = 'result_wrapper_' + doc_id;
+            $("#search_result_name").append('<li result_id="'+ doc_id_str +'" class="pointer">'+ data[1] +'</li>');
+            $(containerId).append('<div id="'+ doc_id_str + '"><div class="hint">'+data[1]+'</div></div>');
+            var items = data[2];
+            for(var url in items){
+                var content = items[url];
                 search_keywords = search_keywords.trim();
                 if(search_keywords.length <= 0){
                     return;
@@ -156,30 +168,44 @@ $(document).ready(function(){
                     }
                 }
                 if(find){
-                    $(containerId).append('<li><a href="'+ url + '?highlight=' + search_keywords + '"><h1>'+ (data[url]["title"]?data[url]["title"]:url) +
+                    $("#"+doc_id_str).append('<li><a href="'+ url + '?highlight=' + search_keywords + '"><h1>'+ (content["title"]?content["title"]:url) +
                             '</h1><div>' + find_strs + '</div></a></li>');
                 }
             }
         }
         $("#search_curr_result > .hint").removeClass("searching");
     }
-    function downloadJson(url, callback, arg1=null, arg2=null){
+    function downloadJson(url, callback, arg1=null, arg2=null, arg3=null){
         $.ajax({
             type: "GET",
             url: url,
             contentType: "application/json",
             dataType: "json",
             success: function(data){
-                callback(data, arg1, arg2);
+                callback(data, arg1, arg2, arg3);
             },
             error: function(){
-                $("#search_result").empty();
-                $("#search_result").append('<div class="search_download_err_hint">'+ download_err_hint + ': '+ url +'</div>');
+                $("#search_result_content").empty();
+                $("#search_result_content").append('<div class="search_download_err_hint">'+ download_err_hint + ': '+ url +'</div>');
             }
         });
     }
     highlightKeywords();
 });
+
+function focusItems(id, contrainerId, offset=0){
+    console.log(contrainerId, id,  $("#"+id).offset().top, offset);
+    var elementTop = $("#"+id)[0].offsetTop - offset;
+    $("#"+contrainerId).animate({scrollTop: elementTop},500);
+}
+
+
+function addSearchResultClickListener(){
+    $("#search_result_name > li").on("click", function(e){
+        var targetId = e.target.attributes.result_id.value;
+        focusItems(targetId, "search_result_content", $("#search_title").height() + $("#search_result .hint").height());
+    });
+}
 
 function highlightKeywords(){
     var highlight_keywords = getQueryVariable("highlight");

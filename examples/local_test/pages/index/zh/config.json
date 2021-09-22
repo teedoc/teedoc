@@ -1,6 +1,6 @@
 {
     "import": "config_zh",
-    "name": "Chinese pages",
+    "name": "中文页面",
     "class": "md_page language_zh",
     "navbar": {
         "title": "teedoc123",

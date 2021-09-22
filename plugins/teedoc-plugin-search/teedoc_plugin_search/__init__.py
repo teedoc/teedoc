@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.3.2"
+__version__ = "1.4.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-search"
@@ -28,7 +28,12 @@ class Plugin(Plugin_Base):
         "loading_hint" : "Loading, wait please ...",
         "download_err_hint" : "Download error, please check network and refresh again",
         "other_docs_result_hint" : "Result from other docs",
-        "curr_doc_result_hint" : "Result from current doc"
+        "curr_doc_result_hint" : "Result from current doc",
+        "env":{
+            "main_color": "#4caf7d",
+            "main_color_dark": "#1b4c33",
+            "hint_shadow_color": "rgba(76, 175, 125, 0.38)"
+        }
     }
     supported_content_type = ["raw", "html"]
 
@@ -69,11 +74,11 @@ class Plugin(Plugin_Base):
         }
         
         # set site_root_url env value
-        if not "env" in config:
-            config['env'] = {}
-        config['env']["site_root_url"] = self.site_config["site_root_url"]
+        if not "env" in self.config:
+            self.config['env'] = {}
+        self.config['env']["site_root_url"] = self.site_config["site_root_url"]
         # replace variable in css with value
-        vars = config["env"]
+        vars = self.config["env"]
         self.css       = self._update_file_var(self.css, vars, self.temp_dir)
         self.footer_js = self._update_file_var(self.footer_js, vars, self.temp_dir)
         # files to copy
@@ -88,6 +93,7 @@ class Plugin(Plugin_Base):
             "articles": {},
             "pages": {}
         }
+        self.docs_name = {}
 
     def on_del(self):
         if os.path.exists(self.temp_dir):
@@ -128,7 +134,12 @@ class Plugin(Plugin_Base):
             return True, new_config[conf_name]
         return False, config[conf_name]
 
-    def on_parse_start(self, type_name, doc_config, new_config):
+    def on_parse_start(self, type_name, url, dirs, doc_config, new_config):
+        if not "name" in doc_config:
+            self.logger.w(f'doc dir "{dirs[0]}"\'s config no "name" keyword')
+            self.docs_name[url] = url
+        else:
+            self.docs_name[url] = doc_config["name"]
         self.doc_locale = doc_config["locale"] if "locale" in doc_config else None
         # self.new_config = copy.deepcopy(self.config)
         # self.new_config = update_config(self.new_config, new_config)
@@ -218,7 +229,7 @@ class Plugin(Plugin_Base):
         sub_index_path = []
         generated_index_json = {}
         for i, url in enumerate(docs_url):
-            index_content[url] = "{}static/search_index/index_{}.json".format(self.site_config["site_root_url"], i)
+            index_content[url] = [self.docs_name[url], "{}static/search_index/index_{}.json".format(self.site_config["site_root_url"], i)]
             path = os.path.join(self.temp_dir, "index_{}.json".format(i))
             sub_index_path.append(path)
             #   write content to sub index file
@@ -231,7 +242,7 @@ class Plugin(Plugin_Base):
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(content, f, ensure_ascii=False)
         for i, url in enumerate(pages_url, len(docs_url)):
-            index_content[url] = "{}static/search_index/index_{}.json".format(self.site_config["site_root_url"], i)
+            index_content[url] = [self.docs_name[url], "{}static/search_index/index_{}.json".format(self.site_config["site_root_url"], i)]
             path = os.path.join(self.temp_dir, "index_{}.json".format(i))
             sub_index_path.append(path)
             #   write content to sub index file
