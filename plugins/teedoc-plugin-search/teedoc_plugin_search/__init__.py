@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.4.1"
+__version__ = "1.4.2"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-search"

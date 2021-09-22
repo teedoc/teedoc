@@ -154,7 +154,7 @@
     border-radius: 0;
 }
 .dark #search_result #search_result_name li {
-    background: #1b4c33;
+    background: ${main_color_dark};
 }
 #search_result #search_result_name li:hover {
     margin-right: 0;
