@@ -1,0 +1,39 @@
+{
+    "locale": "zh_CN",
+    "navbar": {
+        "title": "my_site",
+        "logo": {
+            "alt": "my_site logo",
+            "src": "/static/image/logo.png"
+        },
+        "home_url": "/",
+        "items": [
+            {
+                "url": "/doc1/",
+                "label": "安装使用",
+                "position": "left"
+            }
+        ]
+    },
+    "footer":{
+        "top":[
+            {
+                "label": "链接",
+                "items": [
+                    {
+                        "label": "使用 teedoc 构建",
+                        "url": "https://github.com/teedoc/teedoc",
+                        "target": "_blank"
+                    }
+                ]
+            }
+        ],
+        "bottom": [
+            {
+                "label": "",
+                "url": "#",
+                "target": "_blank"
+            }
+        ]
+    }
+}

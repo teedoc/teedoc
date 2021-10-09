@@ -1681,7 +1681,7 @@ def main():
         if os.listdir(args.dir):
             log.e("directory {} not empty, please init in empty directory".format(args.dir))
             return 1
-        template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "template")
+        template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "template")
         for name in os.listdir(template_path):
             path = os.path.join(template_path, name)
             to_path = os.path.join(args.dir, name)
