@@ -75,13 +75,13 @@ pip3 install teedoc
 ```
 mkdir my_site
 cd my_site
-teeedoc init
+teedoc init
 ```
 
 或者
 
 ```
-teeedoc -d my_site init
+teedoc -d my_site init
 ```
 
 * 安装插件

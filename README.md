@@ -75,13 +75,13 @@ pip3 install teedoc
 ```
 mkdir my_site
 cd my_site
-teeedoc init
+teedoc init
 ```
 
 or
 
 ```
-teeedoc -d my_site init
+teedoc -d my_site init
 ```
 
 * Install plugins
