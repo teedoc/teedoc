@@ -1339,6 +1339,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             if not os.path.exists(temp) and not os.path.exists(os.path.join(dir, "no_translate.md")):
                 root_dir = os.path.abspath(os.path.dirname(__file__))
                 try:
+                    locale = doc_config["locale"]
                     lang = gettext.translation('messages', localedir=os.path.join(root_dir, 'locales'), languages=[locale])
                     lang.install()
                     _ = lang.gettext
