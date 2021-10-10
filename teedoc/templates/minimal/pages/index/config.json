@@ -1,5 +1,5 @@
 {
-    "import": "config_zh",
+    "import": "config",
     "class": "md_page",
-    "name": "中文页面"
+    "name": "Pages"
 }

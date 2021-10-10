@@ -516,7 +516,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html,
         htmls[file] = html
     return htmls
 
-def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
+def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
     '''
         @doc_path  doc path, contain config.json and sidebar.json
         @doc_url   doc url, config in "route" of site_config.json
@@ -623,7 +623,14 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs):
         home_url = navbar["home_url"]
         navbar_title = navbar["title"]
         if "src" in navbar["logo"] and navbar["logo"]["src"]:
-            logo_url = navbar["logo"]["src"]
+            if navbar["logo"]["src"].startswith("/"):
+                logo_url = navbar["logo"]["src"]
+            else:
+                log.w("logo's src item only support url now, e.g. /static/image/logo.png")
+                logo_url = None
+            logo_alt = navbar["logo"]["alt"]
+        if "url" in navbar["logo"] and navbar["logo"]["url"]:
+            logo_url = navbar["logo"]["url"]
             logo_alt = navbar["logo"]["alt"]
         else:
             logo_url = None
@@ -1054,7 +1061,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
             return generate_return(plugins_objs, False, multiprocess)
         # generate navbar to html
         if navbar:
-            htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs)
+            htmls = generate_navbar_html(htmls, navbar, dir, url, plugins_objs, log)
         if footer:
             htmls = generate_footer_html(htmls, footer, dir, url, plugins_objs)
         if is_err():
@@ -1609,8 +1616,21 @@ def main():
     import threading
     from queue import Queue, Empty
     import platform
-    
-    
+
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+    templates = {
+        "minimal": {
+                "dir": "minimal",
+                "help": "minimal template",
+                "default": True
+            },
+        "complete": {
+                "dir": "template",
+                "help": "complete template, have more features settings like multi language"
+            },
+    }
+
     parser = argparse.ArgumentParser(prog="teedoc", description="teedoc, a doc generator, generate html from markdown and jupyter notebook\nrun 'teedoc install && teedoc serve'")
     parser.add_argument("-d", "--dir", default=".", help="doc source root path" )
     parser.add_argument("-f", "--file", type=str, default="", help="file path for json2yaml or yaml2json command")
@@ -1623,6 +1643,7 @@ def main():
     parser.add_argument("--host", type=str, default="0.0.0.0", help="host address for serve command")
     parser.add_argument("--port", type=int, default=2333, help="port for serve command")
     parser.add_argument("-m", "--multiprocess", action="store_true", default=platform.system().lower() != 'windows', help="use multiple process instead of threads, default mutiple process in unix like systems" )
+    parser.add_argument("--template", type=str, default=None, help="for init command, based on which template to create project", choices=list(templates.keys()))
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
 
@@ -1681,7 +1702,31 @@ def main():
         if os.listdir(args.dir):
             log.e("directory {} not empty, please init in empty directory".format(args.dir))
             return 1
-        template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "template")
+        if args.template:
+            template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", templates[args.template]["dir"])
+        else:
+            selected_template = "minimal"
+            while 1:
+                print("\n====== select template =======\n")
+                templates_names = list(templates.keys())
+                default_template = None
+                for i, template in enumerate(templates_names):
+                    default = template if "default" in templates[template] else None
+                    if default:
+                        default_template = default
+                    print(f'{i+1}: {template}{" (default)" if default else ""}: {templates[template]["help"]}')
+                n = input(f"\nInput number and press Enter(default {templates_names.index(default_template) + 1}): ")
+                if (not n) and default_template:
+                    selected_template = default_template
+                    break
+                try:
+                    n = int(n)
+                    if n > 0 and n <= len(templates_names):
+                        selected_template = templates_names[n - 1]
+                        break
+                except Exception:
+                    pass
+            template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", templates[selected_template]["dir"]) 
         for name in os.listdir(template_path):
             path = os.path.join(template_path, name)
             to_path = os.path.join(args.dir, name)
@@ -1693,6 +1738,7 @@ def main():
         return 0
     t = None
     t2 = None
+    log.i(f"teedoc version: {__version__}")
     while 1: # for rebuild all files
         plugins_objs = []
         try:
@@ -1704,7 +1750,7 @@ def main():
                 log.e(site_config)
                 return 1
             if "config_template_dir" in site_config:
-                config_template_dir = os.path.abspath(os.path.join(doc_src_path, site_config["config_template_dir"]))
+                config_template_dir = os.path.abspath(os.path.join(doc_src_path, site_config["config_template_dir"])).replace("\\", "/")
             else:
                 config_template_dir = doc_src_path
             # out_dir
@@ -1737,6 +1783,7 @@ def main():
                         sys.path.insert(0, path)
                     plugin_import_name = plugin.replace("-", "_")
                     module = __import__(plugin_import_name)
+                    log.i(f"plugin version: {module.__version__}")
                     plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log, multiprocess = args.multiprocess)
                     plugin_obj.module_path = os.path.abspath(os.path.dirname(module.__file__))
                     plugins_objs.append(plugin_obj)
@@ -1890,11 +1937,12 @@ def main():
                             log.w("ingnore {} temp file".format(path))
                             continue
                         dir = os.path.dirname(path)
-                        if path[:-5].endswith("site_config"): # site_config changed, rebuild all
+                        file_name = os.path.splitext(path)[0]
+                        if file_name.endswith("site_config"): # site_config changed, rebuild all
                             raise RebuildException()
                         elif config_template_dir == dir:      # config template changed, just rebuild all
                             raise RebuildException()
-                        elif path[:-5].endswith("config") or path[:-5].endswith("sidebar"):    # doc or pages config or sidebar changed, rebuild the changed doc
+                        elif file_name.endswith("config") or file_name.endswith("sidebar"):    # doc or pages config or sidebar changed, rebuild the changed doc
                             files.extend(get_files(dir))
                         else:                                 # normal file, nonly rebuild this file
                             files.append(path)

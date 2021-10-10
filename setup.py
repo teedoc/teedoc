@@ -1,7 +1,9 @@
+import shutil
 from setuptools import setup, find_packages
 import os
 from teedoc import __version__
 from glob import glob
+import sys
 
 print("generate locale files")
 # os.system("cd teedoc && ./trans_prepare.sh && ./trans_finish.sh")
@@ -25,11 +27,49 @@ install_requires = [ "coloredlogs",
                    ]
 packages = find_packages()
 print("packages:", packages)
+
+def delete_out_dir(root, max_depth = 2, depth = 0):
+    if depth >= max_depth:
+        return
+    dirs = os.listdir(root)
+    for d in dirs:
+        out_dir = os.path.join(root, d)
+        if os.path.isdir(out_dir):
+            if d == "out":
+                print("-- remove out dir:", out_dir)
+                shutil.rmtree(out_dir)
+            else:
+                delete_out_dir(out_dir, max_depth = max_depth, depth = depth + 1)
+
+def check_submodule():
+    if not os.path.exists(os.path.join("teedoc", "templates", "template", "site_config.json")):
+        print("[!! error !!] template submodule in {} not init".format(os.path.join("teedoc", "templates", "template")))
+        print("please update submodule")
+        return False
+    return True
+
+def delete_build():
+    if os.path.exists("dist"):
+        print("delte dist dir")
+        shutil.rmtree("dist")
+        print("delte dist dir end")
+    if os.path.exists("build"):
+        print("delte build dir")
+        shutil.rmtree("build")
+        print("delte build dir end")
+
+# remove out files first
+delete_out_dir(os.path.join("teedoc", "templates"))
+# check submodule
+if not check_submodule():
+    sys.exit(1)
+# remove build files
+delete_build()
+
 os.chdir("teedoc")
-tempalte_files = glob("template/**", recursive=True)
+tempalte_files = glob("templates/**", recursive=True)
 package_data_files = ['static/js/*', "locales/*/*/*.?o", "templates/*"]
 package_data_files.extend(tempalte_files)
-package_data_files.append("template/.gitignore")
 print(package_data_files)
 os.chdir("..")
 setup(

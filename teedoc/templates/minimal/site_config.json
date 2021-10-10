@@ -7,7 +7,7 @@
     "config_template_dir": "config",
     "route": {
         "docs": {
-            "/doc1/zh/": "docs/doc1"
+            "/doc1/": "docs/doc1"
         },
         "pages": {
             "/": "pages/index"
@@ -27,9 +27,10 @@
             }
         },
         "teedoc-plugin-theme-default":{
-            "from": "pypi",
+            "from": "../../../plugins/teedoc-plugin-theme-default",
             "config": {
                 "dark": true,
+                "show_print_page": false,
                 "env":{
                     "main_color": "#4caf7d"
                 }
