@@ -27,7 +27,7 @@
             }
         },
         "teedoc-plugin-theme-default":{
-            "from": "../../../plugins/teedoc-plugin-theme-default",
+            "from": "pypi",
             "config": {
                 "dark": true,
                 "show_print_page": false,
