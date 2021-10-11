@@ -382,6 +382,8 @@ def get_sidebar_list(sidebar, doc_path, doc_url, log, redirect_err_file = False,
                     url = f'{redirct_url}?ref={ref_doc_url}{url_rel}&from={url}'
                 else:
                     log.w("file {} not found, but set in {} sidebar config file, maybe letter case wrong?".format(file_abs, doc_path))
+            if file_abs.endswith("no_translate.md"):
+                print(url, file_abs)
             items[file_abs] = {
                 "curr": (url, config["label"])
             }
@@ -991,7 +993,9 @@ def generate_return(plugins_objs, ok, multiprocess):
 def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes,
              site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
              sidebar, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
-             redirect_err_file, redirct_url, ref_doc_url):
+             redirect_err_file, redirct_url, ref_doc_url, sidebar_root_dir = None):
+    if not sidebar_root_dir:
+        sidebar_root_dir = dir
     if not pipe_tx is None:
         def on_err():
             pipe_tx.send(True)
@@ -1055,7 +1059,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
         htmls = result_htmls
         # generate sidebar to html
         if sidebar:
-            htmls = generate_sidebar_html(htmls, sidebar, dir, url, sidebar["title"] if "title" in sidebar else "",
+            htmls = generate_sidebar_html(htmls, sidebar, sidebar_root_dir, url, sidebar["title"] if "title" in sidebar else "",
                                         redirect_err_file=redirect_err_file, redirct_url=redirct_url, ref_doc_url=ref_doc_url)
         if is_err():
             return generate_return(plugins_objs, False, multiprocess)
@@ -1362,14 +1366,14 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                         '<span id="visit_hint"></span>', f'<span id="visit_hint">{visit_hint}</span>').replace(
                             "no_translate_title", no_translate_title
                         )
-                dir = tempfile.gettempdir()
-                all_files = [os.path.join(dir, "no_translate.md")]
+                tmp_dir = tempfile.gettempdir()
+                all_files = [os.path.join(tmp_dir, "no_translate.md")]
                 with open(all_files[0], "w") as f:
                     f.write(content)
-                ok = generate(multiprocess, html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
+                ok = generate(multiprocess, html_template, html_templates_i18n_dirs, all_files, url, tmp_dir, doc_config, plugin_func,
                           routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
                           footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None,
-                          redirect_err_file, redirct_url, ref_doc_url)
+                          redirect_err_file, redirct_url, ref_doc_url, sidebar_root_dir=dir)
                 if not ok:
                     return False, None
 
