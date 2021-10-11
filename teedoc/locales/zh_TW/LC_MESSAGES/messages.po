@@ -1,4 +1,4 @@
-# Chinese (Simplified, China) translations for PROJECT.
+# Chinese (Traditional, Taiwan) translations for PROJECT.
 # Copyright (C) 2021 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-10-11 14:06+0800\n"
-"PO-Revision-Date: 2021-09-09 20:43+0800\n"
+"PO-Revision-Date: 2021-10-11 13:57+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: zh_Hans_CN\n"
-"Language-Team: zh_Hans_CN <LL@li.org>\n"
+"Language: zh_Hant_TW\n"
+"Language-Team: zh_Hant_TW <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -20,13 +20,13 @@ msgstr ""
 
 #: teedoc_main.py:1357
 msgid "no_translate_title"
-msgstr "页面尚未翻译"
+msgstr "頁面尚未翻譯"
 
 #: teedoc_main.py:1358
 msgid "no_translate_hint"
-msgstr "此页面尚未被翻译"
+msgstr "此頁面尚未被翻譯"
 
 #: teedoc_main.py:1359
 msgid "visit_hint"
-msgstr "请访问"
+msgstr "請訪問"
 
