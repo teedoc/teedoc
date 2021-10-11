@@ -1589,7 +1589,12 @@ def files_watch(doc_src_path, log, delay_time, queue):
  
     observer = Observer()
     handler = FileEventHandler(doc_src_path)
-    observer.schedule(handler, doc_src_path, True)
+    files = os.listdir(doc_src_path)
+    ignores = [".git", "out"]
+    for name in files:
+        if name in ignores:
+            continue
+        observer.schedule(handler, os.path.join(doc_src_path, name), True)
     observer.start()
     try:
         while True:
