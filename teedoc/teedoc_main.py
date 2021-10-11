@@ -631,7 +631,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
                 log.w("logo's src item only support url now, e.g. /static/image/logo.png")
                 logo_url = None
             logo_alt = navbar["logo"]["alt"]
-        if "url" in navbar["logo"] and navbar["logo"]["url"]:
+        elif "url" in navbar["logo"] and navbar["logo"]["url"]:
             logo_url = navbar["logo"]["url"]
             logo_alt = navbar["logo"]["alt"]
         else:
