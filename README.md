@@ -9,6 +9,8 @@ teedoc
 
 Official site: [teedoc.neucrack.com](https://teedoc.neucrack.com) or [teedoc.github.io](https://teedoc.github.io/)
 
+More demo: see [here](https://teedoc.neucrack.com/get_started/zh/usage/sites.html) or [here](https://teedoc.github.io/get_started/zh/usage/sites.html)
+
 documentation generate tool from markdown and jupyter notebook to html
 
 ![](./assets/images/teedoc_screenshot_0.png)
@@ -44,7 +46,7 @@ documentation generate tool from markdown and jupyter notebook to html
 
 ## Get Started
 
-Visit official site: [teedoc.github.io](https://teedoc.github.io/) or [teedoc.gitee.io](https://teedoc.gitee.io/)
+Visit official site: [teedoc.github.io](https://teedoc.github.io/) or [teedoc.neucrack.com](https://teedoc.neucrack.com/)
 
 ## Create your website on github pages in minutes
 
@@ -67,7 +69,7 @@ sudo apt install python3 python3-pip
 This command will **install teedoc program**
 
 ```
-pip3 install teedoc
+pip3 install -U teedoc
 ```
 
 * Initialize document
@@ -83,6 +85,8 @@ or
 ```
 teedoc -d my_site init
 ```
+
+> select minimal template in promot
 
 * Install plugins
 

@@ -9,6 +9,8 @@ teedoc
 
 官网: [teedoc.neucrack.com](https://teedoc.neucrack.com) 或者 [teedoc.github.io](https://teedoc.github.io/)
 
+更多样例: 看[这里](https://teedoc.neucrack.com/get_started/zh/usage/sites.html) 或 [这里](https://teedoc.github.io/get_started/zh/usage/sites.html)
+
 将 `Markdown` 或者 `Jupyter Notebook` 格式的文档转换为 `HTML` 网页
 
 ![](./assets/images/teedoc_screenshot_0.png)
@@ -42,7 +44,7 @@ teedoc
 
 ## 开始使用吧
 
-官网: [teedoc.github.io](https://teedoc.github.io/) 或者 [teedoc.gitee.io](https://teedoc.gitee.io/)
+官网: [teedoc.github.io](https://teedoc.github.io/) 或者 [teedoc.neucrack.com](https://teedoc.neucrack.com/)
 
 
 ## 几分钟内在 github pages 服务上搭建你自己的网站
@@ -67,7 +69,7 @@ sudo apt install python3 python3-pip
 这条命令会 **安装 teedoc 主程序**
 
 ```
-pip3 install teedoc
+pip3 install -U teedoc
 ```
 
 * 初始化文档
@@ -83,6 +85,8 @@ teedoc init
 ```
 teedoc -d my_site init
 ```
+
+> 根据提示选择 minimal 模板
 
 * 安装插件
 
