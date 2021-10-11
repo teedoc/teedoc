@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-10 23:21+0800\n"
+"POT-Creation-Date: 2021-10-11 14:58+0800\n"
 "PO-Revision-Date: 2021-09-18 14:51+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: templates/404.html:5 templates/404.html:50
+#: templates/404.html:5 templates/404.html:56
 msgid "Page not found"
 msgstr "ページが見つかりません"
 
-#: templates/404.html:57
+#: templates/404.html:63
 msgid "Return to previous page"
 msgstr "前のページに戻ります"
 
-#: templates/404.html:57
+#: templates/404.html:63
 msgid "Home"
 msgstr "ホームページ"
 

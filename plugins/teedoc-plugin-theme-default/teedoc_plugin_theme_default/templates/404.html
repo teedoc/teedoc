@@ -17,7 +17,7 @@
       }
       return(false);
   }
-  var jump = getQueryVariable("404Jump");
+  var jump = getQueryVariable("jump");
   var from = getQueryVariable("from");
   var pageLang = a=document.getElementsByTagName("html")[0].lang.toLowerCase(); // en -> zh-cn
   var browerLang =(navigator.language || navigator.browserLanguage).toLowerCase();    // zh-cn
@@ -27,18 +27,24 @@
   if(pageLang && browerLang!=pageLang){
     var idx = browerLang.indexOf("-");
     if(!jump){
-      if(idx > 0){ // zh-cn, jump to /zh_CN/404.html?404Jump=1
-        var url = "/" + browerLang.substr(0, idx) + "_" + browerLang.substr(idx + 1).toUpperCase() + "/404.html?404Jump=1&from="+from;
+      if(idx > 0){ // zh-cn, jump to /zh_CN/404.html?jump=1
+        var url = "/" + browerLang.substr(0, idx) + "_" + browerLang.substr(idx + 1).toUpperCase() + "/404.html?jump=1&from="+from;
         window.location.href=url;
-      }else{       // /zh/404.html?404Jump=3
-        var url = "/" + browerLang + "/404.html?404Jump=3&from="+from;
+      }else{       // /zh/404.html?jump=5
+        var url = "/" + browerLang + "/404.html?jump=5&from="+from;
         window.location.href=url;
       }
-    }else if(jump == "1"){ // /zh-CN/404.html?404Jump=2
-      var url = "/" + browerLang.substr(0, idx) + "-" + browerLang.substr(idx + 1).toUpperCase() + "/404.html?404Jump=2&from="+from;
+    }else if(jump == "1"){ // /zh-CN/404.html?jump=2
+      var url = "/" + browerLang.substr(0, idx) + "-" + browerLang.substr(idx + 1).toUpperCase() + "/404.html?jump=2&from="+from;
       window.location.href=url;
-    }else if(jump == "2"){ // /zh/404.html?404Jump=3
-      var url = "/" + browerLang.substr(0, idx) + "/404.html?404Jump=3&from="+from;
+    }else if(jump == "2"){ // /zh-cn/404.html?jump=3
+      var url = "/" + browerLang.substr(0, idx) + "-" + browerLang.substr(idx + 1).toLowerCase() + "/404.html?jump=3&from="+from;
+      window.location.href=url;
+    }else if(jump == "3"){ // /zh_cn/404.html?jump=4
+      var url = "/" + browerLang.substr(0, idx) + "_" + browerLang.substr(idx + 1).toLowerCase() + "/404.html?jump=4&from="+from;
+      window.location.href=url;
+    }else if(jump == "4"){ // /zh/404.html?jump=5
+      var url = "/" + browerLang.substr(0, idx) + "/404.html?jump=5&from="+from;
       window.location.href=url;
     }
   }
