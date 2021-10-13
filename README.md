@@ -17,6 +17,7 @@ documentation generate tool from markdown and jupyter notebook to html
 
 `teedoc` can be used in the following scenarios:
 * Build a document website, and it is best to support multiple documents and custom pages
+* Organizations' or companies' docs spread in different domains, wish to combine them to one site(domain)
 * Build a `WiKi` website
 * Build personal or corporate knowledge base
 * Build personal or corporate website
