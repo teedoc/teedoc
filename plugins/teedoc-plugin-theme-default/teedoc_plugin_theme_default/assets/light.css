@@ -505,21 +505,35 @@ html[lang^=zh] #article_content #blog_list h2:before {
 
 /* add numbers for toc */
 #toc {counter-reset: toc_l1;}
-#toc > div > ul > li, #toc > div > ol > li {counter-reset: toc_l2;}
-#toc > div > ul > li > a:before, #toc > div > ol > li > a:before {
+#toc #toc_content {counter-reset: toc_l2;}
+#toc a.node-name--H1 {
+    counter-reset: toc_l2;
+}
+#toc a.node-name--H2 {
+    counter-reset: toc_l3;
+}
+#toc a.node-name--H1:before {
 	counter-increment: toc_l1;
-	content: counter(toc_l1, upper-roman) "、";
 }
-#toc > div > ul > li > ul > li > a:before, #toc > div > ol > li > ol > li > a:before {
+#toc a.node-name--H2:before {
 	counter-increment: toc_l2;
-    content: counter(toc_l1, decimal) "." counter(toc_l2, decimal) "、";
+	content: counter(toc_l2, upper-roman) "、";
 }
-html[lang^=zh] #toc > div > ul > li > a:before, html[lang^=zh] #toc > div > ol > li > a:before {
-    content: counter(toc_l1, simp-chinese-informal) "、";
+html[lang^=zh] #toc a.node-name--H2:before {
+    content: counter(toc_l2, simp-chinese-informal) "、";
 }
-html[lang^=zh] #toc > div > ul > li > ul > li > a:before,
-html[lang^=zh] #toc > div > ul > li > ol > li > a:before {
-	content: counter(toc_l1, decimal) "." counter(toc_l2, decimal) "、";
+#toc a.node-name--H3:before, #toc a.node-name--H3:before {
+	counter-increment: toc_l3;
+    content: counter(toc_l2, decimal) "." counter(toc_l3, decimal) "、";
+}
+.heading_no_counter #toc a.node-name--H2:before {
+	content: "";
+}
+.heading_no_counter #toc a.node-name--H3:before {
+	content: "";
+}
+html[lang^=zh].heading_no_counter #toc a.node-name--H2:before {
+    content: "";
 }
 /* add numbers for titles toc*/
 
@@ -542,6 +556,9 @@ html[lang^=zh] #toc > div > ul > li > ol > li > a:before {
     line-height: 2em;
     margin: auto;
 }
+#content_body h1 {
+    line-height: initial;
+}
 #content_body a, #content_body a:visited {
     color: #c33a3a;
     padding: 0.2em;
@@ -562,6 +579,10 @@ html[lang^=zh] #toc > div > ul > li > ol > li > a:before {
     counter-reset: h2section;
     min-height: 50vh;
     word-break: break-word;
+}
+#article_content h1 {
+    counter-reset: h2section;
+    line-height: 1.3em;
 }
 #article_content h2 {
     counter-reset: h3section;
@@ -593,6 +614,24 @@ html[lang^=zh] #article_content h3:before {
 }
 html[lang^=zh] #article_content h4:before {
     content: counter(h2section, decimal) "." counter(h3section, decimal) "." counter(h4section, decimal) "、";
+}
+.heading_no_counter #article_content h2:before {
+    content: "";
+}
+.heading_no_counter #article_content h3:before {
+	content: "";
+}
+.heading_no_counter #article_content h4:before {
+    content: "";
+}
+html[lang^=zh].heading_no_counter #article_content h2:before {
+    content: "";
+}
+html[lang^=zh].heading_no_counter #article_content h3:before {
+	content: "";
+}
+html[lang^=zh].heading_no_counter #article_content h4:before {
+    content: "";
 }
 /* add numbers for titles end*/
 

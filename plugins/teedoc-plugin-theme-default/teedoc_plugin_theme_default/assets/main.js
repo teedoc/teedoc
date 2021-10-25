@@ -152,9 +152,9 @@ function addTOC(){
         // Where to render the table of contents.
         tocSelector: '#toc_content',
         // Where to grab the headings to build the table of contents.
-        contentSelector: '#content_body',
+        contentSelector: '#article_content',
         // Which headings to grab inside of the contentSelector element.
-        headingSelector: 'h2, h3, h4',
+        headingSelector: 'h1, h2, h3, h4',
         // For headings inside relative or absolute positioned containers within content.
         hasInnerContainers: true,
         });
