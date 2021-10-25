@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "2.1.4"
+__version__ = "2.2.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"

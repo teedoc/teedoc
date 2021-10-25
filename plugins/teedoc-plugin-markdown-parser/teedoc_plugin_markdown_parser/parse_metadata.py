@@ -40,6 +40,8 @@ class Meta_Parser:
         if len(meta) == 0:
             return meta_kvs, text
         for k, v in meta:
+            if k.startswith("#"): # comment start with '#'
+                continue
             meta_kvs[k] = v
 
         return meta_kvs, m[2]
