@@ -14,13 +14,14 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.0.3"
+__version__ = "1.0.5"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-ad-hint"
     desc = "advertisement adn hint support for teedoc"
     defautl_config = {
-        "type": None,     # new warning ad
+        "type": "hint",     # new warning ad
+        "label": "New",
         # "brief": "",
         "content": "",
         # "target": "_self",

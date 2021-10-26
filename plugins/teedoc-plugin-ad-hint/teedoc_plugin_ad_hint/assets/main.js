@@ -4,11 +4,11 @@ $(document).ready(function(){
     if("${type}" == "null" || "${type}" == ""){
         return;
     }
-    if("${type}" == "new"){
-        $("#nav_left").append('<li id="new_feature_btn" class="sub_items"><a>New</a></li>');
+    if("${type}" == "new" || "${type}" == "hint"){
+        $("#nav_left").append('<li id="new_feature_btn" class="sub_items"><a>${label}</a></li>');
         $("#navbar").before('<div id="new_feature_content"><div><span class="content">${content}</span><span class="close">x</span><div></div>')
         $("#new_feature_btn").bind("click", function(){
-            $("#new_feature_content").slideDown();
+            $("#new_feature_content").slideToggle();
         });
         $("#new_feature_content .close").bind("click", function(){
             $("#new_feature_content").slideUp();
