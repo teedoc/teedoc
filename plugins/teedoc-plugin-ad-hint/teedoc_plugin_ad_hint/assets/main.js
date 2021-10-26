@@ -41,7 +41,6 @@ $(document).ready(function(){
 function show_time(times = -1){
     if(times < 0){
         var s = localStorage.getItem("hint_show_times");
-        console.log(s);
         if(!s){
             times = -1;
         }else{
