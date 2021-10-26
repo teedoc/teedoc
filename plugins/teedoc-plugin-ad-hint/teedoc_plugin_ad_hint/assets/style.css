@@ -1,0 +1,64 @@
+
+#hint_container {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 101;
+    background-color: rgb(0, 0, 0, 0.72);
+}
+#hint_content {
+    height: 90%;
+    width: 70%;
+    margin: auto;
+    background-color: white;
+}
+.dark #hint_content {
+    background-color: black;
+}
+#new_feature_btn a {
+    color: ${color};
+    background-color: ${bg_color};
+    border-radius: 5px;
+}
+#navbar #new_feature_btn > a:hover,
+#navbar #new_feature_btn li > a:hover{
+    color: ${color_hover};
+    background-color: ${bg_color_hover};
+}
+#navbar .sub_items ul.visible_top {
+    visibility: visible;
+    z-index: 200;
+}
+#new_feature_content {
+    display: none;
+}
+#new_feature_content > div {
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    line-height: 2em;
+    background-color: ${bg_color};
+    color: ${color};
+}
+#new_feature_content > div .content {
+    flex-grow: 1;
+}
+#new_feature_content > div .close {
+    cursor: pointer;
+    padding: 0 1em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: ${close_color};
+}
+#new_feature_content > div .close:hover {
+    font-size: 1.05em;
+}
+#new_feature_content > div .content a {
+    padding: 4px;
+    color: ${link_color};
+}
+#new_feature_content > div .content a:hover {
+    background-color: ${link_bg_color};
+}

@@ -1,6 +1,8 @@
 from .logger import Fake_Logger
 import os
 from collections import OrderedDict
+import tempfile
+import shutil
 
 class Plugin_Base:
     '''
@@ -268,10 +270,17 @@ class Plugin_Base:
             with open(path, encoding='utf-8') as f:
                 content = f.read()
                 for k, v in vars.items():
-                    content = content.replace("${}{}{}".format("{", k.strip(), "}"), v)
+                    if v is None:
+                        v = "null"
+                    content = content.replace("${}{}{}".format("{", k.strip(), "}"), str(v))
                 temp_path = os.path.join(temp_dir, os.path.basename(path))
                 with open(temp_path, "w", encoding='utf-8') as fw:
                     fw.write(content)
                 files[url] = temp_path
         return files
 
+    def get_temp_dir(self):
+        self.temp_dir = os.path.join(tempfile.gettempdir(), self.name)
+        if not os.path.exists(self.temp_dir):
+            os.makedirs(self.temp_dir)
+        return self.temp_dir

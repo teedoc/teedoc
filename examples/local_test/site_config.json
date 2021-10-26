@@ -93,6 +93,14 @@
                 "code": "90c693aa2475224142e727c14a50bb49"
             }
         },
+        "teedoc-plugin-ad-hint": {
+            "from": "../../plugins/teedoc-plugin-ad-hint",
+            "config": {
+                "type": "new",
+                "content": "<a target=\"_blank\" href=\"https://github.com/sipeed/Maix-Speech\">Maix-Speech</a> ASR lib now is available, welcome to use and star</br><a href=\"https://github.com/sipeed/Maix-Speech\">Maix-Speech</a> 语音识别库 现在可以获取到啦！欢迎使用并 star",
+                "show_after_s": 432000
+            }
+        },
         "teedoc-plugin-assets": {
             "from": "../../plugins/teedoc-plugin-assets",
             "config": {

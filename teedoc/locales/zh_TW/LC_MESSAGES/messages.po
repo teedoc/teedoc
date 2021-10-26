@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-11 16:22+0800\n"
+"POT-Creation-Date: 2021-10-26 15:03+0800\n"
 "PO-Revision-Date: 2021-10-11 13:57+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant_TW\n"
@@ -20,13 +20,22 @@ msgstr ""
 
 #: teedoc_main.py:1357
 msgid "no_translate_title"
-msgstr "頁面尚未翻譯"
+msgstr ""
 
 #: teedoc_main.py:1358
 msgid "no_translate_hint"
-msgstr "此頁面尚未被翻譯"
+msgstr ""
 
 #: teedoc_main.py:1359
 msgid "visit_hint"
-msgstr "請訪問"
+msgstr ""
+
+#~ msgid "no_translate_title"
+#~ msgstr "頁面尚未翻譯"
+
+#~ msgid "no_translate_hint"
+#~ msgstr "此頁面尚未被翻譯"
+
+#~ msgid "visit_hint"
+#~ msgstr "請訪問"
 
