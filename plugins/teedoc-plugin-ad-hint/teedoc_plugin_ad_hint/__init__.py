@@ -14,7 +14,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-ad-hint"
@@ -61,17 +61,17 @@ class Plugin(Plugin_Base):
         vars = self.config
         self.footer_js = self.update_file_var(self.footer_js, vars, self.temp_dir)
         self.files_to_copy = self.footer_js
-        self.html_header_items = []
+        self.html_footer_items = []
         for url in self.footer_js:
             if url.endswith(".css"):
                 item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
             else:
                 item = '<script src="{}"></script>'.format(url)
-            self.html_header_items.append(item)
+            self.html_footer_items.append(item)
 
 
-    def on_add_html_header_items(self, type_name):
-        return self.html_header_items
+    def on_add_html_footer_js_items(self, type_name):
+        return self.html_footer_items
 
     def on_copy_files(self):
         res = self.files_to_copy

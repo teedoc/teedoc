@@ -1,6 +1,6 @@
 
 
-$(document).ready(function(){
+(function(){
     if("${type}" == "null" || "${type}" == ""){
         return;
     }
@@ -36,7 +36,7 @@ $(document).ready(function(){
         
     }
     // $("body").append('<div id="hint_container"><div class="close">X</div><div id="hint_content">${content}</div></div>');
-});
+})();
 
 function show_time(times = -1){
     if(times < 0){
