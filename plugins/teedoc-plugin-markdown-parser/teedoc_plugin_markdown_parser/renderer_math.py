@@ -8,7 +8,14 @@
 """
 
 import re
+from functools import partial
 
+try:
+    from html import escape
+    html_escape = partial(escape, quote=False)
+except ImportError:
+    # Python 2
+    from cgi import escape as html_escape
 
 class MathBlockMixin(object):
     """Math mixin for BlockLexer, mix this with BlockLexer::
@@ -18,17 +25,19 @@ class MathBlockMixin(object):
                 self.enable_math()
     """
     def enable_math(self):
-        self.rules.block_math = re.compile(r'^\$\$(.*?)\$\$', re.DOTALL)
+        self.rules.block_math = re.compile(r"^\$\$.*?\$\$", re.DOTALL)
         self.rules.block_latex = re.compile(
             r'^\\begin\{([a-z]*\*?)\}(.*?)\\end\{\1\}', re.DOTALL
         )
-        self.default_rules.extend(['block_math', 'block_latex'])
+        # self.default_rules.extend(['block_math', 'block_latex'])
+        self.default_rules.insert(0, 'block_math')
+        self.default_rules.insert(0, 'block_latex')
 
     def parse_block_math(self, m):
         """Parse a $$math$$ block"""
         self.tokens.append({
             'type': 'block_math',
-            'text': m.group(1)
+            'text': m.group(0)
         })
 
     def parse_block_latex(self, m):
@@ -48,21 +57,29 @@ class MathInlineMixin(object):
     """
 
     def enable_math(self):
-        self.rules.math = re.compile(r'^\$(.+?)\$')
+        self.rules.math = re.compile(r"^\$(.+?)\$|^\\\\\((.+?)\\\\\)", re.DOTALL)
         self.default_rules.insert(0, 'math')
-        self.rules.text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~\$]|https?://| {2,}\n|$)')
+        # self.rules.text = re.compile(r'^[\s\S]+?(?=[\\<!\[_*`~\$]|https?://| {2,}\n|$)')
 
     def output_math(self, m):
         return self.renderer.math(m.group(1))
 
+    def output_block_math(self, m):
+        return self.renderer.block_math(m.group(1) or m.group(2) or "")
+
+    def output_block_latex(self, m):
+        return self.renderer.block_latex(m.group(1),
+                                               m.group(2))
+
 
 class MathRendererMixin(object):
     def block_math(self, text):
-        return '$$%s$$' % text
+        return '$$%s$$' % html_escape(text)
 
     def block_latex(self, name, text):
-        return r'\begin{%s}%s\end{%s}' % (name, text, name)
+        name = html_escape(name)
+        return r'\begin{%s}%s\end{%s}' % (name, html_escape(text), name)
 
     def math(self, text):
-        return '$%s$' % text
+        return '$%s$' % html_escape(text)
 

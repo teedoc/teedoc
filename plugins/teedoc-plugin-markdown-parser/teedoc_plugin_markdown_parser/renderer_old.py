@@ -39,7 +39,7 @@ class MathInlineLexer(MathInlineMixin, InlineLexer):
 
 class MathBlockLexer(MathBlockMixin, BlockLexer):
     def __init__(self, *args, **kwargs):
-        super(MathBlockLexer, self).__init__(*args, **kwargs)
+        BlockLexer.__init__(self, *args, **kwargs)
         self.enable_math()
 
 class MDRenderer(
@@ -52,6 +52,17 @@ class MDRenderer(
     def __init__(self):
         mistune.Renderer.__init__(self, escape = False, hard_wrap = True)
 
+class MarkdownWithMath(mistune.Markdown):
+    def __init__(self, renderer, **kwargs):
+        if 'inline' not in kwargs:
+            kwargs['inline'] = MathInlineLexer
+        if 'block' not in kwargs:
+            kwargs['block'] = MathBlockLexer
+        super().__init__(renderer, **kwargs)
+
+    def output_block_math(self):
+        return self.inline(self.token["text"])
+
 def create_markdown_parser():
 
     class MathRendrerer(MathRendererMixin, mistune.Renderer):
@@ -60,18 +71,23 @@ def create_markdown_parser():
 
 
     renderer = MDRenderer()
-    inline_lexer = MathInlineLexer(renderer)
-    block_lexer = MathBlockLexer() # FIXME: not work!!
-    parser = mistune.Markdown(renderer=renderer, inline=inline_lexer) #, block=block_lexer)
+    # inline_lexer = MathInlineLexer(renderer)
+    # block_lexer = MathBlockLexer() # FIXME: not work!!
+    parser = MarkdownWithMath(renderer=renderer)
     return parser
 
 if __name__ == "__main__":
     math_test = '''
 假设 $z = f(u,v)$ 在点，求 $z$ 在 $t$ 点的导数。 $**hello**$
 $$
-**hello**{f[g(x)]}'=2[g(x)] \times g'(x)=2[2x+1] \times 2=8x+4
+**hello**{f[g(x)]}'=2[g(x)] \\times g'(x)=2[2x+1] \\times 2=8x+4
 $$
     '''
+#     math_test = '''
+# $$
+# **hello**{f[g(x)]}'=2[g(x)] \\times g'(x)=2[2x+1] \\times 2=8x+4
+# $$
+#     '''
     parser = create_markdown_parser()
     html = parser(math_test)
     print(html)
