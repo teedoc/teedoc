@@ -2,6 +2,7 @@ import os, sys
 import re
 from collections import OrderedDict
 from datetime import datetime
+import json
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
@@ -12,13 +13,28 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
     desc = "markdown parser plugin for teedoc"
     defautl_config = {
-        "parse_files": ["md"]
+        "parse_files": ["md"],
+        "mathjax": {
+            "enable": True,
+            "file_name": "tex-mml-chtml", # http://docs.mathjax.org/en/latest/web/components/index.html
+            "config": {
+                "loader": {
+                    "load": ['output/svg']
+                },
+                "tex": {
+                    "inlineMath": [['$', '$'], ['\\(', '\\)']]
+                },
+                "svg": {
+                    "fontCache": 'global'
+                }
+            }
+        }
     }
 
     def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
@@ -31,7 +47,15 @@ class Plugin(Plugin_Base):
         self.doc_src_path = doc_src_path
         self.site_config = site_config
         self.config = Plugin.defautl_config
+        mathjax_config = self.config["mathjax"]
+        if "mathjax" in config:
+            for k,v in config["mathjax"].items():
+                if type(v) != dict:
+                    mathjax_config[k] = v
+                else:
+                    mathjax_config[k].update(v)
         self.config.update(config)
+        self.config["mathjax"] = mathjax_config
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         if not self.multiprocess:
@@ -154,6 +178,12 @@ class Plugin(Plugin_Base):
     def on_add_html_header_items(self, type_name):
         items = []
         items.append('<meta name="markdown-generator" content="teedoc-plugin-markdown-parser">')
+        if self.config["mathjax"]["enable"]:
+            items.append('''<script>
+MathJax = {};
+</script>'''.format(json.dumps(self.config["mathjax"]["config"])))
+            items.append('<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>')
+            items.append('<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js"></script>'.format(self.config["mathjax"]["file_name"]))
         return items
 
     def _update_link(self, content):

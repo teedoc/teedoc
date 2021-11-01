@@ -47,7 +47,15 @@
         "teedoc-plugin-markdown-parser": {
             "from": "../../plugins/teedoc-plugin-markdown-parser",
             "config": {
-                "toc_depth": 3
+                "mathjax": {
+                    "enable": true,
+                    "file_name": "tex-mml-svg",
+                    "config": {
+                        "loader": {
+                            "load": []
+                        }
+                    }
+                }
             }
         },
         "teedoc-plugin-jupyter-notebook-parser": {

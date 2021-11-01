@@ -237,4 +237,31 @@ hello <br/> <img src="../../assets/images/logo.png"/>
 </div>
 
 
+## 数学
+
+
+内嵌的Katex效果$E=mc^2$就是这样
+
+When $a \ne 0$, there are two solutions to $ax^2 + bx + c = 0$ and they are
+
+$$
+x = {-b \pm \sqrt{b^2-4ac} \over 2a}.
+$$
+
+
+$$
+\require{enclose}
+\begin{array}{r}
+                13  \\[-3pt]
+4 \enclose{longdiv}{52} \\[-3pt]
+     \underline{4}\phantom{2} \\[-3pt]
+                12  \\[-3pt]
+     \underline{12}\\0
+\end{array}\\
+$$
+
+$$
+\bbox[#cde, 3px,border:1px solid blue]{y=x^2-1}
+$$
+
 

@@ -148,6 +148,8 @@ function hello(){
 
 
 function addTOC(){
+    if(!document.getElementById("toc_content"))
+        return;
     tocbot.init({
         // Where to render the table of contents.
         tocSelector: '#toc_content',
