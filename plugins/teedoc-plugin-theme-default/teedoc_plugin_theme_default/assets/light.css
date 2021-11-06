@@ -149,6 +149,9 @@ code {
 }
 
 /* wrapper */
+.type_doc #wrapper {
+    margin-top: 1.5em;
+}
 #wrapper {
     display: flex;
     flex-grow: 1;
@@ -432,11 +435,13 @@ code {
     padding: 0.2em;
     margin: 0.4em;
 }
+#blog_list > ul {
+    padding-left: 0;
+}
 #blog_list > ul > li {
     list-style: none;
-    list-style: none;
     box-shadow: 0px 0px 7px #00000033;
-    margin: 2em;
+    margin: 2em 0;
     padding: 2em;
     border-radius: 0.4em;
 }
@@ -994,7 +999,6 @@ a.toc-link {
     #navbar {
         display: block;
         border-bottom: 1px solid #f1f1f1;
-        margin-bottom: 2em;
         z-index: 89;
     }
     #navbar * {
