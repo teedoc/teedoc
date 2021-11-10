@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.16.1"
+__version__ = "1.16.2"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
@@ -25,6 +25,7 @@ class Plugin(Plugin_Base):
         "env": {
             "main_color": "#4caf7d",
             "sidebar_width": "300px",
+            "sidebar_scrollbar_color": "#b8b8b8"
         }
     }
 
