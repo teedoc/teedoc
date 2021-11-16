@@ -1,6 +1,10 @@
 teedoc update history
 ========
 
+## ## 2021-09-18 v1.24.0
+
+* Plugin teedoc-plugin-ad-hint support config in doc config, not only site_config
+* (for developers)plugin support add js_vars variable
 
 ## 2021-09-18 v1.23.1
 

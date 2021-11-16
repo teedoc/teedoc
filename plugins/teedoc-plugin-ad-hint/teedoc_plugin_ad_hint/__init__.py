@@ -13,8 +13,10 @@ except Exception:
     pass
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
+from teedoc.utils import update_config
+import copy
 
-__version__ = "1.0.6"
+__version__ = "1.1.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-ad-hint"
@@ -58,9 +60,6 @@ class Plugin(Plugin_Base):
             "/static/js/add_hint/style.css": os.path.join(self.assets_abs_path, "style.css"),
             "/static/js/add_hint/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
-        vars = self.config
-        self.footer_js = self.update_file_var(self.footer_js, vars, self.temp_dir)
-        self.files_to_copy = self.footer_js
         self.html_footer_items = []
         for url in self.footer_js:
             if url.endswith(".css"):
@@ -68,7 +67,21 @@ class Plugin(Plugin_Base):
             else:
                 item = '<script src="{}"></script>'.format(url)
             self.html_footer_items.append(item)
+        vars = self.config
+        self.footer_js = self.update_file_var(self.footer_js, vars, self.temp_dir)
+        self.files_to_copy = self.footer_js
 
+    def on_parse_start(self, type_name, url, dirs, doc_config, new_config):
+        '''
+            call when start parse one doc
+            @type_name canbe "doc" "page" "blog"
+            #url doc url, e.g. /get_started/zh/
+            @doc_config config of doc, get from config.json or config.yaml
+            @new_config this plugin's config from doc_config
+        '''
+        # can update plugin config from site_config with new_config by teedoc.utils.update_config
+        self.new_config = copy.deepcopy(self.config)
+        self.new_config = update_config(self.new_config, new_config)
 
     def on_add_html_footer_js_items(self, type_name):
         return self.html_footer_items
@@ -77,6 +90,9 @@ class Plugin(Plugin_Base):
         res = self.files_to_copy
         self.files_to_copy = {}
         return res
+
+    def on_js_vars(self):
+        return self.new_config
 
 
 if __name__ == "__main__":

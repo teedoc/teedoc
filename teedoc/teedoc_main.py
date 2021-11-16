@@ -639,8 +639,13 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
             logo_alt = None
 
         # add navbar items from plugins
+        # and add js vars to page
         navbar_plugins = ""
+        js_vars = {}
         for plugin in plugins_objs:
+            vars = plugin.on_js_vars()
+            if vars:
+                js_vars[plugin.name] = vars
             _items = plugin.on_add_navbar_items()
             if not _items:
                 continue
@@ -649,6 +654,10 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
                 items_html += "<li>{}</li>".format(item)
             items_html += "</ul>"
             navbar_plugins += items_html
+        if js_vars:
+            html["js_vars"] = js_vars
+        else:
+            html["js_vars"] = {}
         html["navbar"] = (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins)
         htmls[file] = html
     return htmls
@@ -805,6 +814,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                     "header_items" : header_items_in,
                     "title" : html["title"],
                     "site_name" : site_config["site_name"],
+                    "js_vars": html["js_vars"],
                     # navbar
                     # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
                     "logo_url" : html["navbar"][0],
@@ -847,6 +857,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                     "header_items" : header_items_in,
                     "title" : html["title"],
                     "site_name" : site_config["site_name"],
+                    "js_vars": html["js_vars"],
                     # navbar
                     # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
                     "logo_url" : html["navbar"][0],

@@ -77,5 +77,14 @@
                 "target": "_blank"
             }
         ]
+    },
+    "plugins": {
+        "teedoc-plugin-ad-hint": {
+            "config": {
+                "type": "hint",
+                "label": "!!!",
+                "content": "<a target=\"_blank\" href=\"https://github.com/sipeed/Maix-Speech\">Maix-Speech</a> ASR lib now is available, welcome to use and star</br>"
+            }
+        }
     }
 }

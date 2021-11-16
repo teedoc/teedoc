@@ -106,7 +106,7 @@
             "config": {
                 "type": "hint",
                 "label": "!!!",
-                "content": "<a target=\"_blank\" href=\"https://github.com/sipeed/Maix-Speech\">Maix-Speech</a> ASR lib now is available, welcome to use and star</br><a href=\"https://github.com/sipeed/Maix-Speech\">Maix-Speech</a> 语音识别库 现在可以获取到啦！欢迎使用并 star",
+                "content": "",
                 "show_after_s": 432000
             }
         },

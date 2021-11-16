@@ -109,6 +109,13 @@
             "config": {
                 "search_hint": "搜索啊哈哈"
             }
+        },
+        "teedoc-plugin-ad-hint": {
+            "config": {
+                "type": "hint",
+                "label": "!!!",
+                "content": "<a href=\"https://github.com/sipeed/Maix-Speech\">Maix-Speech</a> 语音识别库 现在可以获取到啦！欢迎使用并 star"
+            }
         }
     },
     "show_source": "编辑页面"

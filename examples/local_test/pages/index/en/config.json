@@ -214,6 +214,13 @@
                 "other_docs_result_hint": "来自其它文档的结果",
                 "curr_doc_result_hint": "当前文档搜索结果"
             }
+        },
+        "teedoc-plugin-ad-hint": {
+            "config": {
+                "type": "hint",
+                "label": "!!!",
+                "content": "<a target=\"_blank\" href=\"https://github.com/sipeed/Maix-Speech\">Maix-Speech</a> ASR lib now is available, welcome to use and star</br>"
+            }
         }
     }
 }

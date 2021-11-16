@@ -18,6 +18,7 @@ class Plugin_Base:
                     (new multiprocess or threads)
                     on_new_process_init (only multiprocess)
                     on_parse_files / on_parse_pages / on_parse_blog
+                    on_js_vars
                     on_add_navbar_items
                     on_render_vars
                     on_new_process_del (only multiprocess)
@@ -253,6 +254,13 @@ class Plugin_Base:
             @return list items(navbar item, e.g. "<a href=></a>")
         '''
         return []
+
+    def on_js_vars(self):
+        '''
+            return the vars you wish store in head tag of html,
+            to use these vars in your js, e.g. `var conf=js_vars["teedoc-plugin-ad-hint"];`
+        '''
+        return {}
 
     def on_render_vars(self, vars : dict):
         '''
