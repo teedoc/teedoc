@@ -1943,6 +1943,9 @@ def main():
                         t2 = threading.Thread(target=server_loop, args=(host, log))
                         t2.setDaemon(True)
                         t2.start()
+                # clear file changed queue for rebuild
+                while not queue.empty():
+                    queue.get()
                 while 1:
                     try:
                         files_changed = queue.get(timeout=1)
