@@ -15,27 +15,32 @@ var conf=js_vars["teedoc-plugin-ad-hint"];
             $("#new_feature_content").slideUp();
         });
         if(conf.show_times > 0){ // only show some times and disapear
-            var times = show_time();
+            var date = new Date(conf.date).getTime()/1000;
+            var times = show_time(date_ts = date);
+            if(new Date().getTime()/1000 < date){ // always show if not reach date
+                times = -1;
+            }
             if(times == 0){
                 return;
             }
             if(times < 0){
                 times = conf.show_times;
             }
-            show_time(times - 1, conf.show_times);
+            show_time(times - 1, date);
         }
         $("#new_feature_content").slideDown();
     }
 })();
 
-function show_time(times = -1){
+function show_time(times = -1, date_ts=0){
     if(times < 0){
         var s = localStorage.getItem("hint_show_times");
         if(!s){
             times = -1;
         }else{
             var o = JSON.parse(s);
-            if(new Date().getTime()/1000 - o.ts > conf.show_after_s){
+            var now = new Date().getTime()/1000;
+            if((now - o.ts > conf.show_after_s) || !("update" in o) || (o.update < date_ts)){ // timeout or have new info
                 times = -1;
             }else{
                 times = o.times;
@@ -45,7 +50,9 @@ function show_time(times = -1){
     }else{
         localStorage.setItem("hint_show_times", JSON.stringify({
             "times": times,
-            "ts": new Date().getTime()/1000}));
+            "ts": new Date().getTime()/1000,
+            "update": date_ts
+        }));
     }
 }
 
