@@ -16,7 +16,7 @@ from teedoc import Fake_Logger
 from teedoc.utils import update_config
 import copy
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-ad-hint"
@@ -30,6 +30,7 @@ class Plugin(Plugin_Base):
         # "url": "#",
         "show_times": 2, # disapear after visit show_times pages, always show if <= 0
         "show_after_s": 60 * 60 * 24 * 5,  # show again after 5 days
+        "date": None,    # latest hint date, if changed, message will automatically show, if now datetime < date, hint always show
         "color": "#a0421d",
         "link_color": "#e53935",
         "link_bg_color": "#e6ae5c",
