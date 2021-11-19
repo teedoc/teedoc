@@ -59,6 +59,23 @@ def parse_metadata(cell):
                 meta[k] = v.strip()
     return have_metadata, meta
 
+def get_search_content(cells):
+    content = ""
+    for cell in cells:
+        if cell["cell_type"] == "markdown":
+            for item in cell["source"]:
+                content += item.strip()
+        elif cell["cell_type"] == "code":
+            for item in cell["source"]:
+                content += item.strip()
+            for item in cell["outputs"]:
+                if "text" in item:
+                    content += item["text"].strip()
+                if "text/plain" in item:
+                    content += item["text/plain"].strip()
+    return content
+
+
 def convert_ipynb_to_html(path):
     global html_exporter
     html = HTML()
@@ -72,6 +89,7 @@ def convert_ipynb_to_html(path):
         html.desc = html.metadata["desc"]
         html.tags = html.metadata["tags"].split(",") if html.metadata["tags"] else []
         body, resources = html_exporter.from_notebook_node(content)
+        html.raw = get_search_content(content.cells)
         html.body = body
     return html
 
