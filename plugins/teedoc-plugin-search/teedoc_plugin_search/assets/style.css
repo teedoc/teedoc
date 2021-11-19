@@ -217,7 +217,7 @@
 #search_curr_result  .searching {
     background-color: #ff9800;
 }
-.highlight {
+.search_highlight {
     background-color: #FFEB3B;
     border-radius: 0.2em;
     padding: 0.1em;

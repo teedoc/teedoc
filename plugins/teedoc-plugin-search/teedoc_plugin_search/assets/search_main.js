@@ -6,7 +6,7 @@ jQuery.fn.highlight = function (pat) {
             var pos = node.data.toUpperCase().indexOf(pat);
             if (pos >= 0) {
                 var spannode = document.createElement('span');
-                spannode.className = 'highlight';
+                spannode.className = 'search_highlight';
                 var middlebit = node.splitText(pos);
                 var endbit = middlebit.splitText(pat.length);
                 var middleclone = middlebit.cloneNode(true);
@@ -197,9 +197,14 @@ $(document).ready(function(){
     highlightKeywords();
 });
 
-function focusItems(id, contrainerId, offset=0){
-    console.log(contrainerId, id,  $("#"+id).offset().top, offset);
-    var elementTop = $("#"+id)[0].offsetTop - offset;
+function focusItems(id, contrainerId, offset=0, classname=null){
+    var elementTop = 0;
+    if(classname){
+        elementTop = $("."+classname)[0].offsetTop - offset;
+    }else{
+        elementTop = $("#"+id)[0].offsetTop - offset;
+    }
+    
     $("#"+contrainerId).animate({scrollTop: elementTop},500);
 }
 
@@ -220,6 +225,10 @@ function highlightKeywords(){
             console.log(highlight_keywords[i]);
             $('#content_body').highlight(highlight_keywords[i]);
         }
+        window.scrollTo({
+            top: $(".search_highlight")[0].offsetTop, 
+            behavior: "smooth" 
+        });
     }
 }
 function getQueryVariable(variable)
@@ -262,11 +271,11 @@ function search(keywords, content, show_length = 15){
         var len = idxs[i]['len'];
 
         if(idx_last >= 0 && (idx - idx_last -len_last) < show_length){ // last keyword too close
-            find_strs += content.substr(idx_last + len_last, idx - (idx_last + len_last)) + '<code class="highlight">'+ content.substr(idx, len) +'</code>'
+            find_strs += content.substr(idx_last + len_last, idx - (idx_last + len_last)) + '<code class="search_highlight">'+ content.substr(idx, len) +'</code>'
         }else{
             var start_idx = (idx - show_length < 0) ? 0 : (idx - show_length);
             find_strs += '...' + content.substr(start_idx,  idx - start_idx) +
-                '<code class="highlight">' + content.substr(idx,  len) + 
+                '<code class="search_highlight">' + content.substr(idx,  len) + 
                 '</code>';
         }
         var idx_next = -1;
