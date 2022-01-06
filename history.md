@@ -1,7 +1,21 @@
 teedoc update history
 ========
 
-## ## 2021-09-18 v1.24.0
+## 2022-01-06 v1.25.0
+
+* Plugin teedoc-plugin-theme-default support layout template `redirect.html`
+e.g. If we want `/maixpy` and `/maixpy.html` redirect to `/soft/maixpy.html`, just create a `maixpy.md` file add
+```markdown
+---
+layout: redirect
+redirect_url: /soft/maixpy/zh/
+---
+```
+
+* Change http serve from http.server to flask to become more compatible for more devices
+
+
+## 2021-09-18 v1.24.0
 
 * Plugin teedoc-plugin-ad-hint support config in doc config, not only site_config
 * (for developers)plugin support add js_vars variable

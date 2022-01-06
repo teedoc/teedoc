@@ -1,26 +1,45 @@
 
-from http.server import HTTPServer
-import sys
+import os
+from flask import Flask, send_file, Response
+import logging
 
-class HTTP_Server(HTTPServer):
-    def __init__(self, host, handler):
-        super(HTTPServer, self).__init__(host, handler)
 
-    def handle_error(self, request, client_address):
-        """Handle an error gracefully.  May be overridden.
+class HTTP_Server:
+    def __init__(self, host, port, serve_dir):
+        self.app = Flask("teedoc", static_folder=os.path.join(serve_dir, "static"))
+        self.host = host
+        self.port = port
+        self.root = serve_dir
+        self.app.add_url_rule("/", view_func=self.view_root)
+        self.app.add_url_rule("/<path:path>", view_func=self.view_root)
+        # disable logging
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
+        self.app.logger.disabled = True
+        log.disabled = True
 
-        The default is to print a traceback and continue.
 
-        """
-        err_type = sys.exc_info()[0]
-        if err_type == ConnectionAbortedError or err_type == BrokenPipeError or err_type == ConnectionResetError:
-            return
-        print('-'*40, file=sys.stderr)
-        print('Exception occurred during processing of request from',
-            client_address, file=sys.stderr)
-        import traceback
-        traceback.print_exc()
-        print('-'*40, file=sys.stderr)
+    def view_root(self, path="/"):
+        if path.endswith("/"):
+            path = f'{path}index.html'
+        if path.startswith("/"):
+            path = path[1:]
+        path = os.path.abspath(os.path.join(self.root, path)).replace("\\", "/")
+        if not path.startswith(self.root):
+            return Response(status=403)
+        if not os.path.exists(path):
+            if not path.endswith(".html"):
+                path = path + ".html"
+            if not os.path.exists(path):
+                page_404 = os.path.join(self.root, "404.html")
+                content_404 = ""
+                if os.path.exists(page_404):
+                    with open(page_404, encoding="utf-8") as f:
+                        content_404 = f.read()
+                return Response(content_404, status=404)
+        return send_file(path)
 
+    def run(self):
+        self.app.run(host=self.host, port=self.port, debug=False)
 
 

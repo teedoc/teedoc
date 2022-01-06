@@ -66,26 +66,6 @@ def split_list(obj, n):
     for i in range(0, len(obj), dist):
         yield obj[i:i+dist]
 
-def get_content_type_by_path(file_path):
-    ext = os.path.splitext(file_path)[1][1:].lower()
-    content_type = "text/plain"
-    if ext == "svg":
-        content_type = "image/svg+xml"
-    elif ext == "html":
-        content_type = "text/html"
-    elif ext == "jpeg" or ext == "jpg" or ext == "png":
-        content_type = "image/{}".format(ext)
-    elif ext == "css":
-        content_type = "text/css"
-    elif ext == "js":
-        content_type = "application/javascript"
-    elif ext == "xml":
-        content_type = "text/xml"
-    elif ext == "json":
-        content_type = "application/json"
-
-    return content_type
-
 def parse_site_config(doc_src_path):
     site_config_path = os.path.join(doc_src_path, "site_config.json")
     def check_site_config(config):
@@ -1867,9 +1847,6 @@ def main():
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
             elif args.command == "serve":
-                from http.server import SimpleHTTPRequestHandler
-                from http import HTTPStatus
-
                 if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log,
                             preview_mode=True, max_threads_num=max_threads_num, multiprocess=args.multiprocess):
                     return 1
@@ -1878,54 +1855,6 @@ def main():
 
                 host = (args.host, args.port)
                 
-                class On_Resquest(SimpleHTTPRequestHandler):
-
-                    def __init__(self, *args, **kwargs):
-                        super().__init__(*args, directory=serve_dir, **kwargs)
-
-                    def do_GET(self):
-                        file_path = self.path[1:].split("?")[0]
-                        if not file_path:
-                            file_path = "index.html"
-                        file_path = os.path.join(serve_dir, file_path)
-                        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-                            file_path = os.path.join(file_path, "index.html")
-                        if not os.path.exists(file_path):
-                            file_path = os.path.join(out_dir, "404.html")
-                            self.send_response(404)
-                        else:
-                            self.send_response(200)
-                        if not os.path.exists(file_path):
-                            content = b"page not found"
-                            content_type = "text/html"
-                        else:
-                            with open(file_path, "rb") as f:
-                                content = f.read()
-                            content_type = get_content_type_by_path(file_path)
-                        self.send_header('Content-type', content_type)
-                        self.end_headers()
-                        self.wfile.write(content)
-                        # print(self.address_string())
-                        # print(self.request)
-
-                    def do_HEAD(self):
-                        f = self.send_head()
-                        if f:
-                            f.close()
-                    
-                    def log_request(self, code='-', size='-'):
-                        if isinstance(code, HTTPStatus):
-                            code = code.value
-                        if code == 304 or code == 200 or code == 301:
-                            return
-                        self.log_message('"%s" %s %s',
-                                        self.requestline, str(code), str(size))
-                                    
-                    def log_message(self, format, *args):
-                        sys.stderr.write("%s - - [%s] %s\n" %
-                                        (self.address_string(),
-                                        self.log_date_time_string(),
-                                        format%args))
                 if not t:
                     queue = Queue(maxsize=50)
                     delay_time = (int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3) if int(args.delay) < 0 else int(args.delay)
@@ -1933,12 +1862,13 @@ def main():
                     t.setDaemon(True)
                     t.start()
                     def server_loop(host, log):
-                        server = HTTP_Server(host, On_Resquest)
+                        server = HTTP_Server(host[0], host[1], serve_dir)
                         log.i("root dir: {}".format(serve_dir))
                         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
                         if host[0] == "0.0.0.0":
                             log.i("You can visit http://127.0.0.1:2333{}".format(site_config["site_root_url"]))
-                        server.serve_forever()
+                        server.run()
+
                     if not t2:
                         t2 = threading.Thread(target=server_loop, args=(host, log))
                         t2.setDaemon(True)

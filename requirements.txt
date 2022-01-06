@@ -4,4 +4,5 @@ watchdog
 nbconvert
 PyYAML
 jinja2
+flask >= 2.0.2
 babel

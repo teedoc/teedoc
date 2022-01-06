@@ -1,0 +1,17 @@
+
+{% extends "page_base.html" %}
+
+{% block meta %} 
+    <meta http-equiv="refresh" content="1;url={{ metadata.redirect_url }}">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="teedoc">
+    <meta name="theme" content="teedoc-plugin-theme-default">
+{% endblock %}
+
+{% block head_end %}
+    <script>
+        // faster than meta, and reserve meta maybe spider need it
+        window.location.href = "{{ metadata.redirect_url }}"
+    </script>
+{% endblock %}

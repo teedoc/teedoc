@@ -23,6 +23,7 @@ install_requires = [ "coloredlogs",
                      "watchdog",
                      "PyYaml",
                      "jinja2",
+                     "flask >= 2.0.2",
                      "babel"
                    ]
 packages = find_packages()
