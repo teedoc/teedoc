@@ -1,8 +1,10 @@
 import os, sys, time
 try:
     from .html_renderer import Renderer
+    from . import utils
 except Exception:
     from html_renderer import Renderer
+    import utils
 import subprocess
 import shutil
 import re
@@ -219,7 +221,12 @@ def check_udpate_routes(site_config, doc_root, log):
             log.e("dir {} not have config file!!!".format(dir_abs))
             return "fatal", rel_dir
         return dir_abs, rel_dir
-
+    # only run once
+    temp = site_config["route"]["docs"]
+    for k in temp:
+        if type(temp[k]) == list:
+            return True
+        break
     # "route" key
     types = [["docs", True], ["pages", True], ["assets", False], ["blog", True]]
     for type_name, check_config in types:
@@ -314,25 +321,6 @@ def update_navbar_language(navbar, nav_lang_items):
     navbar["items"] = new_items
     return navbar
 
-def get_url_by_file_rel(file_path, doc_url = "", rel = False):
-    '''
-        @rel relative url
-    '''
-    url = os.path.splitext(file_path)[0]
-    tmp = os.path.split(url)
-    if tmp[1].lower() == "readme":
-        url = "{}/index".format(tmp[0])
-        if url.startswith("/"):
-            url = url[1:]
-    url = url + ".html"
-    if rel:
-        return url
-    if(doc_url.endswith("/")):
-        url = "{}{}".format(doc_url, url)
-    else:
-        url = "{}/{}".format(doc_url, url)
-    return url
-
 def get_sidebar_list(sidebar, doc_path, doc_url, log, redirect_err_file = False, redirct_url=f"no_translate.html", ref_doc_url="", add_file_item = True):
     '''
         @return {
@@ -355,10 +343,10 @@ def get_sidebar_list(sidebar, doc_path, doc_url, log, redirect_err_file = False,
         items = OrderedDict()
         if "label" in config and "file" in config and config["file"] != None and config["file"] != "null":
             file_abs = os.path.join(doc_path, config["file"]).replace("\\", "/")
-            url = get_url_by_file_rel(config["file"], doc_url)
+            url = utils.get_url_by_file_rel(config["file"], doc_url)
             if not os.path.exists(file_abs):
                 if redirect_err_file:
-                    url_rel = get_url_by_file_rel(config["file"], rel = True)
+                    url_rel = utils.get_url_by_file_rel(config["file"], rel = True)
                     url = f'{redirct_url}?ref={ref_doc_url}{url_rel}&from={url}'
                 else:
                     log.w("file {} not found, but set in {} sidebar config file, maybe letter case wrong?".format(file_abs, doc_path))
@@ -422,10 +410,10 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html,
         if "label" in config:
             if "file" in config and config["file"] != None and config["file"] != "null":
                 file_abs = os.path.join(doc_path, config["file"]).replace("\\", "/")
-                url = get_url_by_file_rel(config["file"], doc_url)
+                url = utils.get_url_by_file_rel(config["file"], doc_url)
                 if not os.path.exists(file_abs):
                     if redirect_err_file:
-                        url_rel = get_url_by_file_rel(config["file"], rel = True)
+                        url_rel = utils.get_url_by_file_rel(config["file"], rel = True)
                         url = f'{redirct_url}?ref={ref_doc_url}{url_rel}&from={url}'
                 if config["file"].startswith("./"):
                     active = doc_path_relative.lower() == config["file"][2:].lower()
@@ -600,7 +588,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
         if not html:
             continue
         # get file file url
-        url = get_url_by_file_rel(file.replace(doc_path, "")[1:], doc_url)
+        url = utils.get_url_by_file_rel(file.replace(doc_path, "")[1:], doc_url)
         navbar_main, navbar_options = generate_lef_right_items(navbar, doc_url, url)
         home_url = navbar["home_url"]
         navbar_title = navbar["title"]
@@ -915,7 +903,7 @@ def add_url_item(htmls, url, dir, site_root_url):
         file_path_rel = file_path.replace(dir, "")
         if file_path_rel.startswith("/"):
             file_path_rel = file_path_rel[1:]
-        url_path = get_url_by_file_rel(file_path_rel, url_path)
+        url_path = utils.get_url_by_file_rel(file_path_rel, url_path)
         htmls_valid[url_path] = htmls[file_path]
         htmls_valid[url_path]["file_path"] = file_path
     return htmls_valid
@@ -1379,7 +1367,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         plugin.on_parse_end()
     return True, htmls
 
-def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None, preview_mode = False, max_threads_num = 1, multiprocess=True):
+def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None,
+             preview_mode = False, max_threads_num = 1, multiprocess=True, parse_pages=False, copy_assets=True):
     '''
         "route": {
             "docs": {
@@ -1395,129 +1384,128 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             "/blog": "blog"
         }
     '''
-    # get html template i18n dir
-    html_templates_i18n_dirs = get_templates_i18n_dirs(site_config, doc_src_path, log)
     # check routes
     if not update_files:
         if not check_udpate_routes(site_config, doc_src_path, log):
             return False
-    # parse all docs
-    if "docs" in site_config["route"]:
-        routes = site_config["route"]["docs"]
-        ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                    sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                    html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
-        if not ok:
-            return False
+    if parse_pages:
+        # get html template i18n dir
+        html_templates_i18n_dirs = get_templates_i18n_dirs(site_config, doc_src_path, log)
+        # parse all docs
+        if "docs" in site_config["route"]:
+            routes = site_config["route"]["docs"]
+            ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                        sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
+            if not ok:
+                return False
+        # parse all pages
+        if "pages" in site_config["route"]:
+            routes = site_config["route"]["pages"]
+            ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                        sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
+            if not ok:
+                return False
+        # parse all blogs
+        htmls_blog = None
+        if "blog" in site_config["route"]:
+            routes = site_config["route"]["blog"]
+            ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                        sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
+            if not ok:
+                return False
+        # parse all translate docs
+        if "translate" in site_config:
+            if "docs" in site_config["translate"]:
+                docs_translates = site_config["translate"]["docs"]
+                for src in docs_translates:
+                    routes = {}
+                    for dst in docs_translates[src]:
+                        routes[dst["url"]] = dst["src"]
+                    src_dir = site_config["route"]["docs"][src][1]
+                    sidebar_dict = get_sidebar(src_dir, config_template_dir) # must be success
+                    sidebar_list = get_sidebar_list(sidebar_dict, src_dir, src, log)
+                    #    pase mannually translated files, and change links of sidebar items that no mannually translated file
+                    ok, htmls_files2 = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                                sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                                html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
+                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list,
+                                )
+                    #    create
+                    htmls_files.update(htmls_files2)
+                    if not ok:
+                        return False
+            if "pages" in site_config["translate"]:
+                docs_translates = site_config["translate"]["pages"]
+                for src in docs_translates:
+                    routes = {}
+                    for dst in docs_translates[src]:
+                        routes[dst["url"]] = dst["src"]
+                    src_dir = site_config["route"]["pages"][src][1]
+                    #    pase mannually translated files, and change links of sidebar items that no mannually translated file
+                    ok, htmls_pages2 = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                                sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
+                                html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
+                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir,
+                                )
+                    #    create
+                    htmls_pages.update(htmls_pages2)
+                    if not ok:
+                        return False
+        # generate sitemap.xml
+        if not update_files: # only generate when build all
+            sitemap_out_path = os.path.join(out_dir, "sitemap.xml")
+            generate_sitemap(htmls_files, sitemap_out_path, site_config["site_domain"], site_config["site_protocol"], log)
 
-    # parse all pages
-    if "pages" in site_config["route"]:
-        routes = site_config["route"]["pages"]
-        ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                    sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                    html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
-        if not ok:
-            return False
-    # parse all blogs
-    htmls_blog = None
-    if "blog" in site_config["route"]:
-        routes = site_config["route"]["blog"]
-        ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                    sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                    html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
-        if not ok:
-            return False
-
-    # parse all translate docs
-    if "translate" in site_config:
-        if "docs" in site_config["translate"]:
-            docs_translates = site_config["translate"]["docs"]
-            for src in docs_translates:
-                routes = {}
-                for dst in docs_translates[src]:
-                    routes[dst["url"]] = dst["src"]
-                src_dir = site_config["route"]["docs"][src][1]
-                sidebar_dict = get_sidebar(src_dir, config_template_dir) # must be success
-                sidebar_list = get_sidebar_list(sidebar_dict, src_dir, src, log)
-                #    pase mannually translated files, and change links of sidebar items that no mannually translated file
-                ok, htmls_files2 = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                            sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                            html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
-                            translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list,
-                            )
-                #    create
-                htmls_files.update(htmls_files2)
-                if not ok:
-                    return False
-        if "pages" in site_config["translate"]:
-            docs_translates = site_config["translate"]["pages"]
-            for src in docs_translates:
-                routes = {}
-                for dst in docs_translates[src]:
-                    routes[dst["url"]] = dst["src"]
-                src_dir = site_config["route"]["pages"][src][1]
-                #    pase mannually translated files, and change links of sidebar items that no mannually translated file
-                ok, htmls_pages2 = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
-                            sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                            html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
-                            translate=True, ref_doc_url=src, ref_doc_dir=src_dir,
-                            )
-                #    create
-                htmls_pages.update(htmls_pages2)
-                if not ok:
-                    return False
-
-    # generate sitemap.xml
-    if not update_files: # only generate when build all
-        sitemap_out_path = os.path.join(out_dir, "sitemap.xml")
-        generate_sitemap(htmls_files, sitemap_out_path, site_config["site_domain"], site_config["site_protocol"], log)
-
-    # send all htmls to plugins
-    for plugin in plugins_objs:
-        ok = plugin.on_htmls(htmls_files = htmls_files, htmls_pages = htmls_pages, htmls_blog = htmls_blog)
-        if not ok:
-            return False
+        # send all htmls to plugins
+        for plugin in plugins_objs:
+            ok = plugin.on_htmls(htmls_files = htmls_files, htmls_pages = htmls_pages, htmls_blog = htmls_blog)
+            if not ok:
+                return False
 
     # copy assets
-    if not update_files:
-        log.i("copy assets files")
-    assets = site_config["route"]["assets"]
-    for target_dir, from_dir in assets.items(): 
-        in_path  = from_dir[1]
-        if target_dir.startswith("/"):
-            target_dir = target_dir[1:]
-        out_path = os.path.join(out_dir, target_dir).replace("\\", "/")
-        if update_files:
-            for file in update_files:
-                if file.startswith(in_path):
-                    log.i("update assets file: {}".format(file))
-                    in_path = file.replace(in_path+"/", "")
-                    out_path = os.path.join(out_path, in_path)
-                    log.i("copy", file, out_path)
-                    if not copy_file(file, out_path):
-                        log.w("copy {} to {} fail".format(file, out_path))
-        else:
-            if not copy_dir(in_path, out_path):
-                return False
-    # copy files from pulgins
-    if not update_files:
-        log.i("copy assets files of plugins")
-        for plugin in plugins_objs:
-            files = plugin.on_copy_files()
-            for dst,src in files.items():
-                if dst.startswith("/"):
-                    dst = dst[1:]
-                dst = os.path.join(out_dir, dst)
-                if not os.path.isabs(src):
-                    log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
-                if not copy_file(src, dst):
-                    log.e("copy plugin <{}> file {} to {} error".format(plugin.name, src, dst))
+    if copy_assets:
+        if not update_files:
+            log.i("copy assets files")
+        assets = site_config["route"]["assets"]
+        for target_dir, from_dir in assets.items(): 
+            in_path  = from_dir[1]
+            if target_dir.startswith("/"):
+                target_dir = target_dir[1:]
+            out_path = os.path.join(out_dir, target_dir).replace("\\", "/")
+            if update_files:
+                for file in update_files:
+                    if file.startswith(in_path):
+                        log.i("update assets file: {}".format(file))
+                        in_path = file.replace(in_path+"/", "")
+                        out_path = os.path.join(out_path, in_path)
+                        log.i("copy", file, out_path)
+                        if not copy_file(file, out_path):
+                            log.w("copy {} to {} fail".format(file, out_path))
+            else:
+                if not copy_dir(in_path, out_path):
                     return False
-        # preview mode js
-        if preview_mode:
-            js_out_dir = os.path.join(out_dir, "static/js")
-            curr_dir_path = os.path.dirname(os.path.abspath(__file__))
-            copy_file(os.path.join(curr_dir_path, "static", "js", "live.js"), os.path.join(js_out_dir, "live.js"))
+        # copy files from pulgins
+        if not update_files:
+            log.i("copy assets files of plugins")
+            for plugin in plugins_objs:
+                files = plugin.on_copy_files()
+                for dst,src in files.items():
+                    if dst.startswith("/"):
+                        dst = dst[1:]
+                    dst = os.path.join(out_dir, dst)
+                    if not os.path.isabs(src):
+                        log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
+                    if not copy_file(src, dst):
+                        log.e("copy plugin <{}> file {} to {} error".format(plugin.name, src, dst))
+                        return False
+            # preview mode js
+            if preview_mode:
+                js_out_dir = os.path.join(out_dir, "static/js")
+                curr_dir_path = os.path.dirname(os.path.abspath(__file__))
+                copy_file(os.path.join(curr_dir_path, "static", "js", "live.js"), os.path.join(js_out_dir, "live.js"))
     return True
 
 def files_watch(doc_src_path, log, delay_time, queue):
@@ -1643,6 +1631,7 @@ def main():
     parser.add_argument("--host", type=str, default="0.0.0.0", help="host address for serve command")
     parser.add_argument("--port", type=int, default=2333, help="port for serve command")
     parser.add_argument("-m", "--multiprocess", action="store_true", default=platform.system().lower() != 'windows', help="use multiple process instead of threads, default mutiple process in unix like systems" )
+    parser.add_argument("--fast", action="store_true", default=False, help="fast build mode for serve command")
     parser.add_argument("--template", type=str, default=None, help="for init command, based on which template to create project", choices=list(templates.keys()))
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
@@ -1738,6 +1727,7 @@ def main():
         return 0
     t = None
     t2 = None
+    t_build = None
     log.i(f"teedoc version: {__version__}")
     while 1: # for rebuild all files
         plugins_objs = []
@@ -1847,14 +1837,42 @@ def main():
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
             elif args.command == "serve":
+                if args.fast:
+                    log.w("using fast mode, will build when visit page, blog and search is not supported in this mode")
+                build_lock = threading.Lock()
+                # if fast mode, only copy assets
                 if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log,
-                            preview_mode=True, max_threads_num=max_threads_num, multiprocess=args.multiprocess):
+                            preview_mode = True, max_threads_num = max_threads_num,
+                            multiprocess = args.multiprocess,
+                            parse_pages = not args.fast,
+                            copy_assets = True):
                     return 1
+                def build_all():
+                    build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log,
+                            preview_mode = True, max_threads_num = max_threads_num,
+                            multiprocess = args.multiprocess,
+                            parse_pages = True,
+                            copy_assets = False)
+                # continue to build all pages
+                if args.fast and not t_build:
+                    t_build = threading.Thread(target=build_all)
+                    t_build.setDaemon(True)
+                    t_build.start()
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
 
                 host = (args.host, args.port)
                 
+                def on_visit(url):
+                    if args.fast:
+                        path = utils.get_file_path_by_url(url, doc_src_path, site_config["route"], site_config["translate"])
+                        if path:
+                            log.i(f"visit {url}, update {path}")
+                            build_lock.acquire()
+                            queue.put([path])
+                            build_lock.acquire() # block until build page complete
+                            build_lock.release()
+
                 if not t:
                     queue = Queue(maxsize=50)
                     delay_time = (int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3) if int(args.delay) < 0 else int(args.delay)
@@ -1862,7 +1880,7 @@ def main():
                     t.setDaemon(True)
                     t.start()
                     def server_loop(host, log):
-                        server = HTTP_Server(host[0], host[1], serve_dir)
+                        server = HTTP_Server(host[0], host[1], serve_dir, visit_callback=on_visit)
                         log.i("root dir: {}".format(serve_dir))
                         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
                         if host[0] == "0.0.0.0":
@@ -1902,7 +1920,8 @@ def main():
                     if files:
                         if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True, max_threads_num=max_threads_num):
                             return 1
-                        log.i("rebuild ok")
+                        log.i("rebuild ok\n")
+                    build_lock.release()
                 t.join()
                 t2.join()
             else:

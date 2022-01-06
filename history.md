@@ -1,6 +1,10 @@
 teedoc update history
 ========
 
+## 2022-01-06 v1.26.0
+
+* Add fast mode for serve command, if use `teedoc serve --fast`, it will only copy assets first, no build pages, then you can visit page, the page will build when you visit this page. And build all pages task will work in background too.
+
 ## 2022-01-06 v1.25.0
 
 * Plugin teedoc-plugin-theme-default support layout template `redirect.html`

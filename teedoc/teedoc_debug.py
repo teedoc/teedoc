@@ -9,6 +9,7 @@ sys.argv.append("--thread")
 sys.argv.append("1")
 sys.argv.append("-d")
 sys.argv.append(site_path)
+# sys.argv.append("--fast")
 sys.argv.append("serve")
 
 main()

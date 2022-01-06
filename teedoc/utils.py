@@ -1,4 +1,4 @@
-import re
+import re, os
 from collections import OrderedDict
 
 
@@ -204,6 +204,85 @@ def check_sidebar_diff(a, b, urla, urlb, dira, dirb, doc_root, log):
                 w = True
         if w:
             log.w(f'doc <{dira.replace(doc_root, "")}> and translate <{dirb.replace(doc_root, "")}> sidebar item [{itema["file"]}-"{itema["curr"][1]}"] different')
+
+
+def get_url_by_file_rel(file_path, doc_url = "", rel = False):
+    '''
+        @rel relative url
+    '''
+    url = os.path.splitext(file_path)[0]
+    tmp = os.path.split(url)
+    if tmp[1].lower() == "readme":
+        url = "{}/index".format(tmp[0])
+        if url.startswith("/"):
+            url = url[1:]
+    url = url + ".html"
+    if rel:
+        return url
+    if(doc_url.endswith("/")):
+        url = "{}{}".format(doc_url, url)
+    else:
+        url = "{}/{}".format(doc_url, url)
+    return url
+
+def get_file_path_by_url(url, doc_root, route, translate):
+    if not url.startswith("/"):
+        url = "/" + url
+    map = {}
+    for k, v in route.items():
+        if type(v) != dict:
+            raise Exception(f"site_config error, route {k}'s value should be dict")
+        for _url, _path in v.items():
+            map[_url] = _path
+    for k, v in translate.items():
+        for _url, trans in v.items():
+            for item in trans:
+                map[item["url"]] = item["src"]
+    def find_url_dir(url, map):
+        # /, /, /soft/maixpy3/, /soft/maixpy3/api/
+        print(url)
+        url_dir = "/".join(url[:-1].split("/")[:-1]) + "/" # map: /, /, /soft/maixpy3/, /soft/maixpy3/
+        if url_dir in map:
+            return url_dir
+        if url_dir == "/":
+            raise Exception("site_config route no url '/' item")
+        url_dir = find_url_dir(url_dir, map)
+        return url_dir
+    
+    def get_src_file_path(base_name, dir):
+        suportted_ext = ["md", "ipynb"] # TODO: this should be update by plugins
+        path = None
+        for ext in suportted_ext:
+            _path = os.path.join(dir, base_name) + "." + ext
+            if os.path.exists(_path):
+                path = _path
+                break
+        if not path: # find other ext files with same file name
+            file_name = os.path.basename(base_name)
+            for name in os.listdir(os.path.dirname(os.path.join(dir, base_name))):
+                if name.lower().startswith(file_name.lower()):
+                    base_name_dir = os.path.dirname(base_name)
+                    if base_name_dir:
+                        base_name = base_name_dir + "/" + name
+                    else:
+                        base_name = name
+                    path = os.path.join(dir, base_name)
+                    break
+        if path:
+            path = path.replace("\\", "/")
+        return path
+
+    if url in map: # /, /maixpy/, /soft/maixpy3/
+        path = get_src_file_path("index", map[url][1])
+        if not path:
+            path = get_src_file_path("readme", map[url][1])
+    else: # /index.html, /maixpy, /soft/maixpy3/start.html, /soft/maixpy3/api/start.html
+        url_dir = find_url_dir(url, map)
+        dir = map[url_dir][1]
+        base_name = url.replace(url_dir, "") # index.html, maixpy, start.html, api/start.html
+        base_name = os.path.splitext(base_name)[0]
+        path = get_src_file_path(base_name, dir)
+    return path
 
 
 if __name__ == "__main__":
