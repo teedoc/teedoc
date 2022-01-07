@@ -1921,7 +1921,8 @@ def main():
                         if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True, max_threads_num=max_threads_num):
                             return 1
                         log.i("rebuild ok\n")
-                    build_lock.release()
+                    if build_lock.locked():
+                        build_lock.release()
                 t.join()
                 t2.join()
             else:
