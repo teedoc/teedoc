@@ -1368,7 +1368,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
     return True, htmls
 
 def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None,
-             preview_mode = False, max_threads_num = 1, multiprocess=True, parse_pages=False, copy_assets=True):
+             preview_mode = False, max_threads_num = 1, multiprocess=True, parse_pages=True, copy_assets=True):
     '''
         "route": {
             "docs": {

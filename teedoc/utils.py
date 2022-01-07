@@ -240,7 +240,6 @@ def get_file_path_by_url(url, doc_root, route, translate):
                 map[item["url"]] = item["src"]
     def find_url_dir(url, map):
         # /, /, /soft/maixpy3/, /soft/maixpy3/api/
-        print(url)
         url_dir = "/".join(url[:-1].split("/")[:-1]) + "/" # map: /, /, /soft/maixpy3/, /soft/maixpy3/
         if url_dir in map:
             return url_dir
