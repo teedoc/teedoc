@@ -1884,7 +1884,7 @@ def main():
                         log.i("root dir: {}".format(serve_dir))
                         log.i("Starting server at {}:{} ....".format(host[0], host[1]))
                         if host[0] == "0.0.0.0":
-                            log.i("You can visit http://127.0.0.1:2333{}".format(site_config["site_root_url"]))
+                            log.i("You can visit http://127.0.0.1:{}{}".format(host[1], site_config["site_root_url"]))
                         server.run()
 
                     if not t2:
