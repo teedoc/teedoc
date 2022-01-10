@@ -7,6 +7,13 @@ class: md_page
 layout: home.html
 ---
 
+[neucrack.com](http://neucrack.com)
+[this page](./)
+[en page](/en/)
+[community page](./community.md)
+[community page](community.md)
+
+https://neucrack.com/p/286
 
 <h1 style="width: 100%; text-align: center;">欢迎使用 teedoc</h1>
 
