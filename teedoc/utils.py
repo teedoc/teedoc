@@ -6,8 +6,10 @@ def sidebar_summary2dict(content):
     '''
         convert gitbook summary.md to dict
     '''
-    def parse_line(line):
+    def parse_line(line, start=""):
         match = re.findall(r"\[(.*)\]\((.*)\)", line, flags=re.M)
+        if not match:
+            return line, "#", "url"
         label = match[0][0].strip()
         url = match[0][1].strip()
         if url.endswith(".md") or url.endswith(".ipynb"):
@@ -31,30 +33,30 @@ def sidebar_summary2dict(content):
         if line.strip() == "":
             continue
         if level_mark is None:
-            if line.startswith("\t* "):
+            if line.startswith("\t* ") or line.startswith("\t- "):
                 level_mark = "\t"
-            elif line.startswith(" * "):
+            elif line.startswith(" * ") or line.startswith(" - "):
                 level_mark = " "
-            elif line.startswith("  * "):
+            elif line.startswith("  * ") or line.startswith("  - "):
                 level_mark = "  "
-            elif line.startswith("    * "):
+            elif line.startswith("    * ") or line.startswith("    - "):
                 level_mark = "    "
             if not level_mark is None:
-                print("level symbol--{}--".format(level_mark))
+                print("level symbol:=={}==".format(level_mark))
         if line.startswith("## "): # label
             item = {
                 "label": line.strip()[3:]
             }
             sidebar_items.append(item)
-        elif line.startswith("* "): # link
-            label, url, url_type = parse_line(line)
+        elif line.startswith("* ") or line.startswith("- "): # link
+            label, url, url_type = parse_line(line[2:])
             item = {
                 "label": label
             }
             item[url_type] = url
             sidebar_items.append(item)
-        elif line.startswith("{}* ".format(level_mark)): # level 2 label
-            label, url, url_type = parse_line(line)
+        elif line.startswith("{}* ".format(level_mark)) or line.startswith("{}- ".format(level_mark)): # level 2 label
+            label, url, url_type = parse_line(line[len(level_mark)+2:])
             item = {
                 "label": label,
                 url_type: url
@@ -62,8 +64,8 @@ def sidebar_summary2dict(content):
             if not "items" in sidebar_items[-1]:
                 sidebar_items[-1]["items"] = []
             sidebar_items[-1]["items"].append(item)
-        elif line.startswith("{}{}* ".format(level_mark, level_mark)): # level 3 label
-            label, url, url_type = parse_line(line)
+        elif line.startswith("{}{}* ".format(level_mark, level_mark)) or line.startswith("{}{}- ".format(level_mark, level_mark)): # level 3 label
+            label, url, url_type = parse_line(line[len(level_mark) * 2 + 2:])
             item = {
                 "label": label,
                 url_type: url
@@ -71,8 +73,8 @@ def sidebar_summary2dict(content):
             if not "items" in sidebar_items[-1]["items"][-1]:
                 sidebar_items[-1]["items"][-1]["items"] = []
             sidebar_items[-1]["items"][-1]["items"].append(item)
-        elif line.startswith("{}{}{}* ".format(level_mark, level_mark, level_mark)): # level 4 label
-            label, url, url_type = parse_line(line)
+        elif line.startswith("{}{}{}* ".format(level_mark, level_mark, level_mark)) or line.startswith("{}{}{}- ".format(level_mark, level_mark, level_mark)): # level 4 label
+            label, url, url_type = parse_line(line[len(level_mark) * 3 + 2:])
             item = {
                 "label": label,
                 url_type: url
@@ -80,8 +82,8 @@ def sidebar_summary2dict(content):
             if not "items" in sidebar_items[-1]["items"][-1]["items"][-1]:
                 sidebar_items[-1]["items"][-1]["items"][-1]["items"] = []
             sidebar_items[-1]["items"][-1]["items"][-1]["items"].append(item)
-        elif line.startswith("{}{}{}{}* ".format(level_mark, level_mark, level_mark, level_mark)): # level 5 label
-            label, url, url_type = parse_line(line)
+        elif line.startswith("{}{}{}{}* ".format(level_mark, level_mark, level_mark, level_mark)) or line.startswith("{}{}{}{}- ".format(level_mark, level_mark, level_mark, level_mark)): # level 5 label
+            label, url, url_type = parse_line(line[len(level_mark) * 4 + 2:])
             item = {
                 "label": label,
                 url_type: url
