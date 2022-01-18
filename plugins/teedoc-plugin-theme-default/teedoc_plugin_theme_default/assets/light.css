@@ -593,19 +593,19 @@ html[lang^=zh].heading_no_counter #toc a.node-name--H2:before {
 
 /* add numbers for titles */
 #article_content {
-    counter-reset: h2section h3section h4section;
+    /* counter-reset: h2section h3section h4section; */
     min-height: 50vh;
     word-break: break-word;
 }
 #article_content h1 {
-    counter-reset: h2section h3section h4section;
+    /* counter-reset: h2section h3section h4section; */
     line-height: 1.3em;
 }
 #article_content h2 {
-    counter-reset: h3section h4section;
+    /* counter-reset: h3section h4section; */
     line-height: 1.3em;
 }
-#article_content h3 {
+/* #article_content h3 {
     counter-reset: h4section;
 }
 #article_content h2:before
@@ -649,7 +649,7 @@ html[lang^=zh].heading_no_counter #article_content h3:before {
 }
 html[lang^=zh].heading_no_counter #article_content h4:before {
     content: "";
-}
+} */
 /* add numbers for titles end*/
 
 #article_head {

@@ -19,8 +19,8 @@ items:
     file: syntax/syntax_markdown.md
 -   label: jupyter notebook 语法
     file: syntax/syntax_notebook.ipynb
--   label: jupyter notebook 语法
-    file: syntax/syntax_notebook.ipynb
+-   label: jupyter notebook 语法测试2
+    file: syntax/maixpy3-example.ipynb
 -   label: jupyter notebook 语法
     file: syntax/syntax_notebook.ipynb
 -   label: jupyter notebook 语法

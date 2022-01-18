@@ -21,6 +21,7 @@ $(document).ready(function(){
     $("#sidebar ul .show").slideDown(200);
     registerSidebarClick();
     addTOC();
+    addSequence();
     var has_sidebar = document.getElementById("sidebar_wrapper");
     if(has_sidebar){
         addSplitter();
@@ -162,6 +163,68 @@ function addTOC(){
         });
 }
 
+function toChineseNumber(n) {
+    if (!Number.isInteger(n) && n < 0) {
+      throw Error('请输入自然数');
+    }
+  
+    const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+    const positions = ['', '十', '百', '千', '万', '十万', '百万', '千万', '亿', '十亿', '百亿', '千亿'];
+    const charArray = String(n).split('');
+    let result = '';
+    let prevIsZero = false;
+    //处理0  deal zero
+    for (let i = 0; i < charArray.length; i++) {
+      const ch = charArray[i];
+      if (ch !== '0' && !prevIsZero) {
+        result += digits[parseInt(ch)] + positions[charArray.length - i - 1];
+      } else if (ch === '0') {
+        prevIsZero = true;
+      } else if (ch !== '0' && prevIsZero) {
+        result += '零' + digits[parseInt(ch)] + positions[charArray.length - i - 1];
+      }
+    }
+    //处理十 deal ten
+    if (n < 100) {
+      result = result.replace('一十', '十');
+    }
+    return result;
+  }
+
+function addSequence(){
+    var headings = tocbot._parseContent.selectHeadings(document.getElementById("article_content"), tocbot.options.headingSelector);
+    var counth2=0, counth3=0, counth4=0;
+    var html = document.getElementsByTagName("html")[0];
+    var isZh = html.lang.substr(0, 2).toLowerCase() == "zh";
+    for(var i=0; i<html.classList.length; ++i){
+        if(html.classList[i] == "heading_no_counter"){
+            return;
+        }
+    }
+    for(var i=0; i<headings.length; ++i){
+        if(headings[i].tagName == "H1"){
+            counth2 = 0;
+        } else if(headings[i].tagName == "H2"){
+            counth2 += 1;
+            counth3 = 0;
+            if(isZh){
+                var seq = toChineseNumber(counth2) + '、';
+            }else{
+                var seq = counth2 + '、';
+            }
+            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+        } else if(headings[i].tagName == "H3"){
+            counth3 += 1;
+            counth4 = 0;
+            var seq = counth2 + '.' + counth3 + "、";
+            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+        } else if(headings[i].tagName == "H4"){
+            counth4 += 1;
+            var seq = counth2 + '.' + counth3 + '.' + counth3 + "、";
+            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+        }
+    }
+}
 
 
 function getSplitter(){
