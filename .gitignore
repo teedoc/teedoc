@@ -134,3 +134,7 @@ out
 .vscode
 
 local_test2
+
+# jupyter temp file
+.~*.ipynb
+
