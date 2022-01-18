@@ -55,6 +55,11 @@ class Plugin(Plugin_Base):
         # self.logger.d("files: {}".format(files))
         
         for file in files:
+            name = os.path.basename(file)
+            # ignore temp file
+            if name.startswith(".~"):
+                result["htmls"][file] = None
+                continue
             ext = os.path.splitext(file)[1].lower()
             if ext.endswith("ipynb"):
                 html = convert_ipynb_to_html(file)

@@ -1081,6 +1081,8 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
         if len(htmls) > 0:
             queue.put((url, htmls))
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         log.e("generate html fail: {}".format(e))
         on_err()
         return generate_return(plugins_objs, False, multiprocess)
@@ -1517,7 +1519,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
     class FileEventHandler(RegexMatchingEventHandler):
         def __init__(self, doc_src_path):
             ignore = "{}/out/.*".format(doc_src_path)
-            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*", r".*\.git.*"])
+            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*", r".*\.git.*", r".*\.\~.*\.ipynb"])
             self.update_files = []
             self.doc_src_path = doc_src_path
             self.lock = threading.Lock()
