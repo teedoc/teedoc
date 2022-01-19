@@ -50,16 +50,20 @@ def parse_metadata(cell):
         "class": ""
     }
     have_metadata = False
+    if not content:
+        return have_metadata, meta, ""
     if not content.startswith("---"):
-        content = content.split("\n")
-        if content[0].startswith("# "): # h1 header
-            meta["title"] = content[0][2:]
-            cell_content = "\n".join(content[1:])
+        content_list = content.split("\n")
+        if content_list[0].startswith("# "): # h1 header
+            meta["title"] = content_list[0][2:]
+            cell_content = "\n".join(content_list[1:])
             have_metadata = True
-        elif content[1].startswith("==="): # h1 header
-            meta["title"] = content[0]
-            cell_content = "\n".join(content[2:])
+        elif len(content_list) > 1 and content_list[1].startswith("==="): # h1 header
+            meta["title"] = content_list[0]
+            cell_content = "\n".join(content_list[2:])
             have_metadata = True
+        else:
+            cell_content = content
         return have_metadata, meta, cell_content
     items_all = re.findall("[-]*\n(.*)\n.*[-]*\n(.*)", content, re.MULTILINE|re.DOTALL)
     if len(items_all) > 0:
