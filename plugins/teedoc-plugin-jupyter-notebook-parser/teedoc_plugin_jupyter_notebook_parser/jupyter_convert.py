@@ -42,7 +42,7 @@ def parse_metadata(cell):
     '''
     content = cell["source"].strip()
     meta = {
-        "titile": "",
+        "title": "",
         "keywords": "",
         "desc": "",
         "tags": "",
@@ -50,14 +50,27 @@ def parse_metadata(cell):
         "class": ""
     }
     have_metadata = False
-    items = re.findall("[-]*\n(.*)\n.*[-]*", content, re.MULTILINE|re.DOTALL)
-    if len(items) > 0:
-        items = re.findall("(.*):(.*)", items[0])
+    if not content.startswith("---"):
+        content = content.split("\n")
+        if content[0].startswith("# "): # h1 header
+            meta["title"] = content[0][2:]
+            cell_content = "\n".join(content[1:])
+            have_metadata = True
+        elif content[1].startswith("==="): # h1 header
+            meta["title"] = content[0]
+            cell_content = "\n".join(content[2:])
+            have_metadata = True
+        return have_metadata, meta, cell_content
+    items_all = re.findall("[-]*\n(.*)\n.*[-]*\n(.*)", content, re.MULTILINE|re.DOTALL)
+    if len(items_all) > 0:
+        items_all = items_all[0]
+        items = re.findall("(.*):(.*)", items_all[0])
         if len(items) > 0:
             have_metadata = True
             for k, v in items:
                 meta[k] = v.strip()
-    return have_metadata, meta
+        cell_content = items_all[1].strip()
+    return have_metadata, meta, cell_content
 
 def get_search_content(cells):
     content = ""
@@ -81,9 +94,14 @@ def convert_ipynb_to_html(path):
     html = HTML()
     with open(path, encoding="utf-8") as f:
         content = nbformat.read(f, as_version=4)
-        have_meta, html.metadata = parse_metadata(content.cells[0])
+        have_meta, html.metadata, first_cell_content = parse_metadata(content.cells[0])
         if have_meta:
-            content.cells = content.cells[1:]
+            if first_cell_content:
+                content.cells[0]["source"] = first_cell_content
+            else:
+                content.cells = content.cells[1:]
+        elif first_cell_content:
+            content.cells[0]["source"] = first_cell_content
         html.title = html.metadata["title"]
         html.keywords = html.metadata["keywords"].split(",") if html.metadata["tags"] else []
         html.desc = html.metadata["desc"]
