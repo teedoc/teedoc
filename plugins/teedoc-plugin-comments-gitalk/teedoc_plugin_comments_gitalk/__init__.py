@@ -14,7 +14,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-comments-gitalk"
@@ -27,6 +27,7 @@ class Plugin(Plugin_Base):
             "repo": 'GitHub repo',
             "owner": 'GitHub repo owner',
             "admin": ['GitHub repo owner and collaborators, only these guys can initialize github issues'],
+            "adminAutoCreate": False
             # "id": location.pathname,      // Ensure uniqueness and length less than 50
             # "distractionFreeMode": false  // Facebook-like distraction free mode
             # "main_color": "#4caf7d",
