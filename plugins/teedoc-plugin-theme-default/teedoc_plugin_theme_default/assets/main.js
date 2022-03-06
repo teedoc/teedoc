@@ -210,7 +210,7 @@ function addSequence(){
             if(isZh){
                 var seq = toChineseNumber(counth2) + '、';
             }else{
-                var seq = counth2 + '、';
+                var seq = counth2 + '. ';
             }
             headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
         } else if(headings[i].tagName == "H3"){
