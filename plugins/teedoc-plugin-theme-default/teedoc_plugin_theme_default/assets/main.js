@@ -201,28 +201,37 @@ function addSequence(){
             return;
         }
     }
+
+    var headerJoiner = ".";
+    var headerEnd = ". ";
+    if (isZh) {
+        headerEnd = "、";
+    }
+
     for(var i=0; i<headings.length; ++i){
         if(headings[i].tagName == "H1"){
             counth2 = 0;
-        } else if(headings[i].tagName == "H2"){
+            continue;
+        }
+
+        if(headings[i].tagName == "H2"){
             counth2 += 1;
             counth3 = 0;
-            if(isZh){
-                var seq = toChineseNumber(counth2) + '、';
-            }else{
-                var seq = counth2 + '、';
-            }
-            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+            var counts = [counth2]; 
         } else if(headings[i].tagName == "H3"){
             counth3 += 1;
             counth4 = 0;
-            var seq = counth2 + '.' + counth3 + "、";
-            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+            var counts = [counth2, counth3];
         } else if(headings[i].tagName == "H4"){
             counth4 += 1;
-            var seq = counth2 + '.' + counth3 + '.' + counth3 + "、";
-            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+            var counts = [counth2, counth3, counth4];
         }
+
+        if (isZh){
+            var counts = counts.map(toChineseNumber);
+        }
+        var seq = counts.join(headerJoiner) + headerEnd
+        headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
     }
 }
 
