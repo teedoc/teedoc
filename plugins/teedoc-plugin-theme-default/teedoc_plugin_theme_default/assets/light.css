@@ -534,7 +534,7 @@ html[lang^=zh] #article_content #blog_list h2:before {
 }
 #toc a.node-name--H2:before {
     counter-increment: toc_l2;
-    content: counter(toc_l2, upper-roman) ".\00a0";
+    content: counter(toc_l2, decimal) ".\00a0";
 }
 html[lang^=zh] #toc a.node-name--H2:before {
     counter-increment: toc_l2;
@@ -543,10 +543,6 @@ html[lang^=zh] #toc a.node-name--H2:before {
 #toc a.node-name--H3:before {
     counter-increment: toc_l3;
     content: counter(toc_l2, decimal) "." counter(toc_l3, decimal) ".\00a0";
-}
-html[lang^=zh] #toc a.node-name--H3:before {
-    counter-increment: toc_l3;
-    content: counter(toc_l2, simp-chinese-informal) "." counter(toc_l3, simp-chinese-informal) "、";
 }
 .heading_no_counter #toc a.node-name--H2:before {
 	content: "";
