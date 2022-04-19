@@ -20,7 +20,7 @@ with open(readme_path, encoding="utf-8") as f:
      long_description = f.read()
 
 install_requires = [ "coloredlogs >= 15.0.1",
-                     "watchdog",
+                     "watchdog >= 2.1.7",
                      "PyYaml >= 5.4.1",
                      "jinja2 >= 3.1.1",
                      "flask >= 2.0.2",
