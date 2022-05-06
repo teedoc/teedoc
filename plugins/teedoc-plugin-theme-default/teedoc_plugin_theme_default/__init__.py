@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.18.2"
+__version__ = "1.19.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
@@ -22,10 +22,12 @@ class Plugin(Plugin_Base):
         "default_dark": False,
         "mobile_navbar_collapsed": True,
         "show_print_page": True,
+        "toc_depth": 4,
         "env": {
             "main_color": "#4caf7d",
             "sidebar_width": "300px",
-            "sidebar_scrollbar_color": "#b8b8b8"
+            "sidebar_scrollbar_color": "#b8b8b8",
+            "toc_depth_str": "h1, h2, h3, h4"
         }
     }
 
@@ -55,6 +57,16 @@ class Plugin(Plugin_Base):
             self.config["env"]["show_print_page"] = "true"
         else:
             self.config["env"]["show_print_page"] = "false"
+        if type(self.config["toc_depth"]) != int:
+            msg = "-- plugin <{}>'s toc_depth config should be integer, not {}".format(self.name, self.config["toc_depth"])
+            self.logger.e(msg)
+            raise Exception(msg)
+        if self.config["toc_depth"] < 2:
+            self.config["toc_depth"] = 2
+        self.config["env"]["toc_depth_str"] = ""
+        for i in range(self.config["toc_depth"]):
+            self.config["env"]["toc_depth_str"] += f'h{i+1}, '
+        self.config["env"]["toc_depth_str"] = self.config["env"]["toc_depth_str"][:-2]
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")

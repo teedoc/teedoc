@@ -81,6 +81,7 @@
             "config": {
                 "dark": true,
                 "show_print_page": true,
+                "toc_depth": 4,
                 "env": {
                     "main_color": "#4caf7d",
                     "sidebar_width": "300px"
