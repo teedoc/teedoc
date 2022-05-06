@@ -13,7 +13,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "2.4.0"
+__version__ = "2.4.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -208,8 +208,8 @@ MathJax = {};
                         return ret
             return ret
         # <a class="anchor-link" href="#&#38142;&#25509;"> </a></h2><p><a href="./syntax_markdown.md">markdown 语法</a>
-        content = re.sub(r'\[.*?\]\(.*?\.md\)', re_del, content, flags=re.I)
-        content = re.sub(r'\[.*?\]\(.*?\.ipynb\)', re_del_ipynb, content, flags=re.I)
+        content = re.sub(r'\[.*?\]\(.*?\.md.*?\)', re_del, content, flags=re.I)
+        content = re.sub(r'\[.*?\]\(.*?\.ipynb.*?\)', re_del_ipynb, content, flags=re.I)
         return content
 
 if __name__ == "__main__":

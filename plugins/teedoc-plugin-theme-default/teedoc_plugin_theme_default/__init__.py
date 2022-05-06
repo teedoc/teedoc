@@ -222,18 +222,18 @@ class Plugin(Plugin_Base):
                     fw.write(content)
                 files[url] = temp_path
         return files
-        
+
 
     def on_add_html_header_items(self, type_name):
         return self.html_header_items
-    
+
     def on_add_html_footer_js_items(self, type_name):
         return self.html_js_items
-    
+
     def on_add_navbar_items(self):
         items = [self.themes_btn]
         return items
-    
+
     def on_copy_files(self):
         res = self.files_to_copy
         self.files_to_copy = {}

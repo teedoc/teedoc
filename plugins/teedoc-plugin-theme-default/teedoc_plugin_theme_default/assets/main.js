@@ -167,7 +167,7 @@ function toChineseNumber(n) {
     if (!Number.isInteger(n) && n < 0) {
       throw Error('请输入自然数');
     }
-  
+
     const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
     const positions = ['', '十', '百', '千', '万', '十万', '百万', '千万', '亿', '十亿', '百亿', '千亿'];
     const charArray = String(n).split('');
@@ -201,28 +201,34 @@ function addSequence(){
             return;
         }
     }
+
+    var headerJoiner = ".";
+
     for(var i=0; i<headings.length; ++i){
+        var headerEnd = ". ";
         if(headings[i].tagName == "H1"){
             counth2 = 0;
-        } else if(headings[i].tagName == "H2"){
+            continue;
+        }
+
+        if(headings[i].tagName == "H2"){
             counth2 += 1;
             counth3 = 0;
-            if(isZh){
-                var seq = toChineseNumber(counth2) + '、';
-            }else{
-                var seq = counth2 + '、';
+            var counts = [counth2];
+            if (isZh){
+                var counts = counts.map(toChineseNumber);
+                headerEnd = "、";
             }
-            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
         } else if(headings[i].tagName == "H3"){
             counth3 += 1;
             counth4 = 0;
-            var seq = counth2 + '.' + counth3 + "、";
-            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+            var counts = [counth2, counth3];
         } else if(headings[i].tagName == "H4"){
             counth4 += 1;
-            var seq = counth2 + '.' + counth3 + '.' + counth3 + "、";
-            headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
+            var counts = [counth2, counth3, counth4];
         }
+        var seq = counts.join(headerJoiner) + headerEnd
+        headings[i].insertAdjacentHTML('afterbegin', '<span class="sequence">' + seq + '</span>');
     }
 }
 

@@ -530,18 +530,19 @@ html[lang^=zh] #article_content #blog_list h2:before {
     counter-reset: toc_l3;
 }
 #toc a.node-name--H1:before {
-	counter-increment: toc_l1;
+    counter-increment: toc_l1;
 }
 #toc a.node-name--H2:before {
-	counter-increment: toc_l2;
-	content: counter(toc_l2, upper-roman) "、";
+    counter-increment: toc_l2;
+    content: counter(toc_l2, decimal) ".\00a0";
 }
 html[lang^=zh] #toc a.node-name--H2:before {
+    counter-increment: toc_l2;
     content: counter(toc_l2, simp-chinese-informal) "、";
 }
-#toc a.node-name--H3:before, #toc a.node-name--H3:before {
-	counter-increment: toc_l3;
-    content: counter(toc_l2, decimal) "." counter(toc_l3, decimal) "、";
+#toc a.node-name--H3:before {
+    counter-increment: toc_l3;
+    content: counter(toc_l2, decimal) "." counter(toc_l3, decimal) ".\00a0";
 }
 .heading_no_counter #toc a.node-name--H2:before {
 	content: "";
