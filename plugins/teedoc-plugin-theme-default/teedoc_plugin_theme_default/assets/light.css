@@ -1148,7 +1148,7 @@ a.toc-link {
         align-items: flex-end;
         position: sticky;
         top: 1em;
-        z-index: 100;
+        z-index: 98;
     }
     #toc_btn {
         background: url("${site_root_url}static/image/theme_default/anchor.svg");

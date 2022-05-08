@@ -122,6 +122,9 @@
     flex-direction: row;
     overflow: auto;
 }
+#search_result h1 {
+    font-size: 1.2em;
+}
 #search_result_name {
     overflow-y: auto;
     min-width: max-content;
