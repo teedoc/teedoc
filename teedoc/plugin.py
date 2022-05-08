@@ -146,8 +146,11 @@ class Plugin_Base:
     
     def on_add_html_footer_js_items(self, type_name):
         '''
-            add js(/or other tags) items to end of body, should be a html tag, e.g.
-                <script src="..."></script>
+            add js(/or other tags) items to end of body, should be absolute file path or a html tag or a dict object, e.g.
+                ['<script src="..."></script>', '/home/abc/test.js', {
+                    "path": "/home/abc/test.js",
+                    "options": ["async"]
+                }]
             @type_name canbe "doc" "page" "blog"
         '''
         return []

@@ -10,10 +10,12 @@ try:
         sys.path.insert(0, teedoc_project_path)
 except Exception:
     pass
-from teedoc import Plugin_Base
+from teedoc import Plugin_Base, utils
 from teedoc import Fake_Logger
+import tempfile
+import requests
 
-__version__ = "2.4.1"
+__version__ = "2.4.2"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -182,8 +184,20 @@ class Plugin(Plugin_Base):
             items.append('''<script>
 MathJax = {};
 </script>'''.format(json.dumps(self.config["mathjax"]["config"])))
-            items.append('<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>')
-            items.append('<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js"></script>'.format(self.config["mathjax"]["file_name"]))
+            temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_markdown_parser")
+            os.makedirs(temp_dir, exist_ok=True)
+            mathjax_js = os.path.join(temp_dir, "mathjax.js")
+            # items.append('<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>')
+            # items.append('<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js"></script>'.format(self.config["mathjax"]["file_name"]))
+            url = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js'.format(self.config["mathjax"]["file_name"])
+            self.logger.i("Download file", url, "to", mathjax_js)
+            if not os.path.exists(mathjax_js):
+                utils.download_file(url, mathjax_js)
+            item = {
+                "path": mathjax_js,
+                "options": ["async"]
+            }
+            items.append(item)
         return items
 
     def _update_link(self, content):

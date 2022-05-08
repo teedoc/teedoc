@@ -1,5 +1,7 @@
 import re, os
 from collections import OrderedDict
+import shutil
+import requests
 
 
 def sidebar_summary2dict(content):
@@ -285,6 +287,55 @@ def get_file_path_by_url(url, doc_root, route, translate):
         path = get_src_file_path(base_name, dir)
     return path
 
+
+def convert_file_tag_items(items, out_dir, plugin_name):
+    '''
+        @items list, abs path or str, or dict:{
+                    "path": "/home/abc/test.js",
+                    "options": ["async"]
+                }
+        @out_dir copy items to `save_dir/plugin_name/`
+    '''
+    new = []
+    save_dir = os.path.join(out_dir, plugin_name)
+    os.makedirs(save_dir, exist_ok=True)
+    for item in items:
+        options = []
+        if type(item) == dict:
+            path = item["path"]
+            options = item["options"]
+        else:
+            path = item
+        if os.path.exists(path):
+            name = os.path.basename(path)
+            url = f'/{plugin_name}/{name}'
+            shutil.copyfile(path, os.path.join(save_dir, name))
+            file_type = os.path.splitext(name)[1][1:]
+            if file_type == "js":
+                item = f'<script src="{url}"'
+                for opt in options:
+                    item += f' {opt}'
+                item += '></script>'
+            elif file_type == "css":
+                item = f'<link rel="stylesheet" href="{url}"'
+                for opt in options:
+                    item += f' {opt}'
+                item += 'type="text/css"/>'
+        new.append(item)
+    return new
+
+def download_file(url, save_path):
+    '''
+        @url download url
+        @save_path save file to `save_path`
+    '''
+    if not os.path.exists(save_path):
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    with open(save_path, "wb") as f:
+        res = requests.get(url)
+        if res.status_code != 200:
+            raise Exception("Download file: {} failed".format(url))
+        f.write(res.content)
 
 if __name__ == "__main__":
     a = {

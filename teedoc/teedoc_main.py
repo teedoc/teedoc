@@ -1245,8 +1245,10 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                 log.e("plugin <{}> error, on_add_html_header_items should return list type".format(plugin.name))
                 return False, None
             if items:
+                items = utils.convert_file_tag_items(items, out_dir, plugin.name)
                 header_items.extend(items)
             if _js_items:
+                _js_items = utils.convert_file_tag_items(_js_items, out_dir, plugin.name)
                 footer_js_items.extend(_js_items)
             temp = plugin.on_html_template(type_name)
             if temp and os.path.exists(temp):
