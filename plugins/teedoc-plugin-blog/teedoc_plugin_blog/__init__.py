@@ -26,7 +26,7 @@ from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 
-__version__ = "1.0.15"
+__version__ = "1.1.0"
 
 
 class Plugin(Plugin_Base):
@@ -124,6 +124,8 @@ class Plugin(Plugin_Base):
                         brief = html[:html.find("<!-- more -->")].strip()
                     else:
                         brief = html[:500].strip()
+                    parent_url = os.path.dirname(file.replace(self.doc_src_path, ""))
+                    brief = self._update_relative_brief_links(brief, parent_url)
                     if "title" in metadata:
                         title = metadata["title"]
                     else:
@@ -140,6 +142,12 @@ class Plugin(Plugin_Base):
                         desc = metadata["desc"]
                     else:
                         desc = ""
+                    if "cover" in metadata:
+                        cover = metadata["cover"]
+                        cover = self._rel_to_abs_url(cover, parent_url)
+                        html = '<div class="blog_cover"><img src="{}" alt="{} cover"></div>'.format(cover, title) + html
+                    else:
+                        cover = ""
                     html_str = '<span id="blog_start"></span>' + html
                     # date default last edit time
                     ts = int(os.stat(file).st_mtime)
@@ -175,7 +183,8 @@ class Plugin(Plugin_Base):
                         "date": date,
                         "ts": ts,
                         "author": author,
-                        "brief": brief
+                        "brief": brief,
+                        "cover": cover,
                     }
             else:
                 result["htmls"][file] = None
@@ -258,6 +267,7 @@ class Plugin(Plugin_Base):
                 "ts": item["ts"],
                 "author": item["author"],
                 "brief": item["brief"],
+                "cover": item["cover"]
             }
             self.index_content["items"][url] = new_item
         # sort by date
@@ -294,6 +304,41 @@ class Plugin(Plugin_Base):
                     fw.write(content)
                 files[url] = temp_path
         return files
+
+    def _update_relative_brief_links(self, brief, parent_url):
+        '''
+            @brief html format brief
+            @parent_url: parent url, e.g. /blog/category1
+        '''
+        def update_links(c, prefix):
+            ret = c[0]
+            links = re.findall('"(.*?)"', ret)
+            if len(links) > 0:
+                for link in links:
+                    if not (link.startswith("http") or os.path.isabs(link)):
+                        link = f'{parent_url}/{link}'.replace("/./", "/")
+                        ret = f'{prefix}="{link}"'
+                        return ret
+            return ret
+
+        def update_links_src(c):
+            return update_links(c, "src")
+
+        def update_links_href(c):
+            return update_links(c, "href")
+
+        brief = re.sub(r'src=".*?"', update_links_src, brief, flags=re.I)
+        brief = re.sub(r'href=".*?"', update_links_href, brief, flags=re.I)
+        return brief
+
+    def _rel_to_abs_url(self, url, parent_url):
+        '''
+            @url: relative url, e.g. ./assets/snake.jpg
+            @parent_url: parent url, e.g. /blog/category1
+        '''
+        if not (url.startswith("http") or os.path.isabs(url)):
+            url = f'{parent_url}/{url}'.replace("/./", "/")
+        return url
 
 if __name__ == "__main__":
     config = {

@@ -1519,7 +1519,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
     class FileEventHandler(RegexMatchingEventHandler):
         def __init__(self, doc_src_path):
             ignore = "{}/out/.*".format(doc_src_path)
-            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*", r".*\.git.*", r".*\.\~.*\.ipynb"])
+            RegexMatchingEventHandler.__init__(self, ignore_regexes=[r".*out.*", r".*\.git.*", r".*\.\~.*\.ipynb", r".*\.sw"])
             self.update_files = []
             self.doc_src_path = doc_src_path
             self.lock = threading.Lock()

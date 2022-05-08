@@ -21,6 +21,7 @@ $(document).ready(function(){
                     info += '<span>' + item["tags"][i] + '</span>';    
                 }
                 info +='</div>' 
+                info += '<div class="blog_cover"><img src="' + item["cover"] + '"/></div>';
                 li += info + '<div class="blog_brief">'+ item["brief"] +'</div></a></li>';
                 $("#blog_list > ul").append(li);
             }

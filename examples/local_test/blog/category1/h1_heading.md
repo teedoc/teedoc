@@ -4,8 +4,17 @@ keywords: teedoc 一级标题
 desc: 页面内通常只有一个一级标题（h1），如果一定要使用多个一级标题，效果就是这个页面的样子
 author: fzj
 date: 2021-10-10
+cover: ./assets/snake.jpg
 # class: heading_no_counter
 ---
+
+![snake](./assets/snake.jpg)
+
+[relative link](./assets/snake.jpg)
+
+阿勒 图片也可以显示哦~
+
+<!-- more -->
 
 # 2021/10/1
 

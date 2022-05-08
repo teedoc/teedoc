@@ -473,6 +473,12 @@ html[lang^=zh] #article_content #blog_list h2:before {
 #blog_list .blog_brief {
     color: #828282;
 }
+.blog_cover {
+    text-align: center;
+}
+.blog_cover > img {
+    width: 100%;
+}
 #menu_wrapper {
     width: 2%;
 }
