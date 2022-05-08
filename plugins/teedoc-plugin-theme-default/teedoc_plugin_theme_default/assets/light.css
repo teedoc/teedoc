@@ -1168,4 +1168,7 @@ a.toc-link {
     /* .line-numbers-rows {
         display: none;
     } */
+    .gutter {
+        display: none;
+    }
 }
