@@ -34,6 +34,7 @@ $(document).ready(function(){
     if(${show_print_page}){
         addPrintPage();
     }
+    addTocMobileListener();
 });
 
 var sidebar_width = "${sidebar_width}";
@@ -61,6 +62,7 @@ function menu_show(show)
         $("#to_top").addClass("m_hide");
         $("#sidebar_wrapper").show(100);
         $(".gutter").css("display", "block");
+        focusSidebar();
     }else{
         $("#menu_wrapper").removeClass("m_menu_fixed");
         $("#menu").removeClass("close");
@@ -393,3 +395,19 @@ function addPrintPage(){
         window.print();
     });
 }
+
+function addTocMobileListener(){
+    $("#toc_btn").click(function(){
+        if($("#toc_wrapper").hasClass("show")){
+            $("#toc_wrapper").removeClass("show");
+        }else{
+            $("#toc_wrapper").addClass("show");
+        }
+    });
+    $("#toc_wrapper").click(function(){
+        if($("#toc_btn").is(":visible")){
+            $("#toc_wrapper").removeClass("show");
+        }
+    });
+}
+

@@ -83,6 +83,10 @@
                         </div>
                         </div>
                     </div>
+                    <div id="article_tools">
+                        <span></span>
+                        <span id="toc_btn"></span>
+                    </div>
                     <div id="article_content">
                         {{ body }}
                     </div>
@@ -107,9 +111,11 @@
                 </div>
                 <div id="comments-container"></div>
             </div>
-            <div id="toc">
-                <div id="toc_content">
-                        {{ toc|safe }}
+            <div id="toc_wrapper">
+                <div id="toc">
+                    <div id="toc_content">
+                            {{ toc|safe }}
+                    </div>
                 </div>
             </div>
         </div>

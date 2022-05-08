@@ -505,10 +505,12 @@ html[lang^=zh] #article_content #blog_list h2:before {
     margin: auto;
     justify-content: space-evenly;
 }
+#article #toc_wrapper {
+    min-width: 25%;
+}
 #article #toc {
     background-color: white;
     position: sticky;
-    width: 25%;
     transition: 0.4s;
     top: 15%;
     max-height: calc(100vh - 15vh);
@@ -1103,10 +1105,28 @@ a.toc-link {
     #content_body {
         /* max-width: 50em; */
         width: 90%;
+    }  
+    #toc_wrapper {
+        display: none;
+        position: fixed;
+        width: 100vh;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        background-color: rgb(0, 0, 0, 0.5);
+        z-index: 999;
+        transition: 0.4s;
+    }
+    #toc_wrapper.show {
+        display: block;
     }
     #article #toc{
-        display: none;
-        width: 0;
+        position: fixed;
+        top: 4em;
+        right: 0;
+        z-index: 200;
+        width: 100%;
+        padding: 1em 0 1em 0;
     }
     #previous_next {
         flex-direction: column;
@@ -1120,6 +1140,28 @@ a.toc-link {
     }
     .md_page #page_content > div {
         margin: 1.5em;
+    }
+    #article_tools {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        position: sticky;
+        top: 1em;
+        z-index: 100;
+    }
+    #toc_btn {
+        background: url("${site_root_url}static/image/theme_default/anchor.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 5px;
+        min-height: 2em;
+        min-width: 2em;
+        -ms-transform: rotate(12deg);
+        -moz-transform: rotate(12deg);
+        -webkit-transform: rotate(12deg);
+        transform: rotate(12deg);
     }
 }
 
