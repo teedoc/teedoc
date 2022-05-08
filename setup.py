@@ -26,7 +26,8 @@ install_requires = [ "coloredlogs >= 15.0.1",
                      "flask >= 2.0.2",
                      "babel >= 2.9.1",
                      "nbconvert >= 6.4.5",
-                     "mistune == 0.8.4"
+                     "mistune == 0.8.4",
+                     "requests"
                    ]
 packages = find_packages()
 print("packages:", packages)
