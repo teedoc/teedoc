@@ -496,6 +496,7 @@ html[lang^=zh] #article_content #blog_list h2:before {
 #article {
     display: flex;
     width: 98%;
+    margin: auto;
     justify-content: space-evenly;
 }
 #article #toc {

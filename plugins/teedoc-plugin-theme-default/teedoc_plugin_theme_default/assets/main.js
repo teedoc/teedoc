@@ -315,7 +315,6 @@ function registerOnWindowResize(has_sidebar){
             return;
         }
         if(screenW < 900){
-            console.log($("#sidebar_wrapper").attr("style"));
             $("#sidebar_wrapper").removeAttr("style");
             if($("#menu").hasClass("close")){
                 $("#sidebar_wrapper").css("display", "block");    
