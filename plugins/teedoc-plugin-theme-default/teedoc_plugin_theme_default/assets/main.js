@@ -56,13 +56,13 @@ try{
 function menu_show(show)
 {
     if(show){
-        $("#menu").addClass("m_menu_fixed");
+        $("#menu_wrapper").addClass("m_menu_fixed");
         $("#menu").addClass("close");
         $("#to_top").addClass("m_hide");
         $("#sidebar_wrapper").show(100);
         $(".gutter").css("display", "block");
     }else{
-        $("#menu").removeClass("m_menu_fixed");
+        $("#menu_wrapper").removeClass("m_menu_fixed");
         $("#menu").removeClass("close");
         $("#to_top").removeClass("m_hide");
         $("#sidebar_wrapper").hide(100);

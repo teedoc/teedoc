@@ -495,7 +495,7 @@ html[lang^=zh] #article_content #blog_list h2:before {
     position: sticky;
     top: 1em;
     z-index: 99;
-    margin-left: 10px;
+    margin-left: 0.2em;
 }
 
 /* article */
@@ -1072,28 +1072,33 @@ a.toc-link {
         display: none;
     }
     #sidebar > ul {
-        padding-top: 3em;
+        padding-top: 4em;
     }
     #menu_wrapper {
         z-index: 99;
     }
-    #menu.m_menu_fixed {
+    #menu_wrapper.m_menu_fixed {
         position: fixed;
-        right: 1em;
+        left: 0;
         top: 0;
+        width: 100%;
+        height: 4em;
+        background-color: rgb(255, 255, 255, 0.9);
+        box-shadow: 0px 1px 10px 0px rgb(0, 0, 0, 0.06);
+    }
+    #menu_wrapper.m_menu_fixed > #menu {
+        position: fixed;
+        left: 0.2em;
+        top: 1em;
     }
     #menu.close {
-        background: url("${site_root_url}static/image/theme_default/indicator.svg");
+        background: url("${site_root_url}static/image/theme_default/back.svg");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
         border-radius: 5px;
-        min-height: 2.5rem;
-        min-width: 2.5rem;
-        -ms-transform: rotate(-45deg);
-        -moz-transform: rotate(-45deg);
-        -webkit-transform: rotate(-45deg);
-        transform: rotate(-45deg);
+        min-height: 2em;
+        min-width: 2em;
     }
     #content_body {
         /* max-width: 50em; */

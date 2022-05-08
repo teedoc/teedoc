@@ -112,6 +112,7 @@ class Plugin(Plugin_Base):
             self.footer_js["/static/css/theme_default/prism.min.js"] = os.path.join(self.assets_abs_path, "prism.min.js")
         self.images = {
             "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg"),
+            "/static/image/theme_default/back.svg": os.path.join(self.assets_abs_path, "back.svg"),
             "/static/image/theme_default/menu.svg": os.path.join(self.assets_abs_path, "menu.svg"),
             "/static/image/theme_default/to-top.svg": os.path.join(self.assets_abs_path, "to-top.svg"),
             "/static/image/theme_default/light_mode.svg": os.path.join(self.assets_abs_path, "light_mode.svg"),
