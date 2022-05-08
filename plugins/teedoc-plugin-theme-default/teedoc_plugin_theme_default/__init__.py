@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.19.3"
+__version__ = "1.19.4"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
