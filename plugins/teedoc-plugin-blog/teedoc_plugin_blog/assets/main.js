@@ -15,7 +15,7 @@ $(document).ready(function(){
             item = data["items"][url];
             var info = '<div class="blog_info"><span class="blog_author">'+ item["author"] + '</span><span class="blog_date">'+ item["date"]+ '</span></div><div class="blog_tags">';
             // list
-            if(isBlogHome){
+            // if(isBlogHome){
                 var li = '<li><a href="' + url + '" class="blog_title"><h2>'+ item["title"] +'</h2>';
                 for(var i in item["tags"]){
                     info += '<span>' + item["tags"][i] + '</span>';    
@@ -24,7 +24,7 @@ $(document).ready(function(){
                 info += '<div class="blog_cover"><img src="' + item["cover"] + '"/></div>';
                 li += info + '<div class="blog_brief">'+ item["brief"] +'</div></a></li>';
                 $("#blog_list > ul").append(li);
-            }
+            // }
             // sidebar
             var active = "not_active";
             if(pathname == url){
