@@ -15,7 +15,7 @@ from teedoc import Fake_Logger
 import tempfile
 import requests
 
-__version__ = "2.4.2"
+__version__ = "2.4.3"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -186,18 +186,18 @@ MathJax = {};
 </script>'''.format(json.dumps(self.config["mathjax"]["config"])))
             temp_dir = os.path.join(tempfile.gettempdir(), "teedoc_plugin_markdown_parser")
             os.makedirs(temp_dir, exist_ok=True)
-            mathjax_js = os.path.join(temp_dir, "mathjax.js")
-            # items.append('<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>')
-            # items.append('<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js"></script>'.format(self.config["mathjax"]["file_name"]))
-            url = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js'.format(self.config["mathjax"]["file_name"])
-            self.logger.i("Download file", url, "to", mathjax_js)
-            if not os.path.exists(mathjax_js):
-                utils.download_file(url, mathjax_js)
-            item = {
-                "path": mathjax_js,
-                "options": ["async"]
-            }
-            items.append(item)
+            mathjax_js = os.path.join(temp_dir, f'{self.config["mathjax"]["file_name"]}.js')
+            # items.append('<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>') # this feature will make page load slowly because bad network in China
+            items.append('<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js"></script>'.format(self.config["mathjax"]["file_name"]))
+            # url = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/{}.js'.format(self.config["mathjax"]["file_name"])
+            # self.logger.i("Download file", url, "to", mathjax_js)
+            # if not os.path.exists(mathjax_js):
+            #     utils.download_file(url, mathjax_js)
+            # item = {
+            #     "path": mathjax_js,
+            #     "options": ["async", 'id="MathJax-script"']
+            # }
+            # items.append(item)
         return items
 
     def _update_link(self, content):
