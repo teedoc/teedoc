@@ -337,6 +337,7 @@ function registerOnWindowResize(has_sidebar){
                 $("#sidebar_wrapper").css("display", "block");    
             }
             $(".gutter").css("display", "none");
+            $("#article").css("width", "100%");
         }else{
             if(!hasSplitter){
                 createSplitter();

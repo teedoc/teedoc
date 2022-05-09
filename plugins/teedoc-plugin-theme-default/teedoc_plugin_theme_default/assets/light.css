@@ -506,7 +506,7 @@ html[lang^=zh] #article_content #blog_list h2:before {
     justify-content: space-evenly;
 }
 #article #toc_wrapper {
-    min-width: 25%;
+    width: 25%;
 }
 #article #toc {
     background-color: white;
@@ -568,15 +568,14 @@ html[lang^=zh].heading_no_counter #toc a.node-name--H2:before {
 /* article content */
 #content_wrapper {
     flex-grow: 1;
-    flex-grow: 1;
     justify-content: space-between;
     flex-direction: column;
     display: flex;
-    max-width: 100%;
+    width: 65%;
 }
 #content_body {
     max-width: 50em;
-    width: 65%;
+    width: 90%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -969,7 +968,7 @@ a.toc-link {
 
 /* class template */
 .md_page #page_content > div {
-    width: 65%;
+    width: 90%;
     max-width: 50em;
     margin: auto;
     line-height: 2em;
@@ -1103,7 +1102,6 @@ a.toc-link {
         min-width: 2em;
     }
     #content_body {
-        /* max-width: 50em; */
         width: 90%;
     }  
     #toc_wrapper {
