@@ -17,6 +17,8 @@ items:
         file: plugins/others.md
 -   label: markdown 语法
     file: syntax/syntax_markdown.md
+-   label: Markdown 文件头
+    url: /get_started/zh/syntax/syntax_markdown.html#列表
 -   label: jupyter notebook 语法
     file: syntax/syntax_notebook.ipynb
 -   label: jupyter notebook 语法测试2

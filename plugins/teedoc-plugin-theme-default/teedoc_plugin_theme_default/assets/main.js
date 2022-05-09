@@ -131,6 +131,21 @@ function registerSidebarClick(){
                         });
         return false;
     });
+    $("#sidebar ul li > a").bind("click", function(e){
+        link_href = $(this).attr("href").split(location.host);
+        if(link_href.length > 1){
+            link_href = link_href[1];
+        }else{
+            link_href = link_href[0];
+        }
+        url_href = location.href.split(location.host)[1]
+        let link_url = link_href.split("#")[0];
+        console.log(link_href, url_href);
+        if(link_href != decodeURIComponent(url_href) && location.pathname == link_url){ // current page, and jump to header, close sidebar
+            location.href = link_href;
+            menu_toggle();
+        }
+    });
 }
 
 function hello(){

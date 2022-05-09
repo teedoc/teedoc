@@ -342,6 +342,12 @@ def get_sidebar_list(sidebar, doc_path, doc_url, log, redirect_err_file = False,
         is_dir = "items" in config
         items = OrderedDict()
         if "label" in config and "file" in config and config["file"] != None and config["file"] != "null":
+            # syntax/syntax_markdown.md#Markdown-文.件头部
+            path = config["file"].split("#")
+            config["file"] = path[0]
+            _id = ""
+            if len(path) > 1:
+                _id = path[1]
             file_abs = os.path.join(doc_path, config["file"]).replace("\\", "/")
             url = utils.get_url_by_file_rel(config["file"], doc_url)
             if not os.path.exists(file_abs):
@@ -352,6 +358,8 @@ def get_sidebar_list(sidebar, doc_path, doc_url, log, redirect_err_file = False,
                     log.w("file {} not found, but set in {} sidebar config file, maybe letter case wrong?".format(file_abs, doc_path))
             if file_abs.endswith("no_translate.md"):
                 print(url, file_abs)
+            if _id:
+                url += f'#{_id}'
             items[file_abs] = {
                 "curr": (url, config["label"])
             }
