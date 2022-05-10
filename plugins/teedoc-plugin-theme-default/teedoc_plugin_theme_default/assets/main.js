@@ -140,8 +140,12 @@ function registerSidebarClick(){
         }
         url_href = location.href.split(location.host)[1]
         let link_url = link_href.split("#")[0];
-        console.log(link_href, url_href);
-        if(link_href != decodeURIComponent(url_href) && location.pathname == link_url){ // current page, and jump to header, close sidebar
+        let sub = $(this).next();
+        var haveSub = false;
+        if(sub && sub.prop("nodeName")){
+            haveSub = sub.prop("nodeName").toLowerCase() == "ul";
+        }
+        if((link_href != decodeURIComponent(url_href) || !haveSub) && location.pathname == link_url){ // current page, and jump to header, close sidebar
             location.href = link_href;
             menu_toggle();
         }
