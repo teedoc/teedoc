@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.4.4"
+__version__ = "1.5.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-search"
@@ -71,6 +71,8 @@ class Plugin(Plugin_Base):
         self.images = {
             "/static/image/search/close.svg": os.path.join(self.assets_abs_path, "close.svg"),
             "/static/image/search/search.svg": os.path.join(self.assets_abs_path, "search.svg"),
+            "/static/image/search/up.svg": os.path.join(self.assets_abs_path, "up.svg"),
+            "/static/image/search/cancel.svg": os.path.join(self.assets_abs_path, "cancel.svg"),
         }
         
         # set site_root_url env value

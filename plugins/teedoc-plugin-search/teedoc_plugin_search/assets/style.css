@@ -224,7 +224,84 @@
     background-color: #FFEB3B;
     border-radius: 0.2em;
     padding: 0.1em;
+
 }
+.dark .search_highlight{
+    color: #1b1b1b;
+}
+.selected_highlight {
+    background-color: #ff9823;
+}
+
+#search_ctrl_btn {
+    position: fixed;
+    top: 2em;
+    right: 1em;
+    display: flex;
+    flex-direction: row;
+    z-index: 999;
+    user-select: none;
+}
+#search_ctrl_btn > div {
+    border-radius: 0.2em;
+    min-width: 5em;
+    min-height: 2.5em;
+    background-color: #fae94e;
+    margin: 0.2em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2em;
+    cursor: pointer;
+    box-shadow: 0 0 12px 0 rgb(0, 0, 0, 0.06);
+    transition: 0.4s;
+    color: #8b7000;
+}
+#search_ctrl_btn > div:hover {
+    box-shadow: 0 0 12px 0 rgb(0, 0, 0, 0.2);
+}
+#search_ctrl_btn > .previous .icon {
+    background-image: url("/static/image/search/up.svg");
+    -ms-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+    background-size: 2em;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 1.5em;
+    min-width: 1.5em;
+    height: 1.5em;
+    width: 1.5em;
+}
+#search_ctrl_btn > .next .icon {
+    background-image: url("/static/image/search/up.svg");
+    -ms-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+    background-size: 2em;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 1.5em;
+    min-width: 1.5em;
+    height: 1.5em;
+    width: 1.5em;
+}
+
+#remove_search > .icon {
+    background-image: url("/static/image/search/cancel.svg");
+    background-size: 2em;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 1.5em;
+    min-width: 1.5em;
+    height: 1.5em;
+    width: 1.5em;
+}
+
+
 @media screen and (max-width: 900px) {
     #search_wrapper #search_content {
         width: 100%;
@@ -237,5 +314,17 @@
     #search_wrapper .close {
         top: 1.5em;
         right: 1em;
+    }
+    #search_result li {
+        margin: 0;
+    }
+    #search_result #search_result_name li {
+        font-size: 0.8em;
+    }
+    #search_curr_result > .hint {
+        font-size: 1.2em;
+    }
+    #search_result .hint {
+        font-size: 1.2em;
     }
 }

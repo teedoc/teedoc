@@ -218,7 +218,7 @@ function addSequence(){
     var headings = tocbot._parseContent.selectHeadings(document.getElementById("article_content"), tocbot.options.headingSelector);
     var counth2=0, counth3=0, counth4=0;
     var html = document.getElementsByTagName("html")[0];
-    var isZh = html.lang.substr(0, 2).toLowerCase() == "zh";
+    var isZh = html.lang.substring(0, 2).toLowerCase() == "zh";
     for(var i=0; i<html.classList.length; ++i){
         if(html.classList[i] == "heading_no_counter"){
             return;

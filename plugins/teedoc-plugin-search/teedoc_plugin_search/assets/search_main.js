@@ -219,6 +219,27 @@ function addSearchResultClickListener(){
 function highlightKeywords(){
     var highlight_keywords = getQueryVariable("highlight");
     if(highlight_keywords){
+        // add search result btn
+        var html = document.getElementsByTagName("html")[0];
+        var lang = html.lang.split("-")[0].toLowerCase()
+        let strs = {
+            "zh": {
+                "Previous": "上一个",
+                "Next": "下一个"
+            }
+        }
+        if(lang in strs){
+            var pre_name = strs[lang]["Previous"];
+            var next_name = strs[lang]["Next"];
+        }else{
+            var pre_name = "Previous";
+            var next_name = "Next";
+        }
+        $("body").append('<div id="search_ctrl_btn">' +
+            '<div class="previous"><span class="icon"></span><span>'+ pre_name +'</span></div>' + 
+            '<div id="remove_search"><span class="icon"></span></div>' +
+            '<div class="next"><span>' + next_name +'</span><span class="icon"></span></div>' + 
+            '</div>');
         var highlight_keywords = decodeURI(highlight_keywords);
         highlight_keywords = highlight_keywords.split(" ");
         for(var i=0; i<highlight_keywords.length; ++i){
@@ -226,8 +247,40 @@ function highlightKeywords(){
             $('#content_body').highlight(highlight_keywords[i]);
         }
         window.scrollTo({
-            top: $(".search_highlight")[0].offsetTop, 
+            top: $(".search_highlight")[0].offsetTop - window.screen.height / 2,
             behavior: "smooth" 
+        });
+        $($(".search_highlight")[0]).addClass("selected_highlight")
+        $("#remove_search").on("click", function(){
+            $('.search_highlight').removeClass("search_highlight");
+            $("#search_ctrl_btn").hide();
+        });
+        var currSearchIdx = 0
+        $("#search_ctrl_btn > .previous").on("click", function(){
+            let old = currSearchIdx;
+            currSearchIdx -= 1;
+            if (currSearchIdx < 0){
+                currSearchIdx = $(".search_highlight").length - 1;
+            }
+            window.scrollTo({
+                top: $(".search_highlight")[currSearchIdx].offsetTop - window.screen.height / 2,
+                behavior: "smooth" 
+            });
+            $($(".search_highlight")[old]).removeClass("selected_highlight")
+            $($(".search_highlight")[currSearchIdx]).addClass("selected_highlight")
+        });
+        $("#search_ctrl_btn > .next").on("click", function(){
+            let old = currSearchIdx;
+            currSearchIdx += 1;
+            if (currSearchIdx >= $(".search_highlight").length){
+                currSearchIdx = 0;
+            }
+            window.scrollTo({
+                top: $(".search_highlight")[currSearchIdx].offsetTop - window.screen.height / 2,
+                behavior: "smooth" 
+            });
+            $($(".search_highlight")[old]).removeClass("selected_highlight")
+            $($(".search_highlight")[currSearchIdx]).addClass("selected_highlight")
         });
     }
 }
