@@ -15,6 +15,13 @@ items:
         file: plugins/themes.md
     -   label: 其它插件
         file: plugins/others.md
+-   label: 插件
+    url: /get_started/zh/plugins/themes.html#123
+    items:
+    -   label: 主题插件
+        url: /get_started/zh/plugins/themes.html#<code>teedoc-plugin-theme-default</code>%3A-默认主题插件
+    -   label: 其它插件
+        url: /get_started/zh/plugins/themes.html#534543
 -   label: markdown 语法
     file: syntax/syntax_markdown.md
 -   label: Markdown 文件头

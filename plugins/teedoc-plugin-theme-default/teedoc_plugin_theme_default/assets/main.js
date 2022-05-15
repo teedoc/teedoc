@@ -96,18 +96,6 @@ function registerSidebarClick(){
             a_obj.children(".sub_indicator").addClass("sub_indicator_collapsed");
         }
     }
-    $("#sidebar ul li > a").bind("click", function(e){
-        var is_click_indicator = $(e.target).hasClass("sub_indicator");
-        var a_obj = $(this);
-        if(a_obj.attr("href") == window.location.pathname){
-            show_collapse_item(a_obj);
-            return false;
-        }
-        show_collapse_item(a_obj);
-        if(is_click_indicator){ // click indicator, only collapse, not jump to link
-            return false;
-        }
-    });
     $("#menu").bind("click", function(e){
         menu_toggle();
     });
@@ -132,6 +120,20 @@ function registerSidebarClick(){
         return false;
     });
     $("#sidebar ul li > a").bind("click", function(e){
+        var is_click_indicator = $(e.target).hasClass("sub_indicator");
+        var a_obj = $(this);
+        if(a_obj.attr("href") == window.location.pathname){
+            show_collapse_item(a_obj);
+            return false;
+        }
+        show_collapse_item(a_obj);
+        if(is_click_indicator){ // click indicator, only collapse, not jump to link
+            return false;
+        }
+        var screenW = $(window).width();
+        if(screenW > 900){
+            return;
+        }
         link_href = $(this).attr("href").split(location.host);
         if(link_href.length > 1){
             link_href = link_href[1];
