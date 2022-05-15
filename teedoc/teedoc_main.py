@@ -1500,24 +1500,23 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                 if not copy_dir(in_path, out_path):
                     return False
         # copy files from pulgins
-        if not update_files:
-            log.i("copy assets files of plugins")
-            for plugin in plugins_objs:
-                files = plugin.on_copy_files()
-                for dst,src in files.items():
-                    if dst.startswith("/"):
-                        dst = dst[1:]
-                    dst = os.path.join(out_dir, dst)
-                    if not os.path.isabs(src):
-                        log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
-                    if not copy_file(src, dst):
-                        log.e("copy plugin <{}> file {} to {} error".format(plugin.name, src, dst))
-                        return False
-            # preview mode js
-            if preview_mode:
-                js_out_dir = os.path.join(out_dir, "static/js")
-                curr_dir_path = os.path.dirname(os.path.abspath(__file__))
-                copy_file(os.path.join(curr_dir_path, "static", "js", "live.js"), os.path.join(js_out_dir, "live.js"))
+        log.i("copy assets files of plugins")
+        for plugin in plugins_objs:
+            files = plugin.on_copy_files()
+            for dst,src in files.items():
+                if dst.startswith("/"):
+                    dst = dst[1:]
+                dst = os.path.join(out_dir, dst)
+                if not os.path.isabs(src):
+                    log.e("plugin <{}> on_copy_files error, file path {} must be abspath".format(plugin.name, src))
+                if not copy_file(src, dst):
+                    log.e("copy plugin <{}> file {} to {} error".format(plugin.name, src, dst))
+                    return False
+        # preview mode js
+        if preview_mode:
+            js_out_dir = os.path.join(out_dir, "static/js")
+            curr_dir_path = os.path.dirname(os.path.abspath(__file__))
+            copy_file(os.path.join(curr_dir_path, "static", "js", "live.js"), os.path.join(js_out_dir, "live.js"))
     return True
 
 def files_watch(doc_src_path, log, delay_time, queue):

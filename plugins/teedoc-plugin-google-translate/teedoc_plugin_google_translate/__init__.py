@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-google-translate"
@@ -41,18 +41,20 @@ class Plugin(Plugin_Base):
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
         self.module_path = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
         self.assets_abs_path = os.path.join(self.module_path, "assets")
-
-    def on_del(self):
-        pass
-
-    def on_copy_files(self):
-        res = {
+        self.res = {
             "/static/image/google_translate/translate.svg": os.path.join(self.assets_abs_path, "translate.svg"),
             "/static/image/google_translate/cleardot.gif": os.path.join(self.assets_abs_path, "cleardot.gif"),
             "/static/js/google_translate/main.js": os.path.join(self.assets_abs_path, "main.js"),
             "/static/js/google_translate/element_main.js": os.path.join(self.assets_abs_path, "element_main.js"),
             "/static/js/google_translate/element.js": os.path.join(self.assets_abs_path, "element.js"),
         }
+
+    def on_del(self):
+        pass
+
+    def on_copy_files(self):
+        res = self.res
+        self.res = {}
         return res
 
     def on_parse_start(self, type_name, url, dirs, doc_config, new_config):
