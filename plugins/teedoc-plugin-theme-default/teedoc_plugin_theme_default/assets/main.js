@@ -215,6 +215,9 @@ function toChineseNumber(n) {
   }
 
 function addSequence(){
+    if(!tocbot._parseContent){
+        return;
+    }
     var headings = tocbot._parseContent.selectHeadings(document.getElementById("article_content"), tocbot.options.headingSelector);
     var counth2=0, counth3=0, counth4=0;
     var html = document.getElementsByTagName("html")[0];
