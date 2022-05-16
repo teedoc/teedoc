@@ -15,13 +15,16 @@ from teedoc import Fake_Logger
 import tempfile
 import requests
 
-__version__ = "2.4.3"
+__version__ = "2.5.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
     desc = "markdown parser plugin for teedoc"
     defautl_config = {
         "parse_files": ["md"],
+        "mermaid": True,
+        "mermaid_use_cdn": False,
+        "mermaid_cdn_url": "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js",
         "mathjax": {
             "enable": True,
             "file_name": "tex-mml-chtml", # http://docs.mathjax.org/en/latest/web/components/index.html
@@ -65,6 +68,10 @@ class Plugin(Plugin_Base):
             from .parse_metadata import Meta_Parser
             self.create_markdown_parser = create_markdown_parser 
             self.Meta_Parser = Meta_Parser
+        self.assets_abs_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+        self.files_to_copy = {}
+        if self.config["mermaid"]:
+            self.files_to_copy[f'{self.name}/mermaid.min.js'] = os.path.join(self.assets_abs_path, "mermaid.min.js")
 
     def on_new_process_init(self):
         '''
@@ -199,6 +206,21 @@ MathJax = {};
             # }
             # items.append(item)
         return items
+
+    def on_add_html_footer_js_items(self, type_name):
+        items = []
+        if self.config["mermaid"]:
+            if self.config["mermaid_use_cdn"]:
+                items.append(f'<script src="{self.config["mermaid_cdn_url"]}"></script>')
+            else:
+                items.append(f'<script src="/{self.name}/mermaid.min.js"></script>')
+            items.append('<script>mermaid.initialize({startOnLoad:true});</script>')
+        return items
+
+    def on_copy_files(self):
+        res = self.files_to_copy
+        self.files_to_copy = {}
+        return res
 
     def _update_link(self, content):
         def re_del(c):

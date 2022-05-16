@@ -1,5 +1,8 @@
 import mistune
 import urllib.parse
+# from pygments import highlight
+# from pygments.lexers import get_lexer_by_name
+# from pygments.formatters import html
 
 def link_in_this_site(link):
     if not "://" in link:
@@ -31,3 +34,16 @@ class Header_Renderer(mistune.Renderer):
         escaped_id = urllib.parse.quote(text.replace(' ', "-"))
         html = html.replace(f'<h{level}>', f'<h{level} id="{escaped_id}">')
         return html
+
+class HighlightRenderer(mistune.Renderer):
+    def block_code(self, code, lang):
+        if not lang:
+            return '\n<pre class="language-none"><code class="language-none">{}</code></pre>\n'.format(
+                mistune.escape(code))
+        if lang == "mermaid":
+            return '\n<div class="mermaid">{}</div>\n'.format(mistune.escape(code))
+        return '\n<pre class="language-{}"><code class="language-{}">{}</code></pre>\n'.format(
+                lang, lang, mistune.escape(code))
+        # lexer = get_lexer_by_name(lang, stripall=True)
+        # formatter = html.HtmlFormatter()
+        # return highlight(code, lexer, formatter)

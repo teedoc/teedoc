@@ -1,5 +1,5 @@
 import mistune
-from .renderer_base import Block_Quote_Renderer, Header_Renderer
+from .renderer_base import Block_Quote_Renderer, Header_Renderer, HighlightRenderer
 from .renderer_math import MathRendererMixin
 
 plugins = [
@@ -19,6 +19,7 @@ class MDRenderer(
                 #  TasklistRenderMixin,
                  Block_Quote_Renderer,
                  Header_Renderer,
+                 HighlightRenderer,
                  mistune.Renderer):
     def __init__(self):
         mistune.Renderer.__init__(self, escape = False, hard_wrap = True)
