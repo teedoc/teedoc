@@ -15,7 +15,7 @@ from teedoc import Fake_Logger
 import tempfile
 import requests
 
-__version__ = "2.5.2"
+__version__ = "2.6.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -223,42 +223,93 @@ MathJax = {};
         return res
 
     def _update_link(self, content):
-        def re_del(c):
-            ret = c[0]
-            links = re.findall('\((.*?)\)', c[0])
-            if len(links) > 0:
-                for link in links:
-                    if link.startswith(".") or os.path.isabs(link):
-                        ret = re.sub("README.md", "index.html", c[0], flags=re.I)
-                        ret = re.sub(r".md", ".html", ret, re.I)
-                        return ret
-            return ret
-        def re_del_ipynb(c):
-            ret = c[0]
-            links = re.findall('\((.*?)\)', c[0])
-            if len(links) > 0:
-                for link in links:
-                    if link.startswith(".") or os.path.isabs(link):
-                        ret = re.sub("README.ipynb", "index.html", c[0], flags=re.I)
-                        ret = re.sub(r".ipynb", ".html", ret, re.I)
-                        return ret
-            return ret
-        # <a class="anchor-link" href="#&#38142;&#25509;"> </a></h2><p><a href="./syntax_markdown.md">markdown 语法</a>
-        content = re.sub(r'\[.*?\]\(.*?\.md.*?\)', re_del, content, flags=re.I)
-        content = re.sub(r'\[.*?\]\(.*?\.ipynb.*?\)', re_del_ipynb, content, flags=re.I)
+        '''
+            \[你好                              => \[你好
+            [你好[hello]                        => [你好[hello]
+            [你好]hello                         => [你好]hello
+            [你好](a.md)                        => [你好](a.html)
+            [你好](./a.md)                      => [你好](./a.html)
+            [你好](./a.md                       => error
+            \[你好\](./a.md)                    => \[你好\](./a.md)
+            [[你好](a.md)](a.md)                => [[你好](a.html)](a.html)
+            [[你好](https://a.com/a.md)](a.md)  => [[你好](https://a.com/a.md)](a.html)
+            [[你好](a.md)](a(3).md)             => [[你好](a.html)](a(3).html)
+            [[你好](a.md)](a[3].md)             => [[你好](a.html)](a[3].html)
+            [[你好](a.md)](a[3](123).md)        => [[你好](a.html)](a[3](123).html)
+            [[你好]]                            => [[你好]]
+            [你好](README.md)                   => [你好](index.html)
+            [你好](readme.md)                   => [你好](index.html)
+        '''
+        def is_abs_link(link):
+            if link.startswith("/") or link.startswith("http"):
+                return True
+            start = link.split(":")[0]
+            if start and start in ["ftp", "nfs", "smb", "file"]:
+                return True
+            return False
+
+        def replace_ext(data, ext):
+            final = ""
+            flag_len = 2 # “](”
+            while 1:
+                # find [...]()
+                idx = data.find("](")
+                if idx < 0:
+                    final += data
+                    break
+                elif idx > 0 and data[idx-1] == "\\": # \](
+                    final += data[:idx + 1]
+                    data = data[idx + 1:]
+                    continue
+                # find )
+                sub = 0
+                idx2 = idx
+                for i, c in enumerate(data[idx + flag_len:]):
+                    if c == "(":
+                        sub += 1
+                        continue
+                    if c == "\n":
+                        break
+                    if c == ")":
+                        sub -= 1
+                        if sub < 0:
+                            idx2 += i + flag_len
+                            break
+                if idx2 == idx: # not find valid []()
+                    raise Exception('only have "[](", need ")" to close link')
+                # ](....md )
+                link = data[idx + flag_len: idx2].strip()
+                if (not is_abs_link(link)) and link.endswith(ext):
+                    link = link[:-len(ext)] + "html"
+                    if link.lower().endswith("readme.html"):
+                        link = link[:-len("readme.html")] + "index.html"
+                final += f'{data[:idx]}]({link})'
+                data = data[idx2 + 1:]
+            return final
+
+        content = replace_ext(content, "md")
+        content = replace_ext(content, "ipynb")
         return content
 
 if __name__ == "__main__":
     config = {
     }
-    plug = Plugin(config=config)
-    res = plug.parse_files(["md_files/basic.md"])
-    print(res)
-    if not os.path.exists("out"):
-        os.makedirs("out")
-    for file, html in res["htmls"].items():
-        if html:
-            file = "{}.html".format(os.path.splitext(os.path.basename(file))[0])
-            with open(os.path.join("out", file), "w") as f:
-                f.write(html)
+    plug = Plugin(config, "", {})
+    content = '''
+\[你好
+[你好[hello]
+[你好]hello
+[你好](a.md)
+[你好](./a.md)
+\[你好\](./a.md)
+[[你好](a.md)](a.md)
+[[你好](https://a.com/a.md)](a.md)
+[[你好](a.md)](a(3).md)
+[[你好](a.md)](a[3].md)
+[[你好](a.md)](a[3](123).md)
+[[你好]]                            => [[你好]]
+[你好](README.md)                   => [你好](index.html)
+[你好](readme.ipynb)                   => [你好](index.html)                   '''
+    content = plug._update_link(content)
+    print(content)
 
