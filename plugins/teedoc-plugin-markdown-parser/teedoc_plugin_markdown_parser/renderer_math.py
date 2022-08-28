@@ -8,14 +8,14 @@
 """
 
 import re
-from functools import partial
-
-try:
-    from html import escape
-    html_escape = partial(escape, quote=False)
-except ImportError:
-    # Python 2
-    from cgi import escape as html_escape
+# from functools import partial
+# try:
+#     from html import escape
+#     html_escape = partial(escape, quote=False)
+# except ImportError:
+#     # Python 2
+#     from cgi import escape as html_escape
+import mistune
 
 class MathBlockMixin(object):
     """Math mixin for BlockLexer, mix this with BlockLexer::
@@ -74,12 +74,12 @@ class MathInlineMixin(object):
 
 class MathRendererMixin(object):
     def block_math(self, text):
-        return '$$%s$$' % html_escape(text)
+        return '$$%s$$' % mistune.util.escape_html(text)
 
     def block_latex(self, name, text):
-        name = html_escape(name)
-        return r'\begin{%s}%s\end{%s}' % (name, html_escape(text), name)
+        name = mistune.util.escape_html(name)
+        return r'\begin{%s}%s\end{%s}' % (name, mistune.util.escape_html(text), name)
 
     def math(self, text):
-        return '$%s$' % html_escape(text)
+        return '$%s$' % mistune.util.escape_html(text)
 

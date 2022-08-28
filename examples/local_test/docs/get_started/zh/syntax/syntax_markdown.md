@@ -22,9 +22,10 @@ desc: teedoc 的 markdown 语法介绍和实例
 title: markdown 语法
 tags: teedoc, markdown, 语法
 keywords: teedoc, markdown, 语法
-desc: teedoc 的 markdown 语法介绍和实例 teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例teedoc 的 markdown 语法介绍和实例
+desc: teedoc 的 markdown 语法介绍和实例
 id: zh_readme
 class: zh_readme
+# 以 # 号开头表示注释
 ---
 ```
 
@@ -34,8 +35,10 @@ class: zh_readme
 * `desc`: 页面描述，会被添加到`html`头中，方便搜索引擎爬取
 * `tags`： 文章标签，会显示到页面
 * `id`: 页面`id`， 会被添加到`html`标签中，比如`<html id="zh_readme">...</html>`, 可以不设置，会覆盖`config.json`中的设置
-* `class`: 页面`class`,多个用英文逗号`,`隔开，可以不设置，会覆盖`config.json`中的设置。比如可以通过设置这个值来达到设置特定页面的`css`样式
+* `class`: 页面`class`,多个用英文逗号`,`隔开，可以不设置，会覆盖`config.json`中的设置。比如可以通过设置这个值来达到设置特定页面的`css`样式。具体支持的样式见[主题插件的文档](../plugins/themes.md)
 * `layout`: 页面使用的布局模板, 默认不需要这个键值, 会使用主题插件里面的配置,需要你需要自定义这个页面的布局, 可以设置这个参数, 路径相对于`site_config`中的`layout_root_dir`路径, `layout_root_dir` 默认为`layout`, 所以要使用`layout/special_layout.html` 只需要填写`special_layout.html`. 布局模板语法见[layout 文档](../usage/layout_template.md)
+
+另外以`#`号开头则代表是注释
 
 ### Markdown 文件内容
 
@@ -145,6 +148,18 @@ print("hello")
 >> 注释嵌套
 >> 注释嵌套
 
+在块引用中使用 markdown 语法
+
+> #### The quarterly results look great!
+>
+> - Revenue was off the chart.
+> - Profits were higher than ever.
+>
+>  *Everything* is going according to **plan**.
+> ```c
+> printf("hello");
+> ```
+
 
 
 ## 警告
@@ -157,10 +172,10 @@ print("hello")
 
 要显示这张图片，需要在`site_config.json`中设置`route`键值
 
-![这是一张图片](../../assets/images/logo.png)
-![这是一张图片](../assets/images/logo.png)
+![这是一张图片](../../assets/images/logo.jpg)
+![这是一张图片](../assets/images/logo.jpg)
 
-![这是一张图片](../../assets/images/logo.png)![这是一张图片](../assets/images/logo.png)
+![这是一张图片](../../assets/images/logo.jpg)![这是一张图片](../assets/images/logo.jpg)
 
 ## 视频
 
@@ -184,7 +199,6 @@ print("hello")
 我能干饭我自豪。[^干饭人]
 
 [^干饭人]: 老子说道
-
 这会在文章末尾进行注解
 
 
@@ -239,16 +253,44 @@ hello <br/> <img src="../../assets/images/logo.png"/>
 
 ## 数学
 
+支持`tex`和`Latex`语法，以及`MathML`标签
 
-内嵌的Katex效果$E=mc^2$就是这样
+两种写法，
+* 一种是行内内嵌，用`$`符号将方程包起来，比如
+```markdown
+质能方程 $E=mc^2$大家很熟悉吧
+```
+> 效果:
+> 质能方程 $E=mc^2$大家很熟悉吧
 
+* 另一种，块方程，用`$$`将方程包起来，比如
+```markdown
+$$
+E=mc^2
+$$
+```
+> 效果:
+> $$
+> E=mc^2
+> $$
+
+其他例子：
+常见：
+```markdown
 When $a \ne 0$, there are two solutions to $ax^2 + bx + c = 0$ and they are
-
 $$
 x = {-b \pm \sqrt{b^2-4ac} \over 2a}.
 $$
+```
 
+> When $a \ne 0$, there are two solutions to $ax^2 + bx + c = 0$ and they are
+> $$
+> x = {-b \pm \sqrt{b^2-4ac} \over 2a}.
+> $$
 
+除法式：
+
+```markdown
 $$
 \require{enclose}
 \begin{array}{r}
@@ -259,13 +301,70 @@ $$
      \underline{12}\\0
 \end{array}\\
 $$
+```
 
+> $$
+> \require{enclose}
+> \begin{array}{r}
+>                 13  \\[-3pt]
+> 4 \enclose{longdiv}{52} \\[-3pt]
+>      \underline{4}\phantom{2} \\[-3pt]
+>                 12  \\[-3pt]
+>      \underline{12}\\0
+> \end{array}\\
+> $$
+
+
+加框：
+
+```markdown
 $$
 \bbox[#cde, 3px,border:1px solid blue]{y=x^2-1}
 $$
+```
+
+> $$
+> \bbox[#cde, 3px,border:1px solid blue]{y=x^2-1}
+> $$
 
 
-## mermaid
+## mermaid 支持
+
+使用 mermaid 可以画很多类型的图表， 详细的语法和支持请看[官网](https://mermaid-js.github.io/)
+
+<pre class="language-markdown">
+<code>
+```mermaid
+sequenceDiagram
+  Alice->>John: Hello John, how are you?
+  loop Healthcheck
+      John->>John: Fight against hypochondria
+  end
+  Note right of John: Rational thoughts!
+  John-->>Alice: Great!
+  John->>Bob: How about you?
+  Bob-->>John: Jolly good!
+```
+</code>
+</pre>
+
+或者直接 `html`:
+
+```html
+<div class="mermaid">
+sequenceDiagram
+  Alice->>John: Hello John, how are you?
+  loop Healthcheck
+      John->>John: Fight against hypochondria
+  end
+  Note right of John: Rational thoughts!
+  John-->>Alice: Great!
+  John->>Bob: How about you?
+  Bob-->>John: Jolly good!
+</div>
+```
+
+效果：
 
 ```mermaid
 sequenceDiagram
@@ -279,15 +378,4 @@ sequenceDiagram
   Bob-->>John: Jolly good!
 ```
 
-<div class="mermaid">
-sequenceDiagram
-  Alice->>John: Hello John, how are you?
-  loop Healthcheck
-      John->>John: Fight against hypochondria
-  end
-  Note right of John: Rational thoughts!
-  John-->>Alice: Great!
-  John->>Bob: How about you?
-  Bob-->>John: Jolly good!
-</div>
 
