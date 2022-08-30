@@ -150,6 +150,7 @@ setup(
         'console_scripts': [
         # # 'gui_scripts': [
             'teedoc=teedoc.teedoc_main:main',
+            'teedoc-list-files=teedoc.teedoc_list_files:main',
         ],
     },
 )

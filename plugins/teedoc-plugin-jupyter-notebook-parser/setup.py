@@ -8,7 +8,7 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
-install_requires = ["jupyter_core>=4.7.1", "nbconvert>=6.0.7"]
+install_requires = ["jupyter_core>=4.11.1", "nbconvert>=7.0.0"]
 packages = find_packages()
 print("packages:", packages)
 
