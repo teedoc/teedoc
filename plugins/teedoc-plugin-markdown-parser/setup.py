@@ -8,7 +8,7 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
-install_requires = ["mistune==0.8.4"]
+install_requires = ["mistune >=2.0.3,<3",]
 packages = find_packages()
 print("packages:", packages)
 
