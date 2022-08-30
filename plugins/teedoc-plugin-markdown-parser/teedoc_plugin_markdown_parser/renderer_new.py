@@ -1,5 +1,4 @@
 import mistune
-from .renderer_math import MathRendererMixin
 import re
 import mistune
 import urllib.parse
@@ -8,8 +7,6 @@ import urllib.parse
 # from pygments.formatters import html
 import mistune
 from mistune import InlineParser, BlockParser
-from .renderer_math import MathInlineMixin, MathRendererMixin, MathBlockMixin
-
 
 def link_in_this_site(link):
     if not "://" in link:
@@ -84,26 +81,107 @@ class TasklistRenderMixin:
              checkbox = '<input type="checkbox" class="task-list-item-checkbox" disabled /> '
          return new_list_item(self, checkbox + text[m.end():])
 
-class MathInlineLexer(MathInlineMixin, InlineParser):
-    def __init__(self, *args, **kwargs):
-        super(MathInlineLexer, self).__init__(*args, **kwargs)
-        self.enable_math()
+class MathBlockParser(BlockParser):
+    """This acts as a pass-through to the MathInlineParser. It is needed in
+    order to avoid other block level rules splitting math sections apart.
+    """
 
-class MathBlockLexer(MathBlockMixin, BlockParser):
-    def __init__(self, *args, **kwargs):
-        BlockParser.__init__(self, *args, **kwargs)
-        self.enable_math()
+    MULTILINE_MATH = re.compile(
+        r"(?<!\\)[$]{2}.*?(?<!\\)[$]{2}|"
+        r"\\\\\[.*?\\\\\]|"
+        r"\\begin\{([a-z]*\*?)\}.*?\\end\{\1\}",
+        re.DOTALL,
+    )
+
+    RULE_NAMES = ("multiline_math",) + BlockParser.RULE_NAMES
+
+    # Regex for header that doesn't require space after '#'
+    AXT_HEADING = re.compile(r" {0,3}(#{1,6})(?!#+)(?: *\n+|([^\n]*?)(?:\n+|\s+?#+\s*\n+))")
+
+    def parse_multiline_math(self, m, state):
+        """Pass token through mutiline math."""
+        return {"type": "multiline_math", "text": m.group(0)}
+
+
+def _dotall(pattern):
+    """Make the '.' special character match any character inside the pattern, including a newline.
+    This is implemented with the inline flag `(?s:...)` and is equivalent to using `re.DOTALL` when
+    it is the only pattern used. It is necessary since `mistune>=2.0.0`, where the pattern is passed
+    to the undocumented `re.Scanner`.
+    """
+    return f"(?s:{pattern})"
+
+
+class MathInlineParser(InlineParser):
+    r"""This interprets the content of LaTeX style math objects.
+    In particular this grabs ``$$...$$``, ``\\[...\\]``, ``\\(...\\)``, ``$...$``,
+    and ``\begin{foo}...\end{foo}`` styles for declaring mathematics. It strips
+    delimiters from all these varieties, and extracts the type of environment
+    in the last case (``foo`` in this example).
+    """
+    BLOCK_MATH_TEX = _dotall(r"(?<!\\)\$\$(.*?)(?<!\\)\$\$")
+    BLOCK_MATH_LATEX = _dotall(r"(?<!\\)\\\\\[(.*?)(?<!\\)\\\\\]")
+    INLINE_MATH_TEX = _dotall(r"(?<![$\\])\$(.+?)(?<![$\\])\$")
+    INLINE_MATH_LATEX = _dotall(r"(?<!\\)\\\\\((.*?)(?<!\\)\\\\\)")
+    LATEX_ENVIRONMENT = _dotall(r"\\begin\{([a-z]*\*?)\}(.*?)\\end\{\1\}")
+
+    # The order is important here
+    RULE_NAMES = (
+        "block_math_tex",
+        "block_math_latex",
+        "inline_math_tex",
+        "inline_math_latex",
+        "latex_environment",
+    ) + InlineParser.RULE_NAMES
+
+    def parse_block_math_tex(self, m, state):
+        # sometimes the Scanner keeps the final '$$', so we use the
+        # full matched string and remove the math markers
+        text = m.group(0)[2:-2]
+        return "block_math", text
+
+    def parse_block_math_latex(self, m, state):
+        text = m.group(1)
+        return "block_math", text
+
+    def parse_inline_math_tex(self, m, state):
+        text = m.group(1)
+        return "inline_math", text
+
+    def parse_inline_math_latex(self, m, state):
+        text = m.group(1)
+        return "inline_math", text
+
+    def parse_latex_environment(self, m, state):
+        name, text = m.group(1), m.group(2)
+        return "latex_environment", name, text
 
 class MarkdownWithMath(mistune.Markdown):
-    def __init__(self, renderer, **kwargs):
-        if 'inline' not in kwargs:
-            kwargs['inline'] = MathInlineLexer
-        if 'block' not in kwargs:
-            kwargs['block'] = MathBlockLexer
-        super().__init__(renderer, **kwargs)
+    def __init__(self, renderer, block=None, inline=None, plugins=None):
+        if block is None:
+            block = MathBlockParser()
+        if inline is None:
+            inline = MathInlineParser(renderer, hard_wrap=True)
+        super().__init__(renderer, block, inline, plugins)
 
-    def output_block_math(self):
-        return self.inline(self.token["text"])
+    def render(self, s):
+        """Compatibility method with `mistune==0.8.4`."""
+        return self.parse(s)
+
+class MathRendererMixin:
+        def multiline_math(self, text):
+            return text
+
+        def block_math(self, text):
+            return f"$${mistune.util.escape_html(text)}$$"
+
+        def latex_environment(self, name, text):
+            name, text = mistune.util.escape_html(name), mistune.util.escape_html(text)
+            return f"\\begin{{{name}}}{text}\\end{{{name}}}"
+
+        def inline_math(self, text):
+            return f"${mistune.util.escape_html(text)}$"
+
 
 class MDRenderer(
                  MathRendererMixin,
@@ -133,6 +211,7 @@ def create_markdown_parser():
             _plugins.append(p)
     plugins = _plugins
     renderer = MDRenderer()
-    parser = MarkdownWithMath(renderer=renderer, plugins=plugins, inline = MathInlineLexer(renderer, hard_wrap = True))
+    # parser = mistune.create_markdown(renderer=renderer, plugins=plugins, hard_wrap=True)
+    parser = MarkdownWithMath(renderer=renderer, plugins=plugins)
     return parser
 

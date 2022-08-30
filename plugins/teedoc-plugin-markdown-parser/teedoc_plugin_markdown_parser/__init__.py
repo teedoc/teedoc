@@ -15,7 +15,7 @@ from teedoc import Fake_Logger
 import tempfile
 import requests
 
-__version__ = "2.6.0"
+__version__ = "2.6.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -248,7 +248,7 @@ MathJax = {};
                 return True
             return False
 
-        def replace_ext(data, ext):
+        def replace_ext(data, exts):
             final = ""
             flag_len = 2 # “](”
             while 1:
@@ -279,16 +279,18 @@ MathJax = {};
                     raise Exception('only have "[](", need ")" to close link')
                 # ](....md )
                 link = data[idx + flag_len: idx2].strip()
-                if (not is_abs_link(link)) and link.endswith(ext):
-                    link = link[:-len(ext)] + "html"
+                if (not is_abs_link(link)):
+                    for ext in exts:
+                        if link.endswith(ext):
+                            link = link[:-len(ext)] + "html"
+                            break
                     if link.lower().endswith("readme.html"):
                         link = link[:-len("readme.html")] + "index.html"
                 final += f'{data[:idx]}]({link})'
                 data = data[idx2 + 1:]
             return final
 
-        content = replace_ext(content, "md")
-        content = replace_ext(content, "ipynb")
+        content = replace_ext(content, ["md", "ipynb"])
         return content
 
 if __name__ == "__main__":
