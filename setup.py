@@ -20,13 +20,13 @@ with open(readme_path, encoding="utf-8") as f:
      long_description = f.read()
 
 install_requires = [ "coloredlogs >= 15.0.1",
+                     "mistune >=2.0.3,<3",
                      "watchdog >= 2.1.7",
+                     "nbconvert >= 7.0.0",
                      "PyYaml >= 5.4.1",
                      "jinja2 >= 3.1.1",
                      "flask >= 2.0.2",
                      "babel >= 2.9.1",
-                     "nbconvert >= 6.4.5",
-                     "mistune == 0.8.4",
                      "requests"
                    ]
 packages = find_packages()
