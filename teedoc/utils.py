@@ -2,6 +2,8 @@ import re, os
 from collections import OrderedDict
 import shutil
 import requests
+import subprocess
+from datetime import datetime
 
 
 def sidebar_summary2dict(content):
@@ -336,6 +338,18 @@ def download_file(url, save_path):
         if res.status_code != 200:
             raise Exception("Download file: {} failed".format(url))
         f.write(res.content)
+
+def get_file_last_modify_time(file_path, git=True):
+    last_edit_time = None
+    if git:
+        cmd = "git log -1 --format=%cd --date=iso8601-strict {}".format(file_path)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        output, err = p.communicate()
+        if p.returncode == 0:
+            last_edit_time = datetime.fromisoformat(output.decode("utf-8").strip())
+    if not last_edit_time:
+        last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
+    return last_edit_time
 
 if __name__ == "__main__":
     a = {

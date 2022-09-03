@@ -46,13 +46,16 @@ def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
             last_edit_time = None
             if "date" in html and html['date']:
                 try:
-                    date = html['date'].strip().split(" ")[0]
-                    last_edit_time = datetime.strptime(date,"%Y-%m-%d")
+                    if type(html["date"]) == str:
+                        date = html['date'].strip().split(" ")[0]
+                        last_edit_time = datetime.strptime(date,"%Y-%m-%d")
+                    elif type(html["date"]) == datetime:
+                        last_edit_time = html["date"]
                 except:
                     pass
             if last_edit_time is None:
-                last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
-            last_edit_time = str(last_edit_time).replace(" ", "T")
+                last_edit_time = utils.get_file_last_modify_time(file_path)
+            last_edit_time = last_edit_time.isoformat()
             change_freq = "weekly"
             priority = 1.0
             sitemap_item = '''    <url>
@@ -68,6 +71,7 @@ def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
     sitemap_content += '</urlset>\r\n'
     with open(out_path, "w", encoding='utf-8') as f:
         f.write(sitemap_content)
+    print("generate sitemap.xml cost: {}s".format(time.time() - t))
 
 
 def split_list(obj, n):
@@ -724,7 +728,7 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         htmls[file] = html
     return htmls
 
-def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs, log):
+def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_in, js_items_in, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs, log, is_build):
     '''
         @htmls  {
             "title": "",
@@ -788,6 +792,21 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                                 "url": sidebar_list[file]["next"][0],
                                 "title": sidebar_list[file]["next"][1]
                             }
+                # get file last edit time
+                last_edit_time = None
+                if "date" in html and html['date']:
+                    try:
+                        if type(html["date"]) == str:
+                            date = html['date'].strip().split(" ")[0]
+                            last_edit_time = datetime.strptime(date,"%Y-%m-%d")
+                        elif type(html["date"]) == datetime:
+                            last_edit_time = html["date"]
+                    except:
+                        pass
+                if last_edit_time is None:
+                    # only get last edit time from git when is build, preview/serve mode not get to faster preview speed
+                    last_edit_time = utils.get_file_last_modify_time(file, git=is_build)
+                html["date"] = last_edit_time.strftime("%Y-%m-%d")
                 vars = {
                     "lang": lang,
                     "metadata": metadata,
@@ -815,7 +834,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                     "article_title" : html["title"],
                     "tags" : html["tags"],
                     "author" : html["author"] if "author" in html else None,
-                    "date" : html["date"] if "date" in html else None,
+                    "date" : html["date"],
                     "show_source" : html["show_source"][0] if "show_source" in html else None,
                     "source_url" : html["show_source"][1] if "show_source" in html else None,
                     "body" : html["body"],
@@ -988,7 +1007,7 @@ def generate_return(plugins_objs, ok, multiprocess):
 def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes,
              site_config, doc_src_path, log, out_dir, plugins_objs, header_items, js_items,
              sidebar, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
-             redirect_err_file, redirct_url, ref_doc_url, sidebar_root_dir = None):
+             redirect_err_file, redirct_url, ref_doc_url, is_build, sidebar_root_dir = None):
     if not sidebar_root_dir:
         sidebar_root_dir = dir
     if not pipe_tx is None:
@@ -1076,7 +1095,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
                 htmls = htmls_add_source(htmls, site_config["source"], label, doc_src_path)
 
         # consturct html page
-        htmls_str = construct_html(html_template, html_templates_i18n_dirs, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs, log)
+        htmls_str = construct_html(html_template, html_templates_i18n_dirs, htmls, header_items, js_items, site_config, sidebar_list, doc_config, doc_src_path, plugins_objs, log, is_build)
         if is_err():
             return generate_return(plugins_objs, False, multiprocess)
         # check abspath
@@ -1183,7 +1202,7 @@ def get_templates_i18n_dirs(site_config, doc_src_path, log):
 def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
             sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode, html_templates_i18n_dirs=[], multiprocess = True,
             translate = False, ref_doc_url="", ref_doc_dir = "", ref_locale = "en", translate_src_sidebar_list = None,
-            doc_configs = {}, nav_lang_items = []):
+            doc_configs = {}, nav_lang_items = [], is_build = True):
     '''
         @return {
             "doc_url", {
@@ -1325,7 +1344,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                                             routes, site_config, doc_src_path, log, out_dir, plugins_objs, 
                                             header_items, footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar,
                                             site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
-                                            redirect_err_file, redirct_url, ref_doc_url,)
+                                            redirect_err_file, redirct_url, ref_doc_url, is_build)
                 if multiprocess:
                     p = multiprocessing.Process(target=generate, args=args)
                 else:
@@ -1340,7 +1359,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             ok = generate(multiprocess, html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
                           routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
                           footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None,
-                          redirect_err_file, redirct_url, ref_doc_url)
+                          redirect_err_file, redirct_url, ref_doc_url, is_build)
             if not ok:
                 return False, None
         # create no_translate.html
@@ -1372,7 +1391,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                 ok = generate(multiprocess, html_template, html_templates_i18n_dirs, all_files, url, tmp_dir, doc_config, plugin_func,
                           routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
                           footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar, site_root_url, navbar, footer, queue, None, None,
-                          redirect_err_file, redirct_url, ref_doc_url, sidebar_root_dir=dir)
+                          redirect_err_file, redirct_url, ref_doc_url, is_build, sidebar_root_dir=dir)
                 if not ok:
                     return False, None
 
@@ -1388,7 +1407,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
     return True, htmls
 
 def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None,
-             preview_mode = False, max_threads_num = 1, multiprocess=True, parse_pages=True, copy_assets=True):
+             preview_mode = False, max_threads_num = 1, multiprocess=True, parse_pages=True, copy_assets=True,
+             is_build = True):
     '''
         "route": {
             "docs": {
@@ -1416,7 +1436,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             routes = site_config["route"]["docs"]
             ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build)
             if not ok:
                 return False
         # parse all pages
@@ -1424,7 +1444,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             routes = site_config["route"]["pages"]
             ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build)
             if not ok:
                 return False
         # parse all blogs
@@ -1433,7 +1453,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
             routes = site_config["route"]["blog"]
             ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess)
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build)
             if not ok:
                 return False
         # parse all translate docs
@@ -1451,7 +1471,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                     ok, htmls_files2 = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                                 html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
-                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list,
+                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list, is_build = is_build
                                 )
                     #    create
                     htmls_files.update(htmls_files2)
@@ -1468,14 +1488,14 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                     ok, htmls_pages2 = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                                 html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
-                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir,
+                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir, is_build = is_build
                                 )
                     #    create
                     htmls_pages.update(htmls_pages2)
                     if not ok:
                         return False
         # generate sitemap.xml
-        if not update_files: # only generate when build all
+        if is_build: # only generate when build mode, not generate when preview mode
             sitemap_out_path = os.path.join(out_dir, "sitemap.xml")
             generate_sitemap(htmls_files, sitemap_out_path, site_config["site_domain"], site_config["site_protocol"], log)
 
@@ -1851,7 +1871,7 @@ def main():
             elif args.command == "build":
                 # parse files
                 if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log,
-                            preview_mode=args.preview, max_threads_num=max_threads_num, multiprocess=args.multiprocess):
+                            preview_mode=args.preview, max_threads_num=max_threads_num, multiprocess=args.multiprocess, is_build=True):
                     return 1
                 add_robots_txt(site_config, out_dir, log)
                 log.i("build ok")
@@ -1864,14 +1884,14 @@ def main():
                             preview_mode = True, max_threads_num = max_threads_num,
                             multiprocess = args.multiprocess,
                             parse_pages = not args.fast,
-                            copy_assets = True):
+                            copy_assets = True, is_build = False):
                     return 1
                 def build_all():
                     build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log,
                             preview_mode = True, max_threads_num = max_threads_num,
                             multiprocess = args.multiprocess,
                             parse_pages = True,
-                            copy_assets = False)
+                            copy_assets = False, is_build = False)
                 # continue to build all pages
                 if args.fast and not t_build:
                     t_build = threading.Thread(target=build_all)
@@ -1937,7 +1957,7 @@ def main():
                         else:                                 # normal file, nonly rebuild this file
                             files.append(path)
                     if files:
-                        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True, max_threads_num=max_threads_num):
+                        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True, max_threads_num=max_threads_num, is_build=False):
                             return 1
                         log.i("rebuild ok\n")
                     if build_lock.locked():
