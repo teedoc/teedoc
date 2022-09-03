@@ -68,9 +68,11 @@
                             <span class="article_author">
                                 {% if author %}{{ author }}{% endif %}
                             </span>
-                            <span class="article_date">
-                                {% if date %}{{ date }}{% endif %}
-                            </span>
+                            {% if date %}
+                                <span class="article_date" title="{{ _('Last modify date:') + " " + date }}">
+                                    {{ date }}
+                                </span>
+                            {% endif %}
                         </div>
                         <div id="article_info_right">
                             {% if show_source %}

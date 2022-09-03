@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-08 20:43+0800\n"
+"POT-Creation-Date: 2022-09-03 15:44+0800\n"
 "PO-Revision-Date: 2021-09-07 16:55+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant_TW\n"
@@ -29,4 +29,8 @@ msgstr "返回上一頁"
 #: templates/404.html:63
 msgid "Home"
 msgstr "首頁"
+
+#: templates/article.html:72
+msgid "Last modify date:"
+msgstr "最后修改日期："
 

@@ -43,7 +43,15 @@ def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
         for url, html in htmls.items():
             url = "{}://{}{}".format(site_protocol, site_domain, url)
             file_path = html['file_path']
-            last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
+            last_edit_time = None
+            if "date" in html and html['date']:
+                try:
+                    date = html['date'].strip().split(" ")[0]
+                    last_edit_time = datetime.strptime(date,"%Y-%m-%d")
+                except:
+                    pass
+            if last_edit_time is None:
+                last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
             last_edit_time = str(last_edit_time).replace(" ", "T")
             change_freq = "weekly"
             priority = 1.0
