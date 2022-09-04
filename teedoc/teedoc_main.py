@@ -71,7 +71,6 @@ def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
     sitemap_content += '</urlset>\r\n'
     with open(out_path, "w", encoding='utf-8') as f:
         f.write(sitemap_content)
-    print("generate sitemap.xml cost: {}s".format(time.time() - t))
 
 
 def split_list(obj, n):
