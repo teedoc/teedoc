@@ -15,7 +15,15 @@ def is_content_different(path1, path2):
     with open(path1, "rb") as f1, open(path2, "rb") as f2:
         return f1.read() != f2.read()
 
+def remove_tail(path):
+    if path == "/":
+        return path
+    if path.endswith("/"):
+        return path[:-1]
+
 def get_changed_files(old, new):
+    old = remove_tail(old)
+    new = remove_tail(new)
     new_files = []
     modified_files = []
     deleted_files = []
