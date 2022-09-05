@@ -2,6 +2,7 @@ import os, sys
 import argparse
 import time
 from glob import glob
+from progress import bar, spinner
 try:
     from .teedoc_compare import get_changed_files
 except:
@@ -26,7 +27,6 @@ class Qiniu():
 
     def upload(self, file_path, key):
         fail_count = 3
-        print("upload {} to {}".format(file_path, key))
         while 1:
             try:
                 q = self.qiniu.Auth(self.access_key, self.secret_key)
@@ -51,6 +51,7 @@ def remove_tail(path):
         return path
     if path.endswith("/"):
         return path[:-1]
+    return path
 
 def get_files(file_or_dir, old_dir):
     if os.path.isdir(file_or_dir):
@@ -79,15 +80,41 @@ def get_files(file_or_dir, old_dir):
             sys.exit(1)
         return [(file_or_dir, os.path.basename(file_or_dir))]
 
+class Progress_Bar_Raw():
+    def __init__(self, name, max, interval = 1):
+        self.name = name
+        self.max = max
+        self.interval = interval
+        self.current = 0
+        self.last = 0
+
+    def next(self, n = 1):
+        self.current += n
+        if self.last == 0:
+            self.last = time.time()
+            return
+        if time.time() - self.last > self.interval:
+            print("{}: {:3.2f}% ({}/{})".format(self.name, self.current / self.max * 100, self.current, self.max))
+
 def main():
     parser = argparse.ArgumentParser(description="Upload files to cloud, only upload new file and modified file, won't delete file")
     parser.add_argument("--cloud", type=str, default="qiniu", help=cloud_help, choices=["qiniu"])
     parser.add_argument("--bucket", type=str, default="", help="bucket name")
     parser.add_argument("--access_key", type=str, default="", help="access key")
     parser.add_argument("--secret_key", type=str, default="", help="secret key")
+    parser.add_argument("--progress", type=str, default="bar", help="progress bar style, bar or spinner", choices=["bar", "chargingbar", "incrementalbar", "spinner", "raw"])
+    parser.add_argument("--progress-interval", type=float, default=5, help="progress print interval, only for raw progress")
     parser.add_argument("--old", type=str, default="", help="compare two directories' different files to upload")
     parser.add_argument("file_or_dir", type=str, help="file path or directory to upload, if directory, upload all files in it and won't upload the directory")
     args = parser.parse_args()
+
+    progress_classes = {
+        "bar": bar.Bar,
+        "chargingbar": bar.ChargingBar,
+        "incrementalbar": bar.IncrementalBar,
+        "spinner": spinner.Spinner,
+        "raw": Progress_Bar_Raw
+    }
 
     if args.cloud == "qiniu":
         try:
@@ -103,9 +130,12 @@ def main():
         print("---------------------------")
         print("{} files need to upload".format(len(files)))
         print("---------------------------")
+        progress_bar = progress_classes[args.progress]("uploading", max=len(files), interval=args.progress_interval)
         for abs, rel in files:
             uploader.upload(abs, rel)
-        print("complete")
+            progress_bar.next()
+        print("")
+        print("upload complete")
 
 if __name__ == "__main__":
     main()

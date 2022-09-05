@@ -20,6 +20,7 @@ def remove_tail(path):
         return path
     if path.endswith("/"):
         return path[:-1]
+    return path
 
 def get_changed_files(old, new):
     old = remove_tail(old)
