@@ -8,7 +8,7 @@ def get_files(dir):
     files_raw = glob(f"{dir}/**", recursive=True)
     for path in files_raw:
         if os.path.isfile(path):
-            files.append(path.replace(dir, "")[1:])
+            files.append(path[len(dir)+1:])
     return files
 
 def is_content_different(path1, path2):
