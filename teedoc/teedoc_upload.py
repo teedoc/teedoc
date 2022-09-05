@@ -95,6 +95,7 @@ class Progress_Bar_Raw():
             return
         if time.time() - self.last > self.interval:
             print("{}: {:3.2f}% ({}/{})".format(self.name, self.current / self.max * 100, self.current, self.max))
+            self.last = time.time()
 
 def main():
     parser = argparse.ArgumentParser(description="Upload files to cloud, only upload new file and modified file, won't delete file")
