@@ -151,6 +151,8 @@ setup(
         # # 'gui_scripts': [
             'teedoc=teedoc.teedoc_main:main',
             'teedoc-list-files=teedoc.teedoc_list_files:main',
+            "teedoc-compare=teedoc.teedoc_compare:main",
+            "teedoc-upload=teedoc.teedoc_upload:main",
         ],
     },
 )
