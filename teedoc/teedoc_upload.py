@@ -94,7 +94,7 @@ class Progress_Bar_Raw():
             self.last = time.time()
             return
         if time.time() - self.last > self.interval:
-            print("{}: {:3.2f}% ({}/{})".format(self.name, self.current / self.max * 100, self.current, self.max))
+            print("{}: {:3.2f}% ({}/{})".format(self.name, self.current / self.max * 100, self.current, self.max), flush=True)
             self.last = time.time()
 
 def main():
@@ -130,7 +130,7 @@ def main():
         files = get_files(args.file_or_dir, args.old)
         print("---------------------------")
         print("{} files need to upload".format(len(files)))
-        print("---------------------------")
+        print("---------------------------", flush=True)
         progress_bar = progress_classes[args.progress]("uploading", max=len(files), interval=args.progress_interval)
         for abs, rel in files:
             uploader.upload(abs, rel)
