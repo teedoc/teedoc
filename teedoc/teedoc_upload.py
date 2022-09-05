@@ -46,15 +46,23 @@ class Qiniu():
                 print("upload success")
             break
 
+def remove_tail(path):
+    if path == "/":
+        return path
+    if path.endswith("/"):
+        return path[:-1]
+
 def get_files(file_or_dir, old_dir):
     if os.path.isdir(file_or_dir):
+        file_or_dir = remove_tail(file_or_dir)
+        if not os.path.exists(file_or_dir):
+            print("new directory not exists: {}".format(file_or_dir))
+            sys.exit(1)
         files = []
         if old_dir:
+            old_dir = remove_tail(old_dir)
             if not os.path.exists(old_dir):
                 print("old directory not exists: {}".format(old_dir))
-                sys.exit(1)
-            if not os.path.exists(file_or_dir):
-                print("new directory not exists: {}".format(file_or_dir))
                 sys.exit(1)
             new, modified, deleted = get_changed_files(old_dir, file_or_dir)
             modified.extend(new)
