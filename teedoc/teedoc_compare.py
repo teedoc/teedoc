@@ -51,6 +51,14 @@ def get_changed_files(old, new):
 
     return new_files, modified_files, deleted_files
 
+def output_text(new, modified):
+    out = ""
+    for path in new:
+        out += f'"{path}" '
+    for path in modified:
+        out += f'"{path}" '
+    return out
+
 description = '''
 Compare two directories' different files.
 Can be used to compare two time's build output.
@@ -58,7 +66,7 @@ Can be used to compare two time's build output.
 
 def main():
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("-f", "--format", type=str, default="json", help="output format")
+    parser.add_argument("-f", "--format", type=str, default="json", help="output format", choices=["json", "text"])
     parser.add_argument("old_path", help="old directory")
     parser.add_argument("new_path", help="new directory")
     args = parser.parse_args()
@@ -76,7 +84,10 @@ def main():
         "modified": modified,
         "deleted": deleted
     }
-    output = json.dumps(output)
+    if args.format == "json":
+        output = json.dumps(output)
+    else:
+        output = output_text(new, modified)
     print(output)
 
 
