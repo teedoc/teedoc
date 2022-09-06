@@ -9,14 +9,6 @@ except:
     from teedoc_compare import get_changed_files
 
 
-cloud_help = '''
-cloud service provider, different cloud service provider has different config args:
-qiniu:
-    --bucket: bucket name
-    --access_key: access key
-    --secret_key: secret key
-'''
-
 class Qiniu():
     def __init__(self, bucket, access_key, secret_key):
         import qiniu
@@ -45,6 +37,60 @@ class Qiniu():
             if fail_count != 3:
                 print("upload success")
             break
+
+class Tencentcloud_Uploader():
+    def __init__(self, region, bucket, secret_id, secret_key, token):
+        import qcloud_cos
+        self.qloud_cos = qcloud_cos
+        self.region = region
+        self.bucket = bucket
+        self.secret_id = secret_id
+        self.secret_key = secret_key
+        self.token = token
+        # init SDK
+            # disable logging
+        import logging
+        for k in logging.Logger.manager.loggerDict.keys():
+            if k.startswith("qcloud_cos"):
+                log = logging.getLogger(k)
+                log.level = 9999
+        try:
+            self.client = self._get_client(self.region, self.secret_id, self.secret_key, self.token)
+        except Exception as e:
+            log.d("Init tencentcloud client fail, error: {}".format(e))
+            raise Internal_Error("upload init fail")
+
+    def _get_client(self, region, secret_id, secret_key, token):
+        config = self.qloud_cos.CosConfig(
+            Region = region,
+            SecretId = secret_id,
+            SecretKey = secret_key,
+            Token = token,
+            Scheme="https"
+        )
+
+        return self.qloud_cos.CosS3Client(config)
+
+    def close(self):
+        try:
+            self.client.shutdown()
+        except Exception:
+            pass
+
+    def upload(self, file_path, key, progress_callback = None):
+        if not os.path.exists(file_path):
+            raise Exception("upload file not exist")
+        try:
+            rsp = self.client.upload_file(
+                Bucket=self.bucket,
+                Key=key,
+                LocalFilePath=file_path,
+                EnableMD5=False,
+                progress_callback=progress_callback
+            )
+        except Exception as e:
+            print("tencentcloud upload fail, error: {}".format(e))
+            raise Exception("upload execute fail")
 
 def remove_tail(path):
     if path == "/":
@@ -97,12 +143,29 @@ class Progress_Bar_Raw():
             print("{}: {:3.2f}% ({}/{})".format(self.name, self.current / self.max * 100, self.current, self.max), flush=True)
             self.last = time.time()
 
+cloud_help = '''
+cloud service provider, different cloud service provider has different config args:
+qiniu:
+    --bucket: bucket name
+    --access_key: access key
+    --secret_key: secret key
+tencent:
+    --region: server region. e.g. ap-guangzhou
+    --bucket: bucket name
+    --secret_id: user secret id
+    --secret_key: user secret key
+    --token: token, optional
+'''
+
 def main():
     parser = argparse.ArgumentParser(description="Upload files to cloud, only upload new file and modified file, won't delete file")
-    parser.add_argument("--cloud", type=str, default="qiniu", help=cloud_help, choices=["qiniu"])
+    parser.add_argument("--cloud", type=str, default="tencent", help=cloud_help, choices=["qiniu", "tencent"])
     parser.add_argument("--bucket", type=str, default="", help="bucket name")
     parser.add_argument("--access_key", type=str, default="", help="access key")
     parser.add_argument("--secret_key", type=str, default="", help="secret key")
+    parser.add_argument("--secret_id", type=str, default=None, help="secret id")
+    parser.add_argument("--token", type=str, default="", help="token")
+    parser.add_argument("--region", type=str, default="", help="server region")
     parser.add_argument("--progress", type=str, default="bar", help="progress bar style, bar or spinner", choices=["bar", "chargingbar", "incrementalbar", "spinner", "raw"])
     parser.add_argument("--progress-interval", type=float, default=5, help="progress print interval, only for raw progress")
     parser.add_argument("--old", type=str, default="", help="compare two directories' different files to upload")
@@ -117,6 +180,11 @@ def main():
         "raw": Progress_Bar_Raw
     }
 
+    files = get_files(args.file_or_dir, args.old)
+    print("---------------------------")
+    print("{} files need to upload".format(len(files)))
+    print("---------------------------", flush=True)
+    progress_bar = progress_classes[args.progress]("uploading", max=len(files), interval=args.progress_interval)
     if args.cloud == "qiniu":
         try:
             import qiniu
@@ -127,16 +195,26 @@ def main():
             print("Please specify bucket, access_key and secret_key")
             sys.exit(1)
         uploader = Qiniu(args.bucket, args.access_key, args.secret_key)
-        files = get_files(args.file_or_dir, args.old)
-        print("---------------------------")
-        print("{} files need to upload".format(len(files)))
-        print("---------------------------", flush=True)
-        progress_bar = progress_classes[args.progress]("uploading", max=len(files), interval=args.progress_interval)
+
         for abs, rel in files:
             uploader.upload(abs, rel)
             progress_bar.next()
         print("")
-        print("upload complete")
+    elif args.cloud == "tencent":
+        try:
+            import qcloud_cos
+        except ImportError:
+            print("Please install qiniu python sdk by: pip install cos-python-sdk-v5")
+            sys.exit(1)
+        if (not args.region) or (not args.bucket) or (not args.secret_id) or (not args.secret_key):
+            print("Please specify region bucket, secret_id and secret_key")
+            sys.exit(1)
+        uploader = Tencentcloud_Uploader(args.region, args.bucket, args.secret_id, args.secret_key, args.token)
+
+        for abs, rel in files:
+            uploader.upload(abs, rel)
+            progress_bar.next()
+    print("upload complete")
 
 if __name__ == "__main__":
     main()
