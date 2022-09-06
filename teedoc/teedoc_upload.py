@@ -39,7 +39,10 @@ class Qiniu():
             break
 
 class Tencentcloud_Uploader():
-    def __init__(self, region, bucket, secret_id, secret_key, token):
+    def __init__(self, region, bucket, secret_id, secret_key, token, timeout = 256):
+        '''
+            @param timeout: 上传超时时间，单位秒
+        '''
         import qcloud_cos
         self.qloud_cos = qcloud_cos
         self.region = region
@@ -55,18 +58,19 @@ class Tencentcloud_Uploader():
                 log = logging.getLogger(k)
                 log.level = 9999
         try:
-            self.client = self._get_client(self.region, self.secret_id, self.secret_key, self.token)
+            self.client = self._get_client(self.region, self.secret_id, self.secret_key, self.token, timeout)
         except Exception as e:
             log.d("Init tencentcloud client fail, error: {}".format(e))
             raise Internal_Error("upload init fail")
 
-    def _get_client(self, region, secret_id, secret_key, token):
+    def _get_client(self, region, secret_id, secret_key, token, timeout):
         config = self.qloud_cos.CosConfig(
             Region = region,
             SecretId = secret_id,
             SecretKey = secret_key,
             Token = token,
-            Scheme="https"
+            Scheme = "https",
+            Timeout = timeout
         )
 
         return self.qloud_cos.CosS3Client(config)
@@ -86,6 +90,7 @@ class Tencentcloud_Uploader():
                 Key=key,
                 LocalFilePath=file_path,
                 EnableMD5=False,
+                MAXThread=10,
                 progress_callback=progress_callback
             )
         except Exception as e:
@@ -144,17 +149,23 @@ class Progress_Bar_Raw():
             self.last = time.time()
 
 cloud_help = '''
-cloud service provider, different cloud service provider has different config args:
+cloud service provider, different cloud service provider has different dependence and config args:
 qiniu:
-    --bucket: bucket name
-    --access_key: access key
-    --secret_key: secret key
+    dependences:
+        pip install qiniu
+    args:
+        --bucket: bucket name
+        --access_key: access key
+        --secret_key: secret key
 tencent:
-    --region: server region. e.g. ap-guangzhou
-    --bucket: bucket name
-    --secret_id: user secret id
-    --secret_key: user secret key
-    --token: token, optional
+    dependences:
+        pip install cos-python-sdk-v5
+    args:
+        --region: server region. e.g. ap-guangzhou
+        --bucket: bucket name
+        --secret_id: user secret id
+        --secret_key: user secret key
+        --token: token, optional
 '''
 
 def main():
@@ -165,6 +176,7 @@ def main():
     parser.add_argument("--secret_key", type=str, default="", help="secret key")
     parser.add_argument("--secret_id", type=str, default=None, help="secret id")
     parser.add_argument("--token", type=str, default="", help="token")
+    parser.add_argument("--timeout", type=int, default=256, help="http request timeout, unit second")
     parser.add_argument("--region", type=str, default="", help="server region")
     parser.add_argument("--progress", type=str, default="bar", help="progress bar style, bar or spinner", choices=["bar", "chargingbar", "incrementalbar", "spinner", "raw"])
     parser.add_argument("--progress-interval", type=float, default=5, help="progress print interval, only for raw progress")
@@ -209,7 +221,7 @@ def main():
         if (not args.region) or (not args.bucket) or (not args.secret_id) or (not args.secret_key):
             print("Please specify region bucket, secret_id and secret_key")
             sys.exit(1)
-        uploader = Tencentcloud_Uploader(args.region, args.bucket, args.secret_id, args.secret_key, args.token)
+        uploader = Tencentcloud_Uploader(args.region, args.bucket, args.secret_id, args.secret_key, args.token, args.timeout)
 
         for abs, rel in files:
             uploader.upload(abs, rel)
