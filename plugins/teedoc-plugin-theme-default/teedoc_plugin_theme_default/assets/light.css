@@ -1006,6 +1006,60 @@ a.toc-link {
     transition: 0.4s;
 }
 
+/* tabset */
+.tabset {
+    display: flex;
+    flex-direction: column;
+    align-items: normal;
+    border: 0.2em solid #ebedf0;
+    border-radius: 0.5em;
+    width: 100%;
+    margin: 0.5em 0;
+}
+.tabset-title {
+    font-size: medium;
+    font-weight: 500;
+    padding: 0.5em 1em;
+    width: 100%;
+}
+.tabset-content {
+    display: flex;
+    flex-direction: column;
+    align-items: normal;
+}
+.tabset-tab {
+    display: flex;
+    flex-direction: row;
+    padding: 0 1em;
+}
+.tabset-tab-label {
+    cursor: pointer;
+    font-size: large;
+    font-weight: 700;
+    padding: 0.5em 1em;
+    border-top-left-radius: 0.2em;
+    border-top-right-radius: 0.2em;
+}
+.tabset-tab-label:hover {
+    background-color: #0000000d;
+}
+.tabset-tab-active {
+    background-color: #0000000d;
+    border-bottom: 0.2em solid ${main_color};
+    color: ${main_color};
+}
+.tabset-text-container {
+    padding: 1em;
+    background-color: #0000000d;
+}
+.tabset-text-container > div {
+    display: none;
+}
+.tabset-text-container > div.tabset-text-active {
+    display: block;
+}
+
+/* mobile phone */
 @media screen and (max-width: 900px) {
     #navbar {
         display: block;

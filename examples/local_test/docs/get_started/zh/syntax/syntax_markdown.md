@@ -378,4 +378,110 @@ sequenceDiagram
   Bob-->>John: Jolly good!
 ```
 
+## 标签页（tabset）支持
+
+> 试验性功能，因为不是标准 Markdown 语法，目前仅 teedoc 支持，所以根据你的需求谨慎使用
+
+效果：
+
+.. tabset::标签页标题（可选）
+    :id: tabset1
+
+    ## 标签一
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+
+    ## 标签二
+
+    内容二，可以使用 Markdown 语法
+    ```java
+      public class Main {
+          public static void main(String[] args) {
+              System.out.println("Hello World");
+          }
+      }
+    ```
+
+在选中一个页面中的某个标签时，会自动选中相同`id`的标签页中的相应标签，不相同`id`或者没设置`id`则不会。
+
+.. tabset::标签页标题（可选）
+    :id: tabset1
+
+    ## 标签一
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+
+    ## 标签二
+
+    内容二，可以使用 Markdown 语法
+    ```java
+      public class Main {
+          public static void main(String[] args) {
+              System.out.println("Hello World");
+          }
+      }
+    ```
+
+.. tabset::标签页标题（可选）
+
+    ## 标签一
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+
+    ## 标签二
+
+    内容二，可以使用 Markdown 语法
+    ```java
+      public class Main {
+          public static void main(String[] args) {
+              System.out.println("Hello World");
+          }
+      }
+    ```
+
+源码：
+```
+效果：
+（注意这里需要空一行）
+.. tabset::标签页标题（可选）
+    :id: tabset1
+
+    ## 标签一
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+
+    ## 标签二
+
+    内容二，可以使用 Markdown 语法
+    ```java
+      public class Main {
+          public static void main(String[] args) {
+              System.out.println("Hello World");
+          }
+      }
+    ```
+```
+
+
+
 

@@ -35,6 +35,7 @@ $(document).ready(function(){
         addPrintPage();
     }
     addTocMobileListener();
+    addTabsetListener();
 });
 
 var sidebar_width = "${sidebar_width}";
@@ -436,3 +437,38 @@ function addTocMobileListener(){
     });
 }
 
+function addTabsetListener(){
+    $(".tabset-tab-label").on("click", function(){
+        let this_obj = $(this);
+        // already active, do nothing
+        if(this_obj.hasClass("tabset-tab-active")){
+            return;
+        }
+        // remove all active tabset-tab-active and tabset-text-active class from all have class that startswith tabset-id-,
+        // then add active class to the same idx tab-label and tab-text
+        let tabset_id = null;
+        let same_id_tabsets = [];
+        let old_idx = this_obj.parent().find(".tabset-tab-active").attr("idx");
+        let new_idx = this_obj.attr("idx");
+        let tabset_obj = this_obj.parent().parent().parent();
+        tabset_obj.attr("class").split(' ').forEach(function(item){
+            if(item.startsWith("tabset-id-")){
+                tabset_id = item;
+            }
+        });
+        if(!tabset_id){
+            same_id_tabsets = [tabset_obj[0]]; // to DOM element
+        }else{
+            same_id_tabsets = document.getElementsByClassName(tabset_id);
+        }
+        for (let tabset of same_id_tabsets) {
+            console.log(tabset);
+            let tab_labels = tabset.getElementsByClassName("tabset-tab-label");
+            tab_labels[old_idx].classList.remove("tabset-tab-active");
+            tab_labels[new_idx].classList.add("tabset-tab-active");
+            let tab_texts = tabset.getElementsByClassName("tabset-text");
+            tab_texts[old_idx].classList.remove("tabset-text-active");
+            tab_texts[new_idx].classList.add("tabset-text-active");
+        }
+    });
+}

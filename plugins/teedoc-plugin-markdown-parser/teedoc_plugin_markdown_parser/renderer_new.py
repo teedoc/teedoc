@@ -7,6 +7,7 @@ import urllib.parse
 # from pygments.formatters import html
 import mistune
 from mistune import InlineParser, BlockParser
+from .plugin_tabset import Tabset
 
 def link_in_this_site(link):
     if not "://" in link:
@@ -202,6 +203,8 @@ def create_markdown_parser():
         'url',
         'task_lists',
         'def_list',
+        # directives
+        Tabset(),
     ]
     _plugins = []
     for p in plugins:
