@@ -342,14 +342,11 @@ def download_file(url, save_path):
 def get_file_last_modify_time(file_path, git=True):
     last_edit_time = None
     if git:
-        cmd = ["git", "log", "-1", "--format", "%cd", "--date", "iso8601-strict", f"{file_path}"]
-        try:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-            output, err = p.communicate()
-            if p.returncode == 0:
-                last_edit_time = datetime.fromisoformat(output.decode("utf-8").strip())
-        except Exception:
-            pass
+        cmd = ["git", "log", "-1", "--format=%cd", "--date", "iso8601-strict", f"{file_path}"]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        output, err = p.communicate()
+        if p.returncode == 0:
+            last_edit_time = datetime.fromisoformat(output.decode("utf-8").strip())
     if not last_edit_time:
         last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
     return last_edit_time

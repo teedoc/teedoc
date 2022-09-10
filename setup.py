@@ -27,7 +27,8 @@ install_requires = [ "coloredlogs >= 15.0.1",
                      "jinja2 >= 3.1.1",
                      "flask >= 2.0.2",
                      "babel >= 2.9.1",
-                     "requests"
+                     "requests",
+                     "progress"
                    ]
 packages = find_packages()
 print("packages:", packages)
@@ -151,6 +152,8 @@ setup(
         # # 'gui_scripts': [
             'teedoc=teedoc.teedoc_main:main',
             'teedoc-list-files=teedoc.teedoc_list_files:main',
+            "teedoc-compare=teedoc.teedoc_compare:main",
+            "teedoc-upload=teedoc.teedoc_upload:main",
         ],
     },
 )

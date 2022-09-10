@@ -1068,7 +1068,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
             log.d("parse files empty: {}".format(files))
             # on_err()
             return generate_return(plugins_objs, True, multiprocess)
-            
+
         htmls = result_htmls
         # generate sidebar to html
         if sidebar:
@@ -1120,7 +1120,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
         log.e("generate html fail: {}".format(e))
         on_err()
         return generate_return(plugins_objs, False, multiprocess)
-    log.i("generate ok")
+    log.d("generate ok")
     return generate_return(plugins_objs, True, multiprocess)
 
 def get_configs(routes, config_template_dir, log):
@@ -1248,7 +1248,15 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         else:
             all_files = get_files(dir, warn = log.w)
         if not update_files:
-            log.i("parse {}:\n -- dir: {}\n -- url: {}".format(type_name, dir, url))
+            name = doc_configs[url].get("name", "")
+            log.i('''
+ -----------------------------------------------------
+|parse {}:
+|dir:  {}
+|url:  {}
+|name: {}
+ -----------------------------------------------------
+'''.format(type_name, dir, url, name))
         if translate:
             nav_lang_items = get_nav_translate_lang_items(ref_doc_url, site_config, doc_src_path, config_template_dir, type_name, log)
         else:
@@ -1294,7 +1302,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             log.e("no html templates for {}, please install theme plugin".format(type_name))
             return False
         if not update_files:
-            log.i("html_templates_i18n_dirs: {}".format("\n -- "+"\n -- ".join(html_templates_i18n_dirs)))
+            log.d("html_templates_i18n_dirs: {}".format("\n -- "+"\n -- ".join(html_templates_i18n_dirs)))
 
         # preview_mode js file
         if preview_mode:
@@ -1393,7 +1401,7 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                           redirect_err_file, redirct_url, ref_doc_url, is_build, sidebar_root_dir=dir)
                 if not ok:
                     return False, None
-
+        log.d("generate {} ok".format(dir))
     htmls = {}
     for i in range(queue.qsize()):
         url, _htmls = queue.get()

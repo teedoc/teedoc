@@ -138,3 +138,5 @@ local_test2
 # jupyter temp file
 .~*.ipynb
 
+# qiniu
+.qiniu_pythonsdk_hostscache.json
