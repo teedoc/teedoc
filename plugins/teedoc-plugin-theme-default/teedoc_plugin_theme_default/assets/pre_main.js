@@ -4,8 +4,12 @@
 }());
 
 function addCss(filename) {
-    var creatHead = $('head');
-    creatHead.append('<link rel="stylesheet" href="' + filename + '" type="text/css">')
+    var head = document.getElementsByTagName('head')[0];
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = filename;
+    head.appendChild(link);
 }
 function removejscssfile(filename, filetype) {
     var targetelement = (filetype == "js") ? "script" : (filetype == "css") ? "link" : "none"
@@ -27,17 +31,24 @@ function getTheme(){
     return t;
 }
 function setTheme(theme){
-    var obj = $("#themes");
+    var obj = document.getElementById("themes");
     if(theme=="dark"){
-        obj.removeClass("light");
-        obj.addClass("dark");
-        $("body").addClass("dark");
-        addCss("${site_root_url}static/css/theme_default/dark.css");
+        if(obj){
+            obj.classList.remove("light");
+            obj.classList.add("dark");
+        }
+        document.getElementsByTagName("html")[0].classList.add("dark");
+        // load dark and light togher, distingush by .dark class instead use single css file
+        // removejscssfile("${site_root_url}static/css/theme_default/light.css", "css");
+        // addCss("${site_root_url}static/css/theme_default/dark.css");
     }else{
-        obj.removeClass("dark");
-        obj.addClass("light");
-        $("body").removeClass("dark");
-        removejscssfile("${site_root_url}static/css/theme_default/dark.css", "css");
+        if(obj){
+            obj.classList.remove("dark");
+            obj.classList.add("light");
+        }
+        document.getElementsByTagName("html")[0].classList.remove("dark");
+        // removejscssfile("${site_root_url}static/css/theme_default/dark.css", "css");
+        // addCss("${site_root_url}static/css/theme_default/light.css");
     }
     localStorage.setItem("theme", theme);
 }

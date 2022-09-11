@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.19.10"
+__version__ = "1.20.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
@@ -94,10 +94,13 @@ class Plugin(Plugin_Base):
         }
         self.light_js = {
         }
-        self.header_js = {
-            "/static/js/theme_default/split.js": os.path.join(self.assets_abs_path, "split.js"),
-            "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
+        self.high_priority_js = {
+            # handle theme to prevent screen flash
             "/static/js/theme_default/pre_main.js": os.path.join(self.assets_abs_path, "pre_main.js")
+        }
+        self.header_js = {
+            "/static/js/theme_default/jquery.min.js": os.path.join(self.assets_abs_path, "jquery.min.js"),
+            "/static/js/theme_default/split.js": os.path.join(self.assets_abs_path, "split.js")
         }
         self.footer_js = {
             "/static/js/theme_default/tocbot.min.js": os.path.join(self.assets_abs_path, "tocbot.min.js"),
@@ -131,6 +134,7 @@ class Plugin(Plugin_Base):
         self.dark_css  = self._update_file_var(self.dark_css, vars, self.temp_dir)
         self.light_css = self._update_file_var(self.light_css, vars, self.temp_dir)
         self.css       = self._update_file_var(self.css, vars, self.temp_dir)
+        self.high_priority_js = self._update_file_var(self.high_priority_js, vars, self.temp_dir)
         self.header_js = self._update_file_var(self.header_js, vars, self.temp_dir)
         self.footer_js = self._update_file_var(self.footer_js, vars, self.temp_dir)
         # files to copy
@@ -142,6 +146,7 @@ class Plugin(Plugin_Base):
         self.files_to_copy.update(self.light_css)
         self.files_to_copy.update(self.css)
         self.files_to_copy.update(self.light_js)
+        self.files_to_copy.update(self.high_priority_js)
         self.files_to_copy.update(self.header_js)
         self.files_to_copy.update(self.footer_js)
         self.files_to_copy.update(self.images)
@@ -170,6 +175,10 @@ class Plugin(Plugin_Base):
 
     def _generate_html_header_items(self):
         items = []
+        # high priority js
+        for url in self.high_priority_js:
+            item = '<script src="{}"></script>'.format(url)
+            items.append(item)
         # css
         for url in self.css:
             item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)

@@ -5,118 +5,161 @@
     @changes 2021.1.27  add basic attrributes
  */
 
+ /*
+    use .dark class to cover light theme style
+  */
+
 /* global template */
-html {
+.dark body {
     color: #d1d1d1;
     background-color: #1b1b1b;
 }
-a {
+.dark a {
     color: #8a8a8a;
 }
-a:visited {
+.dark a:visited {
     color: #8a8a8a;
 }
-code {
-    background-color: #4e4e4e;
+.dark code {
+    background-color: #2a2a2a;
 }
-#navbar .sub_items ul {
+.dark pre[class*="language-"].line-numbers > code {
+    background: none;
+    padding: 0;
+}
+.dark #navbar .sub_items ul {
     box-shadow: 0 0 9px 0px #000000;
     background-color: #232323;
 }
-#sidebar .active > a, #navbar .active > a {
+.dark #sidebar .active > a,
+.dark #navbar .active > a {
     background-color: #2d2d2d;
     color: ${main_color};
 }
-#sidebar .active > a, #navbar .active > a, #navbar .active_parent > a {
+.dark #sidebar .active > a,
+.dark #navbar .active > a,
+.dark #navbar .active_parent > a {
     background-color: #2d2d2d;
 }
-#sidebar li > a:hover, #sidebar li.active_parent > a:hover, #navbar li > a:hover, #navbar .sub_items > a:hover {
+.dark #sidebar li > a:hover,
+.dark #sidebar li.active_parent > a:hover,
+.dark #navbar li > a:hover,
+.dark #navbar .sub_items > a:hover {
     background-color: #2d2d2d;
 }
-#sidebar ul .active_parent > a {
+.dark #sidebar ul .active_parent > a {
     background-color: #232323;
 }
-.gutter.gutter-horizontal {
+.dark .gutter.gutter-horizontal {
     background-color: #484848;
 }
-*::-webkit-scrollbar-track {
+.dark *::-webkit-scrollbar-track {
     background: #484848;
 }
-*::-webkit-scrollbar-thumb {
+.dark *::-webkit-scrollbar-thumb {
     background-color: #6b6b6b;
 }
-#article #toc {
+.dark #article #toc {
     background-color: #1b1b1b;
 }
-#to_top {
+.dark #to_top {
     background-color: #2d2d2d;
     box-shadow: 8px 8px 20px #000000;
 }
-#to_top:hover {
+.dark #to_top:hover {
     box-shadow: 8px 8px 28px #000000;
 }
-#to_top:active {
+.dark #to_top:active {
     box-shadow: 0px 0px 20px #000000;
 }
-blockquote {
+.dark blockquote {
     background-color: #2d2d2d;
 }
-blockquote.spoiler {
+.dark blockquote.spoiler {
     border-left: 5px solid #FF9800;
     background-color: #6e5200;
     color: white;
 }
-td {
+.dark td {
     background-color: #373737;
     border: 2px solid #555555;
 }
-th {
+.dark th {
     font-weight: 700;
     background-color: #0f5943;
     color: white;
     border: 2px solid #006f4f;
 }
-sup a {
+.dark sup a {
     background-color: #2d2d2d;
 }
-a:hover {
+.dark a:hover {
     background-color: #424242;
 }
-#doc_footer {
+.dark #doc_footer {
     background-color: #2d2d2d;
     border-top: 1px solid #2d2d2d;
 }
-#page_footer {
+.dark #page_footer {
     background-color: #2d2d2d;
     border-top: 1px solid #2d2d2d;
 }
-#footer a:hover {
+.dark #footer a:hover {
     background-color: #404040;
 }
-#previous_next {
+.dark #previous_next {
     border-top: 1px solid #525252;
 }
-#previous_next a {
+.dark #previous_next a {
     background-color: #2d2d2d;
 }
 
 /* google translate */
-#navbar #google_translate_element .goog-te-gadget-simple {
+.dark #navbar #google_translate_element .goog-te-gadget-simple {
     background-color: #1b1b1b;
 }
-#navbar #google_translate_element .goog-te-gadget-simple .goog-te-menu-value {
+.dark #navbar #google_translate_element .goog-te-gadget-simple .goog-te-menu-value {
     color: #8a8a8a;
 }
 
+/* tabset */
+.dark .tabset {
+    border: 0.2em solid #4c4c4c;
+}
+.dark .tabset-text-container {
+    background-color: #212121;
+}
+.dark .tabset-tab-active {
+    background-color: #212121;
+}
+
+/* details */
+.dark details {
+    border: 0.2em solid #4c4c4c;
+}
+.dark details > .details-content {
+    background-color: #212121;
+}
+
+/* markdown */
+.dark #mermaid-1662893106119 .messageText {
+    fill: #6f6f6f;
+    stroke: #6f6f6f;
+}
+#mermaid-1662893106119 .loopText, #mermaid-1662893106119 .loopText>tspan {
+    fill: #a99b1a;
+    stroke: none;
+}
+
 @media screen and (max-width: 900px) {
-    #menu_wrapper.m_menu_fixed {
+    .dark #menu_wrapper.m_menu_fixed {
         background-color: rgb(27, 27, 27, 0.9);
         box-shadow: 0px 1px 10px 0px rgb(0, 0, 0, 0.32);
     }
-    #sidebar_wrapper {
+    .dark #sidebar_wrapper {
         background-color: #1b1b1b;
     }
-    #navbar {
+    .dark #navbar {
         display: block;
         border-bottom: 1px solid #383838;
         z-index: 89;
