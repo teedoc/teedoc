@@ -1686,6 +1686,8 @@ def main():
     args = parser.parse_args()
 
     log = Logger(level=args.log_level)
+    if not utils.check_git():
+        log.w("git not found, please install git first")
     # convert json or yaml file
     if args.command == "json2yaml":
         if not os.path.exists(args.file):

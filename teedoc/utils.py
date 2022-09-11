@@ -347,12 +347,17 @@ def get_file_last_modify_time(file_path, git=True):
         output, err = p.communicate()
         if p.returncode == 0:
             last_edit_time = datetime.fromisoformat(output.decode("utf-8").strip())
-        else:
-            if not "outside repository" in err.decode("utf-8"):
-                raise Exception(f"get {file_path} last modify time failed, {err.decode('utf-8')}, maybe you should install git first")
     if not last_edit_time: # this time is not accurate, just for outside of git repository's file
         last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
     return last_edit_time
+
+def check_git():
+    cmd = ["git", "--version"]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+    output, err = p.communicate()
+    if p.returncode != 0:
+        return False
+    return True
 
 if __name__ == "__main__":
     a = {
