@@ -8,6 +8,7 @@ import urllib.parse
 import mistune
 from mistune import InlineParser, BlockParser
 from .plugin_tabset import Tabset
+from .plugin_details import Details
 
 def link_in_this_site(link):
     if not "://" in link:
@@ -205,6 +206,7 @@ def create_markdown_parser():
         'def_list',
         # directives
         Tabset(),
+        Details()
     ]
     _plugins = []
     for p in plugins:

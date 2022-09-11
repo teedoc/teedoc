@@ -380,7 +380,8 @@ sequenceDiagram
 
 ## 标签页（tabset）支持
 
-> 试验性功能，因为不是标准 Markdown 语法，目前仅 teedoc 支持，所以根据你的需求谨慎使用
+> 试验性功能，因为不是标准 Markdown 语法，目前仅 teedoc 支持，所以根据你的需求选择使用
+> 当然也欢迎将格式推广到其它解析器
 
 效果：
 
@@ -482,6 +483,62 @@ sequenceDiagram
     ```
 ```
 
+## 详情页（details）支持
 
+> 试验性功能，因为不是标准 Markdown 语法，目前仅 teedoc 支持，所以根据你的需求选择使用
+> 当然也欢迎将格式推广到其它解析器
+
+这是对 `HTML5` `details`标签的一种 `Markdown` 语法， `HTML`这样写:
+```html
+<details>
+  <summary>标题，点击展开</summary>
+  <div class="details-content">
+    <p>这里是内容</p>
+  </div>
+</details>
+```
+
+效果：
+
+.. details::标题，点击展开
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+
+.. details::标题，默认展开
+    :open: true
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+
+源码：
+```
+.. details::标题，点击展开
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+
+.. details::标题，默认展开
+    :open: true
+
+    内容一，可以使用 Markdown 语法
+    ```kotlin
+      fun main() {
+          println("Hello World")
+      }
+    ```
+```
 
 
