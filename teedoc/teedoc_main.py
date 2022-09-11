@@ -805,7 +805,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                 if last_edit_time is None:
                     # only get last edit time from git when is build, preview/serve mode not get to faster preview speed
                     last_edit_time = utils.get_file_last_modify_time(file, git=is_build)
-                html["date"] = last_edit_time.strftime("%Y-%m-%d")
+                html["date"] = last_edit_time.strftime("%Y-%m-%d") if last_edit_time else None
                 vars = {
                     "lang": lang,
                     "metadata": metadata,
@@ -1251,12 +1251,15 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
             name = doc_configs[url].get("name", "")
             log.i('''
  -----------------------------------------------------
-|parse {}:
+|parse {} {}:
 |dir:  {}
 |url:  {}
 |name: {}
  -----------------------------------------------------
-'''.format(type_name, dir, url, name))
+'''.format(
+        "📖" if type_name == "doc" else "🌈" if type_name == "page" else "🍉" if type_name == "blog" else "",
+        type_name, dir, url, name)
+    )
         if translate:
             nav_lang_items = get_nav_translate_lang_items(ref_doc_url, site_config, doc_src_path, config_template_dir, type_name, log)
         else:
