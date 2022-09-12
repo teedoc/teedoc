@@ -172,10 +172,10 @@ print("hello")
 
 要显示这张图片，需要在`site_config.json`中设置`route`键值
 
-![这是一张图片](../../assets/images/logo.jpg)
-![这是一张图片](../assets/images/logo.jpg)
+![这是一张图片](../../assets/images/logo.png)
+![这是一张图片](../assets/images/logo.png)
 
-![这是一张图片](../../assets/images/logo.jpg)![这是一张图片](../assets/images/logo.jpg)
+![这是一张图片](../../assets/images/logo.png)![这是一张图片](../assets/images/logo.png)
 
 ## 视频
 

@@ -16,7 +16,7 @@ from teedoc import Fake_Logger
 from teedoc.utils import update_config
 import copy
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-ad-hint"
@@ -56,21 +56,26 @@ class Plugin(Plugin_Base):
         self.assets_abs_path = os.path.join(self.module_path, "assets")
         self.temp_dir = self.get_temp_dir()
 
+        self.header_css = {
+            "/static/js/add_hint/style.css": os.path.join(self.assets_abs_path, "style.css")
+        }
         self.footer_js = {
             # don't use ad(advertisement) keyword, may blocked by browser plugin
-            "/static/js/add_hint/style.css": os.path.join(self.assets_abs_path, "style.css"),
             "/static/js/add_hint/main.js": os.path.join(self.assets_abs_path, "main.js")
         }
+        self.html_header_items = []
         self.html_footer_items = []
+        for url in self.header_css:
+            item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
+            self.html_header_items.append(item)
         for url in self.footer_js:
-            if url.endswith(".css"):
-                item = '<link rel="stylesheet" href="{}" type="text/css"/>'.format(url)
-            else:
-                item = '<script src="{}"></script>'.format(url)
+            item = '<script src="{}"></script>'.format(url)
             self.html_footer_items.append(item)
         vars = self.config
+        self.header_css = self.update_file_var(self.header_css, vars, self.temp_dir)
         self.footer_js = self.update_file_var(self.footer_js, vars, self.temp_dir)
         self.files_to_copy = self.footer_js
+        self.files_to_copy.update(self.header_css)
 
     def on_parse_start(self, type_name, url, dirs, doc_config, new_config):
         '''
@@ -83,6 +88,9 @@ class Plugin(Plugin_Base):
         # can update plugin config from site_config with new_config by teedoc.utils.update_config
         self.new_config = copy.deepcopy(self.config)
         self.new_config = update_config(self.new_config, new_config)
+
+    def on_add_html_header_items(self, type_name):
+        return self.html_header_items
 
     def on_add_html_footer_js_items(self, type_name):
         return self.html_footer_items

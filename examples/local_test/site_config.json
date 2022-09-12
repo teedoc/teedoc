@@ -83,7 +83,7 @@
                 "show_print_page": true,
                 "toc_depth": 4,
                 "env": {
-                    "main_color": "#4caf7d",
+                    "main_color": "#5c9abc",
                     "sidebar_width": "300px"
                 },
                 "code_highlight_css": "/static/css/prism.css",

@@ -15,7 +15,7 @@ from teedoc import Fake_Logger
 import tempfile
 import requests
 
-__version__ = "2.8.0"
+__version__ = "2.8.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -148,7 +148,7 @@ class Plugin(Plugin_Base):
                         date = metadata["date"].strip().lower()
                         # set date to false to disable date display
                         if date and (date == "false" or date == "none"):
-                            date = ""
+                            date = False
                         else:
                             GMT_FORMAT = '%Y-%m-%d'
                             try:

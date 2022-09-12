@@ -55,7 +55,7 @@ p {
     line-height: 2em;
 }
 blockquote {
-    border-left: 4px solid #46c19d;
+    border-left: 4px solid ${main_color};
     margin: 0 0 1em 2px;
     padding: 1px;
     padding-left: 1em;
@@ -113,7 +113,7 @@ td, th {
 }
 th {
     font-weight: 700;
-    background-color: #46c19d;
+    background-color: ${main_color};
     color: white;
     border: 2px solid #139871;
 }
@@ -207,6 +207,9 @@ pre[class*="language-"].line-numbers > code {
     justify-content: space-between;
     padding-right: 1em;
     word-break: keep-all;
+}
+#navbar h2 {
+    color: ${main_color};
 }
 #navbar a{
     margin: 5px;
@@ -672,7 +675,7 @@ html[lang^=zh].heading_no_counter #article_content h4:before {
     margin: 5px;
     padding: 8px;
     border-radius: 5px;
-    color: #d5ffea;
+    color: #ffffffcc;
     font-size: 0.9em;
     background-color: ${main_color};
 }
@@ -700,7 +703,7 @@ html[lang^=zh].heading_no_counter #article_content h4:before {
 }
 #article_info>div>span {
     padding: 0.2em;
-    color: #4caf7d;
+    color: ${main_color};
 }
 #source_link {
     display: flex;

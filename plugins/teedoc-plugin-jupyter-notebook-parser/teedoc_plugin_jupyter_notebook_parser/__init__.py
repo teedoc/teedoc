@@ -16,7 +16,7 @@ try:
 except Exception:
     from jupyter_convert import convert_ipynb_to_html
 
-__version__ = "1.2.2"
+__version__ = "1.2.3"
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-jupyter-notebook-parser"
     desc = "jupyter notebook parser plugin for teedoc"
@@ -70,7 +70,7 @@ class Plugin(Plugin_Base):
                     date = metadata["date"].strip().lower()
                     # set date to false to disable date display
                     if date and (date == "false" or date == "none"):
-                        date = ""
+                        date = False
                     else:
                         GMT_FORMAT = '%Y-%m-%d'
                         try:

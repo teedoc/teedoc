@@ -741,7 +741,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
             "metadata": {},
             "footer": (footer_top, footer_bottom),
             "show_source": ("Edit this page", source_url), # may not exists
-            "date": "2021-3-14", # may not exists
+            "date": "2021-3-14", # None means not set, False mean not show date
             "author": "", # may not exists
         }
     '''
@@ -793,7 +793,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                             }
                 # get file last edit time
                 last_edit_time = None
-                if "date" in html and html['date']:
+                if html['date']:
                     try:
                         if type(html["date"]) == str:
                             date = html['date'].strip().split(" ")[0]
@@ -802,7 +802,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                             last_edit_time = html["date"]
                     except:
                         pass
-                if last_edit_time is None:
+                if last_edit_time is None and html["date"] is not False: # not disable show date
                     # only get last edit time from git when is build, preview/serve mode not get to faster preview speed
                     last_edit_time = utils.get_file_last_modify_time(file, git=is_build)
                 html["date"] = last_edit_time.strftime("%Y-%m-%d") if last_edit_time else None

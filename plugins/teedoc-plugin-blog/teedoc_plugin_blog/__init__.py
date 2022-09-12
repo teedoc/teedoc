@@ -26,7 +26,7 @@ from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 
 class Plugin(Plugin_Base):
@@ -156,7 +156,7 @@ class Plugin(Plugin_Base):
                         date = metadata["date"].strip().lower()
                         # set date to false to disable date display
                         if date and (date == "false" or date == "none"):
-                            date = ""
+                            date = False
                         else:
                             GMT_FORMAT = '%Y-%m-%d'
                             try:

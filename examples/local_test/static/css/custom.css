@@ -3,3 +3,8 @@
     color: ${main_color};
 }
 
+#navbar .site_logo {
+    max-height: 60px;
+    margin-right: 0.5em;
+}
+
