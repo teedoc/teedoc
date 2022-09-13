@@ -38,8 +38,32 @@ class Block_Quote_Renderer(mistune.HTMLRenderer):
 
 class Header_Renderer(mistune.HTMLRenderer):
     def heading(self, text, level):
-        html = mistune.HTMLRenderer.heading(self, text, level)
-        escaped_id = urllib.parse.quote(text.replace(' ', "-"))
+        '''
+            # Header ..[SpecID]
+            <h1 id="SpecID-Header">
+        '''
+        have_spec_id = re.compile(r'(.*?)\s\.\.\[(.*?)\]')
+        spec_id = re.compile(r'\[(.*?)\]')
+
+        m = have_spec_id.search(text)
+        if m is not None:
+            _text_spilt = text.split(' ')
+            _text_text = _text_spilt[0]
+
+            html = mistune.HTMLRenderer.heading(self, _text_text, level)
+            # escaped_id = urllib.parse.quote(text.replace(' ', "-"))
+            escaped_id = _text_text
+
+            match = spec_id.search(_text_spilt[1])
+            if match is not None:
+                t = match.group(0)
+                t = t.replace('[','')
+                t = t.replace(']','')
+                escaped_id = t + "-" + escaped_id
+        else:
+            html = mistune.HTMLRenderer.heading(self, text, level)
+            escaped_id = urllib.parse.quote(text.replace(' ', "-"))
+
         html = html.replace(f'<h{level}>', f'<h{level} id="{escaped_id}">')
         return html
 
