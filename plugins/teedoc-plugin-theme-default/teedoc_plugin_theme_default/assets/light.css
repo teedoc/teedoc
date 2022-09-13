@@ -94,6 +94,9 @@ sup a {
     border-left: 1px solid ${main_color};
     border-right: 1px solid ${main_color};
 }
+dl > dt {
+    font-weight: bold;
+}
 table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -113,9 +116,11 @@ td, th {
 }
 th {
     font-weight: 700;
-    background-color: ${main_color};
     color: white;
-    border: 2px solid #139871;
+    filter: brightness(85%);
+    filter: brightness(110%);
+    border: 2px solid ${main_color};
+    background-color: ${main_color};
 }
 td {
     background-color: #fbfbfb;

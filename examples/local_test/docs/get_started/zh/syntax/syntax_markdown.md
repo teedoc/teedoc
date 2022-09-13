@@ -542,3 +542,48 @@ sequenceDiagram
 ```
 
 
+## Definition lists
+
+First Term
+: This is the definition of the first term.
+
+Second Term
+: This is one definition of the second term.
+: This is another definition of the second term.
+
+---
+
+## Strikethrough
+
+~~two tilde~~
+
+~one tilde~
+
+
+## Emoji
+
+copy and paste: ☕
+not support shortcodes: :joy:
+
+
+## Subscript
+
+H~2~O
+H~~O
+你好呀~你好呀~你好呀
+你好呀~ 你好呀~你好呀
+
+
+
+## Superscript
+
+X^2^
+
+
+## Abbreviation
+
+*[HTML]: Hyper Text Markup Language
+
+The HTML specification is maintained by the W3C.
+
+

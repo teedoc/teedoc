@@ -9,6 +9,8 @@ import mistune
 from mistune import InlineParser, BlockParser
 from .plugin_tabset import Tabset
 from .plugin_details import Details
+from .plugin_subscript import plugin_subscript
+from .plugin_superscript import plugin_superscript
 
 def link_in_this_site(link):
     if not "://" in link:
@@ -210,14 +212,15 @@ class MDRenderer(
 
 def create_markdown_parser():
     plugins = [
-       # "abbr",
+        'abbr',
         'strikethrough',
         'footnotes',
         'table',
         'url',
         'task_lists',
         'def_list',
-        # directives
+        plugin_subscript,
+        plugin_superscript,
         Tabset(),
         Details()
     ]
