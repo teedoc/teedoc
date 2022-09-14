@@ -1836,7 +1836,7 @@ def main():
                 for plugin, info in site_config['plugins'].items():
                     path = info['from']
                     # install from pypi.org
-                    if not path or path.lower() == "pypi":
+                    if (not path) or path.lower() == "pypi":
                         if "version" in info:
                             plugin = f"{plugin}=={info['version']}"
                         log.i("install plugin <{}> from pypi.org".format(plugin))
@@ -1863,21 +1863,7 @@ def main():
                         log.i("install <{}> complete".format(plugin))
                     # install from local file system
                     else:
-                        if not os.path.isabs(path):
-                            path = os.path.abspath(os.path.join(doc_src_path, path))
-                        if not os.path.exists(path):
-                            log.e("{} not found".format(path))
-                            return 1
-                        os.chdir(path)
-                        cmd = [site_config["executable"]["pip"], "install", "."]
-                        log.i("plugin path: {}".format(path))
-                        log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
-                        p = subprocess.Popen(cmd, shell=False)
-                        p.communicate()
-                        if p.returncode != 0:
-                            log.e("install <{}> fail".format(plugin))
-                            return 1
-                        log.i("install <{}> complete".format(plugin))
+                        log.i("Use local plugin <{}> from {}".format(plugin, path))
                 os.chdir(curr_path)
                 log.i("all plugins install complete")
             elif args.command == "build":
