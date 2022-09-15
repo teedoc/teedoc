@@ -769,6 +769,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
             if "id" in metadata:
                 metadata.pop("id")
             if "layout" in html["metadata"]:
+                html["metadata"]["layout"] = str(html["metadata"]["layout"])
                 if not html["metadata"]["layout"].endswith(".html"):
                     html["metadata"]["layout"] = html["metadata"]["layout"] + ".html"
                 layout = os.path.join(template_root, html["metadata"]["layout"])
@@ -984,11 +985,11 @@ def htmls_add_source(htmls, repo_addr, label, doc_src_path):
     for file, v in htmls.items():
         # not show source
         if "show_source" in v["metadata"]:
-            show_source = v["metadata"]["show_source"].strip().lower()
-            if show_source == "false":
-                continue
-            elif show_source != "true":
+            show_source = v["metadata"]["show_source"]
+            if type(show_source) == str:
                 label = v["metadata"]["show_source"]
+            elif not show_source:
+                continue
         source_url = repo_addr
         if source_url.endswith("/"):
             source_url = source_url[:-1]

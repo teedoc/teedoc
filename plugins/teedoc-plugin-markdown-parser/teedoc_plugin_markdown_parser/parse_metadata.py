@@ -1,5 +1,5 @@
 import re
-
+import yaml
 
 class Meta_Parser:
     def __init__(self):
@@ -35,15 +35,7 @@ class Meta_Parser:
         m = self.re_meta_flag.match(text_strip)
         if not m:
             return meta_kvs, text
-        meta = m[1].strip()
-        meta = self.re_meta.findall(meta)
-        if len(meta) == 0:
-            return meta_kvs, text
-        for k, v in meta:
-            if k.startswith("#"): # comment start with '#'
-                continue
-            meta_kvs[k] = v
-
+        meta_kvs = yaml.load(m[1].strip(), Loader=yaml.Loader)
         return meta_kvs, m[2]
 
 if __name__ == "__main__":

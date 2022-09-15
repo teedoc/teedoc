@@ -5,6 +5,7 @@ from nbconvert import HTMLExporter
 import nbformat
 import re
 import os
+import yaml
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 templates_dir = os.path.join(curr_dir, "templates")
@@ -67,13 +68,11 @@ def parse_metadata(cell):
         return have_metadata, meta, cell_content
     items_all = re.findall("[-]*\n(.*)\n.*[-]*\n(.*)", content, re.MULTILINE|re.DOTALL)
     if len(items_all) > 0:
-        items_all = items_all[0]
-        items = re.findall("(.*):(.*)", items_all[0])
-        if len(items) > 0:
-            have_metadata = True
-            for k, v in items:
-                meta[k] = v.strip()
-        cell_content = items_all[1].strip()
+        meta = yaml.load(items_all[0][0].strip(), Loader=yaml.Loader)
+        if len(items_all) > 1:
+            cell_content = items_all[1].strip()
+        else:
+            cell_content = ""
     return have_metadata, meta, cell_content
 
 def get_search_content(cells):

@@ -149,23 +149,14 @@ class Plugin(Plugin_Base):
                     else:
                         cover = ""
                     html_str = '<span id="blog_start"></span>' + html
-                    # date default last edit time
-                    ts = int(os.stat(file).st_mtime)
-                    date_file_edit = time.strftime("%Y-%m-%d", time.localtime(ts))
-                    if "date" in metadata:
-                        date = metadata["date"].strip().lower()
-                        # set date to false to disable date display
-                        if date and (date == "false" or date == "none"):
-                            date = False
-                        else:
-                            GMT_FORMAT = '%Y-%m-%d'
-                            try:
-                                date_obj = datetime.strptime(date, GMT_FORMAT)
-                                ts = int(date_obj.timestamp())
-                            except Exception as e:
-                                date = date_file_edit
+                    date = None
+                    ts = None
+                    if "date" in metadata and type(metadata["date"]) == datetime:
+                        date = metadata["date"]
+                        ts = int(date.timestamp())
                     else:
-                        date = date_file_edit
+                        ts = int(os.stat(file).st_mtime)
+                        date = datetime.fromtimestamp(ts)
                     if "author" in metadata:
                         author = metadata["author"]
                     else:
