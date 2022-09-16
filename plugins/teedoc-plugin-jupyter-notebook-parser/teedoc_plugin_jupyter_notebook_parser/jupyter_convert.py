@@ -106,9 +106,9 @@ def convert_ipynb_to_html(path):
         elif first_cell_content:
             content.cells[0]["source"] = first_cell_content
         html.title = html.metadata["title"]
-        html.keywords = html.metadata["keywords"].split(",") if html.metadata["tags"] else []
-        html.desc = html.metadata["desc"]
-        html.tags = html.metadata["tags"].split(",") if html.metadata["tags"] else []
+        html.keywords = html.metadata["keywords"].split(",") if html.metadata.get("tags") else []
+        html.desc = html.metadata.get("desc", "")
+        html.tags = html.metadata["tags"].split(",") if html.metadata.get("tags") else []
         body, resources = html_exporter.from_notebook_node(content)
         html.raw = get_search_content(content.cells)
         html.body = body

@@ -122,10 +122,8 @@ class Plugin(Plugin_Base):
                         metadata, content_no_meta = meta_parser.parse_meta(content)
                         html = md_parser(content_no_meta)
                     except Exception as e:
-                        import io, traceback
-                        traceback.print_exc()
                         self.logger.w("parse markdown file {} fail, please check markdown content format".format(file))
-                        continue
+                        raise e
                     if "title" in metadata:
                         title = metadata["title"]
                     else:

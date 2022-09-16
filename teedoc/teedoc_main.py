@@ -1689,7 +1689,11 @@ def main():
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
 
-    log = Logger(level=args.log_level)
+    if args.log_level == "d":
+        log_format = '%(asctime)s - [%(levelname)s] - [%(processName)s - %(threadName)s] %(message)s'
+    else:
+        log_format = '%(asctime)s - [%(levelname)s] -%(message)s'
+    log = Logger(level=args.log_level, fmt=log_format)
     if not utils.check_git():
         log.w("git not found, please install git first")
     # convert json or yaml file
