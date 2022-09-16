@@ -1,7 +1,6 @@
 import os, sys
-import re
 from collections import OrderedDict
-from datetime import datetime
+import datetime
 import json
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
@@ -10,10 +9,10 @@ try:
         sys.path.insert(0, teedoc_project_path)
 except Exception:
     pass
-from teedoc import Plugin_Base, utils
+from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 import tempfile
-import requests
+import time
 
 __version__ = "2.10.0"
 
@@ -144,10 +143,14 @@ class Plugin(Plugin_Base):
                         desc = ""
                     date = None
                     ts = None
-                    if "date" in metadata and type(metadata["date"]) == datetime:
+                    if "date" in metadata and (type(metadata["date"]) == datetime.datetime or type(metadata["date"]) == datetime.date):
                         date = metadata["date"]
-                        ts = int(date.timestamp())
+                        if type(date) == datetime.date:
+                            ts = int(time.mktime(date.timetuple()))
+                        else:
+                            ts = int(date.timestamp())
                     else:
+                        date = metadata.get("date")
                         ts = int(os.stat(file).st_mtime)
                     if "author" in metadata:
                         author = metadata["author"]

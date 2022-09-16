@@ -1,7 +1,27 @@
 teedoc update history
 ========
 
-## 2022-05-08 
+## 2022-9-16
+
+* Optimize sidebar
+* Add mermaid support for markdown
+* Ignore to detect all tempfiles
+* Update markdown parser mistune to V2
+* Add `teedoc-list-files` tool to list files by file size
+* Add `teedoc-compare` tool to compare two directories' files' difference
+* Add `teedoc-upload` tool to upload files to remote server, support tencent cloud and qiniu cloud
+* Optimize build log
+* New Markdown syntax:
+  * `tabset` (jupyter not support yet)
+  * `details`(jupyter not support yet)
+  * Support customize header ID with `{#id}` syntax
+* Metadata full support `yaml` format, and support `update` key to generate update history
+* New teedoc logo
+* Fix long TOC can not show completely bug
+* Remove install local plugins in `teedoc install` command
+* Optimize last modify date show
+
+## 2022-05-08
 
 * Update theme plugin support TOC for mobile
 * Update blog plugin support image in brief and support `cover` meta key

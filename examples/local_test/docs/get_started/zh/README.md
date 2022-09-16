@@ -1,6 +1,5 @@
 ---
 title: Hello
-date: 2022-09-03
 keywords:
   - hello
   - world

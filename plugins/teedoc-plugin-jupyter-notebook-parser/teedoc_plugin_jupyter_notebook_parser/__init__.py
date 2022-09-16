@@ -1,7 +1,8 @@
 import os, sys
 import re
 from collections import OrderedDict
-from datetime import datetime
+import datetime
+import time
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
@@ -65,19 +66,16 @@ class Plugin(Plugin_Base):
                 html.body = self._update_link_html(html.body)
                 metadata = html.metadata
                 date = None
-                ts = int(os.stat(file).st_mtime)
-                if "date" in metadata:
-                    date = metadata["date"].strip().lower()
-                    # set date to false to disable date display
-                    if date and (date == "false" or date == "none"):
-                        date = False
+                ts = None
+                if "date" in metadata and (type(metadata["date"]) == datetime.datetime or type(metadata["date"]) == datetime.date):
+                    date = metadata["date"]
+                    if type(date) == datetime.date:
+                        ts = int(time.mktime(date.timetuple()))
                     else:
-                        GMT_FORMAT = '%Y-%m-%d'
-                        try:
-                            date_obj = datetime.strptime(date, GMT_FORMAT)
-                            ts = int(date_obj.timestamp())
-                        except Exception as e:
-                            pass
+                        ts = int(date.timestamp())
+                else:
+                    date = metadata.get("date")
+                    ts = int(os.stat(file).st_mtime)
                 if "author" in metadata:
                     author = metadata["author"]
                 else:

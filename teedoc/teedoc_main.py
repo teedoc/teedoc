@@ -11,7 +11,7 @@ import re
 from collections import OrderedDict
 import multiprocessing
 import copy
-from datetime import datetime
+import datetime
 import tempfile
 import gettext
 from babel import Locale
@@ -35,6 +35,35 @@ def add_robots_txt(site_config, out_dir, log):
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(robots_txt)
 
+def get_last_modify_time(html, file_path, git = False):
+    '''
+        return datetime.date or None
+    '''
+    last_edit_time = None
+    if html.get("date", "") is False:
+        return None
+    if html.get('date'):
+        try:
+            if type(html["date"]) == datetime.date:
+                last_edit_time = html["date"]
+            elif type(html["date"]) == datetime.datetime:
+                last_edit_time = datetime.datetime.date(html["date"])
+            elif type(html["date"]) == str:
+                date = html['date'].strip().split(" ")[0]
+                last_edit_time = datetime.datetime.strptime(date,"%Y-%m-%d")
+        except:
+            pass
+    if last_edit_time is None and "update" in html["metadata"]:
+        update = html["metadata"]["update"]
+        sorted(update, key=lambda x:x["date"], reverse=True)
+        last_edit_time = update[0]["date"]
+    if last_edit_time is None:
+        last_edit_time = utils.get_file_last_modify_time(file_path, git = git)
+    if last_edit_time and type(last_edit_time) == datetime.datetime:
+        last_edit_time = datetime.datetime.date(last_edit_time)
+    return last_edit_time
+
+
 def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
     log.i("generate sitemap.xml")
     sitemap_content = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">\n'
@@ -42,20 +71,7 @@ def generate_sitemap(update_htmls, out_path, site_domain, site_protocol, log):
         htmls = update_htmls[doc_url]
         for url, html in htmls.items():
             url = "{}://{}{}".format(site_protocol, site_domain, url)
-            file_path = html['file_path']
-            last_edit_time = None
-            if "date" in html and html['date']:
-                try:
-                    if type(html["date"]) == str:
-                        date = html['date'].strip().split(" ")[0]
-                        last_edit_time = datetime.strptime(date,"%Y-%m-%d")
-                    elif type(html["date"]) == datetime:
-                        last_edit_time = html["date"]
-                except:
-                    pass
-            if last_edit_time is None:
-                last_edit_time = utils.get_file_last_modify_time(file_path)
-            last_edit_time = last_edit_time.isoformat()
+            last_edit_time = get_last_modify_time(html, html['file_path']).isoformat()
             change_freq = "weekly"
             priority = 1.0
             sitemap_item = '''    <url>
@@ -793,20 +809,7 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                                     "url": sidebar_list[file]["next"][0],
                                     "title": sidebar_list[file]["next"][1]
                                 }
-                    # get file last edit time
-                    last_edit_time = None
-                    if html['date']:
-                        try:
-                            if type(html["date"]) == str:
-                                date = html['date'].strip().split(" ")[0]
-                                last_edit_time = datetime.strptime(date,"%Y-%m-%d")
-                            elif type(html["date"]) == datetime:
-                                last_edit_time = html["date"]
-                        except:
-                            pass
-                    if last_edit_time is None and html["date"] is not False: # not disable show date
-                        # only get last edit time from git when is build, preview/serve mode not get to faster preview speed
-                        last_edit_time = utils.get_file_last_modify_time(file, git=is_build)
+                    last_edit_time = get_last_modify_time(html, file, git = is_build)
                     html["date"] = last_edit_time.strftime("%Y-%m-%d") if last_edit_time else None
                     vars = {
                         "lang": lang,
