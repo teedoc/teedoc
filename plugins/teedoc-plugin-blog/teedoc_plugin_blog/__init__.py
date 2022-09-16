@@ -26,7 +26,7 @@ from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 
-__version__ = "1.1.1"
+__version__ = "1.1.3"
 
 
 class Plugin(Plugin_Base):
@@ -126,22 +126,21 @@ class Plugin(Plugin_Base):
                         brief = html[:500].strip()
                     parent_url = os.path.dirname(file.replace(self.doc_src_path, ""))
                     brief = self._update_relative_brief_links(brief, parent_url)
-                    if "title" in metadata:
-                        title = metadata["title"]
-                    else:
-                        title = ""
-                    if "keywords" in metadata and not metadata["keywords"].strip() == "":
-                        keywords = metadata["keywords"].split(",")
-                    else:
-                        keywords = []
-                    if "tags" in metadata and not metadata["tags"].strip() == "":
-                        tags = metadata["tags"].split(",")
-                    else:
-                        tags = []
-                    if "desc" in metadata:
-                        desc = metadata["desc"]
-                    else:
-                        desc = ""
+                    title = metadata.get("title", "")
+                    desc = metadata.get("desc", "")
+                    author = metadata.get("author", "")
+                    keywords = []
+                    if "keywords" in metadata:
+                        if type(metadata["keywords"]) == list:
+                            keywords = metadata["keywords"]
+                        else:
+                            keywords = metadata["keywords"].split(",")
+                    tags = []
+                    if "tags" in metadata:
+                        if type(metadata["tags"]) == list:
+                            tags = metadata["tags"]
+                        else:
+                            tags = metadata["tags"].split(",")
                     if "cover" in metadata:
                         cover = metadata["cover"]
                         cover = self._rel_to_abs_url(cover, parent_url)
@@ -153,14 +152,13 @@ class Plugin(Plugin_Base):
                     ts = None
                     if "date" in metadata and type(metadata["date"]) == datetime:
                         date = metadata["date"]
-                        ts = int(date.timestamp())
+                        if type(date) == datetime.date:
+                            ts = int(time.mktime(date.timetuple()))
+                        else:
+                            ts = int(date.timestamp())
                     else:
                         ts = int(os.stat(file).st_mtime)
                         date = datetime.fromtimestamp(ts)
-                    if "author" in metadata:
-                        author = metadata["author"]
-                    else:
-                        author = ""
                     result["htmls"][file] = {
                         "title": title,
                         "desc": desc,

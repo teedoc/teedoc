@@ -17,7 +17,7 @@ try:
 except Exception:
     from jupyter_convert import convert_ipynb_to_html
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-jupyter-notebook-parser"
     desc = "jupyter notebook parser plugin for teedoc"
@@ -38,8 +38,6 @@ class Plugin(Plugin_Base):
         self.logger.i("-- plugin <{}> init".format(self.name))
         self.logger.i("-- plugin <{}> config: {}".format(self.name, self.config))
 
-        
-
     def on_parse_files(self, files):
         # result, format must be this
         result = {
@@ -53,7 +51,7 @@ class Plugin(Plugin_Base):
             return result
         self.logger.d("-- plugin <{}> parse {} files".format(self.name, len(files)))
         # self.logger.d("files: {}".format(files))
-        
+
         for file in files:
             name = os.path.basename(file)
             # ignore temp file
@@ -65,6 +63,7 @@ class Plugin(Plugin_Base):
                 html = convert_ipynb_to_html(file)
                 html.body = self._update_link_html(html.body)
                 metadata = html.metadata
+                author = metadata.get("author", "")
                 date = None
                 ts = None
                 if "date" in metadata and (type(metadata["date"]) == datetime.datetime or type(metadata["date"]) == datetime.date):
@@ -76,10 +75,6 @@ class Plugin(Plugin_Base):
                 else:
                     date = metadata.get("date")
                     ts = int(os.stat(file).st_mtime)
-                if "author" in metadata:
-                    author = metadata["author"]
-                else:
-                    author = ""
                 result["htmls"][file] = {
                     "title": html.title,
                     "desc": html.desc,

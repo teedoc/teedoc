@@ -1008,6 +1008,8 @@ def generate_return(plugins_objs, ok, multiprocess):
     if multiprocess:
         for p in plugins_objs:
             p.on_new_process_del()
+        if not ok:
+            sys.exit(1)
     return ok
 
 def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func, routes,
@@ -1016,7 +1018,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
              redirect_err_file, redirct_url, ref_doc_url, is_build, sidebar_root_dir = None):
     if not sidebar_root_dir:
         sidebar_root_dir = dir
-    if not pipe_tx is None:
+    if pipe_tx is not None:
         def on_err():
             pipe_tx.send(True)
 
@@ -1355,12 +1357,17 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
         if max_threads_num > 1 and len(all_files) > 10:
             all_files = split_list(all_files, max_threads_num)
             ts = []
-            pipe_rx, pipe_tx = multiprocessing.Pipe()
+            pipes_child_to_parent = []
+            pipes_parent_to_child = []
             for files in all_files:
+                pipe_rx_c2p, pipe_tx_c2p = multiprocessing.Pipe()
+                pipes_child_to_parent.append((pipe_rx_c2p, pipe_tx_c2p))
+                pipe_rx_p2c, pipe_tx_p2c = multiprocessing.Pipe()
+                pipes_parent_to_child.append((pipe_rx_p2c, pipe_tx_p2c))
                 args = (multiprocess, html_template, html_templates_i18n_dirs, files, url, dir, doc_config, plugin_func,
-                                            routes, site_config, doc_src_path, log, out_dir, plugins_objs, 
+                                            routes, site_config, doc_src_path, log, out_dir, plugins_objs,
                                             header_items, footer_js_items, sidebar_dict, sidebar_list, allow_no_navbar,
-                                            site_root_url, navbar, footer, queue, pipe_rx, pipe_tx,
+                                            site_root_url, navbar, footer, queue, pipe_rx_p2c, pipe_tx_c2p,
                                             redirect_err_file, redirct_url, ref_doc_url, is_build)
                 if multiprocess:
                     p = multiprocessing.Process(target=generate, args=args)
@@ -1369,9 +1376,27 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
                     p.setDaemon(True)
                 p.start()
                 ts.append(p)
-            for p in ts:
-                p.join()
-                # log.i("{} generate ok".format(p.name))
+            have_err = False
+            while 1:
+                for i in range(len(pipes_child_to_parent)):
+                    rx = pipes_child_to_parent[i][0]
+                    if rx.poll(): # have error
+                        rx.recv()
+                        have_err = True
+                        # inform all threads or process
+                        for j in range(len(pipes_parent_to_child)):
+                            tx = pipes_parent_to_child[j][0]
+                            tx.send(True)
+                all_died = True
+                for p in ts:
+                    if p.is_alive():
+                        all_died = False
+                        break
+                    elif have_err:
+                        raise Exception("generate html fail, see log before")
+                if all_died:
+                    break
+                time.sleep(0.05)
         else:
             ok = generate(multiprocess, html_template, html_templates_i18n_dirs, all_files, url, dir, doc_config, plugin_func,
                           routes, site_config, doc_src_path, log, out_dir, plugins_objs, header_items,
@@ -1569,7 +1594,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
     from watchdog.events import RegexMatchingEventHandler
     import time
     import threading
- 
+
     class FileEventHandler(RegexMatchingEventHandler):
         def __init__(self, doc_src_path):
             ignore = "{}/out/.*".format(doc_src_path)
@@ -1577,7 +1602,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
             self.update_files = []
             self.doc_src_path = doc_src_path
             self.lock = threading.Lock()
-        
+
         def get_update_files(self):
             self.lock.acquire()
             self.update_files = list(set(self.update_files))  # remove dumplicated files
@@ -1586,7 +1611,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
                 self.update_files = []
             self.lock.release()
             return files
-        
+
         def _append_files(self, files):
             self.lock.acquire()
             self.update_files.extend(files)
@@ -1600,7 +1625,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
                 print("file moved:{0}".format(event.dest_path))
                 files = [os.path.abspath(os.path.join(self.doc_src_path, event.dest_path)).replace("\\", "/")]
                 self._append_files(files)
-        
+
         def on_created(self, event):
             if event.is_directory:
                 log.d("directory created:{0}".format(event.src_path))
@@ -1609,7 +1634,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
                 log.d("file created:{0}".format(event.src_path))
                 files = [os.path.abspath(os.path.join(self.doc_src_path, event.src_path)).replace("\\", "/")]
                 self._append_files(files)
-        
+
         def on_deleted(self, event):
             pass
 
@@ -1621,7 +1646,7 @@ def files_watch(doc_src_path, log, delay_time, queue):
                 log.d("file modified:{0}".format(event.src_path))
                 files = [os.path.abspath(os.path.join(self.doc_src_path, event.src_path)).replace("\\", "/")]
                 self._append_files(files)
- 
+
     observer = Observer()
     handler = FileEventHandler(doc_src_path)
     files = os.listdir(doc_src_path)

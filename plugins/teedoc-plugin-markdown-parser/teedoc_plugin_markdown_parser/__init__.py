@@ -14,7 +14,7 @@ from teedoc import Fake_Logger
 import tempfile
 import time
 
-__version__ = "2.10.0"
+__version__ = "2.10.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -104,7 +104,7 @@ class Plugin(Plugin_Base):
             return result
         self.logger.d("-- plugin <{}> parse {} files".format(self.name, len(files)))
         # self.logger.d("files: {}".format(files))
-        
+
         for file in files:
             ext = os.path.splitext(file)[1].lower()
             if ext.endswith("md"):
@@ -123,24 +123,21 @@ class Plugin(Plugin_Base):
                     except Exception as e:
                         self.logger.w("parse markdown file {} fail, please check markdown content format".format(file))
                         raise e
-                    if "title" in metadata:
-                        title = metadata["title"]
-                    else:
-                        title = ""
+                    title = metadata.get("title", "")
+                    desc = metadata.get("desc", "")
+                    author = metadata.get("author", "")
                     keywords = []
                     if "keywords" in metadata:
                         if type(metadata["keywords"]) == list:
                             keywords = metadata["keywords"]
                         elif type(metadata["keywords"]) == str:
                             keywords = metadata["keywords"].split(",")
-                    if "tags" in metadata and not metadata["tags"].strip() == "":
-                        tags = metadata["tags"].split(",")
-                    else:
-                        tags = []
-                    if "desc" in metadata:
-                        desc = metadata["desc"]
-                    else:
-                        desc = ""
+                    tags = []
+                    if "tags" in metadata:
+                        if type(metadata["tags"]) == list:
+                            tags = metadata["tags"]
+                        elif type(metadata["tags"]) == str:
+                            tags = metadata["tags"].split(",")
                     date = None
                     ts = None
                     if "date" in metadata and (type(metadata["date"]) == datetime.datetime or type(metadata["date"]) == datetime.date):
@@ -152,10 +149,6 @@ class Plugin(Plugin_Base):
                     else:
                         date = metadata.get("date")
                         ts = int(os.stat(file).st_mtime)
-                    if "author" in metadata:
-                        author = metadata["author"]
-                    else:
-                        author = ""
                     result["htmls"][file] = {
                         "title": title,
                         "desc": desc,
