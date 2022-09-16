@@ -16,7 +16,7 @@ try:
 except Exception:
     from jupyter_convert import convert_ipynb_to_html
 
-__version__ = "1.2.3"
+__version__ = "1.3.0"
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-jupyter-notebook-parser"
     desc = "jupyter notebook parser plugin for teedoc"

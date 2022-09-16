@@ -15,7 +15,7 @@ from teedoc import Fake_Logger
 import tempfile
 import requests
 
-__version__ = "2.9.0"
+__version__ = "2.10.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -130,10 +130,12 @@ class Plugin(Plugin_Base):
                         title = metadata["title"]
                     else:
                         title = ""
-                    if "keywords" in metadata and not metadata["keywords"].strip() == "":
-                        keywords = metadata["keywords"].split(",")
-                    else:
-                        keywords = []
+                    keywords = []
+                    if "keywords" in metadata:
+                        if type(metadata["keywords"]) == list:
+                            keywords = metadata["keywords"]
+                        elif type(metadata["keywords"]) == str:
+                            keywords = metadata["keywords"].split(",")
                     if "tags" in metadata and not metadata["tags"].strip() == "":
                         tags = metadata["tags"].split(",")
                     else:

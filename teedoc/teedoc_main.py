@@ -753,134 +753,138 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
     files = {}
     items = list(htmls.items())
     for i, (file, html) in enumerate(items):
-        if not html:
-            files[file] = None
-        else:
-            renderer = renderer0
-            metadata = copy.deepcopy(html["metadata"])
-            if "title" in metadata:
-                metadata.pop("title")
-            if "keywords" in metadata:
-                metadata.pop("keywords")
-            if "desc" in metadata:
-                metadata.pop("desc")
-            if "tags" in metadata:
-                metadata.pop("tags")
-            if "id" in metadata:
-                metadata.pop("id")
-            if "layout" in html["metadata"]:
-                html["metadata"]["layout"] = str(html["metadata"]["layout"])
-                if not html["metadata"]["layout"].endswith(".html"):
-                    html["metadata"]["layout"] = html["metadata"]["layout"] + ".html"
-                layout = os.path.join(template_root, html["metadata"]["layout"])
-                if not os.path.exists(layout):
-                    layout = os.path.join(theme_layout_root, html["metadata"]["layout"])
-                if os.path.exists(layout):
-                    renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], log, html_templates_i18n_dirs, locale=locale)
-            id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
-            if "sidebar" in html:
-                previous_article = None
-                next_article = None
-                if file in sidebar_list:
-                    if sidebar_list[file]["previous"]:
-                        previous_article = {
-                                "url": sidebar_list[file]["previous"][0],
-                                "title": sidebar_list[file]["previous"][1]
-                            }
-                    if sidebar_list[file]["next"]:
-                        next_article = {
-                                "url": sidebar_list[file]["next"][0],
-                                "title": sidebar_list[file]["next"][1]
-                            }
-                # get file last edit time
-                last_edit_time = None
-                if html['date']:
-                    try:
-                        if type(html["date"]) == str:
-                            date = html['date'].strip().split(" ")[0]
-                            last_edit_time = datetime.strptime(date,"%Y-%m-%d")
-                        elif type(html["date"]) == datetime:
-                            last_edit_time = html["date"]
-                    except:
-                        pass
-                if last_edit_time is None and html["date"] is not False: # not disable show date
-                    # only get last edit time from git when is build, preview/serve mode not get to faster preview speed
-                    last_edit_time = utils.get_file_last_modify_time(file, git=is_build)
-                html["date"] = last_edit_time.strftime("%Y-%m-%d") if last_edit_time else None
-                vars = {
-                    "lang": lang,
-                    "metadata": metadata,
-                    "page_id" : id,
-                    "page_classes" : classes,
-                    "keywords" : html["keywords"],
-                    "description" : html["desc"],
-                    "header_items" : header_items_in,
-                    "title" : html["title"],
-                    "site_name" : site_config["site_name"],
-                    "js_vars": html["js_vars"],
-                    # navbar
-                    # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
-                    "logo_url" : html["navbar"][0],
-                    "logo_alt" : html["navbar"][1],
-                    "home_url" : html["navbar"][2],
-                    "navbar_title" : html["navbar"][3],
-                    "navbar_main" : html["navbar"][4],
-                    "navbar_options" : html["navbar"][5],
-                    "navbar_plugins" : html["navbar"][6],
-                    # sidebar info
-                    "sidebar_title" : html["sidebar"][0],
-                    "sidebar_items_html" : html["sidebar"][1],
-                    # docs body info
-                    "article_title" : html["title"],
-                    "tags" : html["tags"],
-                    "author" : html["author"] if "author" in html else None,
-                    "date" : html["date"],
-                    "show_source" : html["show_source"][0] if "show_source" in html else None,
-                    "source_url" : html["show_source"][1] if "show_source" in html else None,
-                    "body" : html["body"],
-                    "previous" : previous_article,
-                    "next" : next_article,
-                    "toc" : html["toc"] if "toc" in html else None,
-                    # footer
-                    "footer_top" : html["footer"][0],
-                    "footer_bottom" : html["footer"][1],
-                    "footer_js_items" : js_items_in
-                }
-                for plugin in plugins_objs:
-                    vars = plugin.__getattribute__("on_render_vars")(vars)
-                rendered_html = renderer.render(**vars)
+        try:
+            if not html:
+                files[file] = None
             else:
-                vars = {
-                    "lang": lang,
-                    "metadata": metadata,
-                    "page_id" : id,
-                    "page_classes" : classes,
-                    "keywords" : html["keywords"],
-                    "description" : html["desc"],
-                    "header_items" : header_items_in,
-                    "title" : html["title"],
-                    "site_name" : site_config["site_name"],
-                    "js_vars": html["js_vars"],
-                    # navbar
-                    # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
-                    "logo_url" : html["navbar"][0],
-                    "logo_alt" : html["navbar"][1],
-                    "home_url" : html["navbar"][2],
-                    "navbar_title" : html["navbar"][3],
-                    "navbar_main" : html["navbar"][4],
-                    "navbar_options" : html["navbar"][5],
-                    "navbar_plugins" : html["navbar"][6],
-                    # docs body info
-                    "body" : html["body"],
-                    # footer
-                    "footer_top" : html["footer"][0],
-                    "footer_bottom" : html["footer"][1],
-                    "footer_js_items" : js_items_in
-                }
-                for plugin in plugins_objs:
-                    vars = plugin.__getattribute__("on_render_vars")(vars)
-                rendered_html = renderer.render(**vars)
-            files[file] = rendered_html
+                renderer = renderer0
+                metadata = copy.deepcopy(html["metadata"])
+                if "title" in metadata:
+                    metadata.pop("title")
+                if "keywords" in metadata:
+                    metadata.pop("keywords")
+                if "desc" in metadata:
+                    metadata.pop("desc")
+                if "tags" in metadata:
+                    metadata.pop("tags")
+                if "id" in metadata:
+                    metadata.pop("id")
+                if "layout" in html["metadata"]:
+                    html["metadata"]["layout"] = str(html["metadata"]["layout"])
+                    if not html["metadata"]["layout"].endswith(".html"):
+                        html["metadata"]["layout"] = html["metadata"]["layout"] + ".html"
+                    layout = os.path.join(template_root, html["metadata"]["layout"])
+                    if not os.path.exists(layout):
+                        layout = os.path.join(theme_layout_root, html["metadata"]["layout"])
+                    if os.path.exists(layout):
+                        renderer = Renderer(html["metadata"]["layout"], [template_root, theme_layout_root], log, html_templates_i18n_dirs, locale=locale)
+                id, classes = get_html_start_id_class(html, doc_config["id"] if "id" in doc_config else None, doc_config['class'] if 'class' in doc_config else None)
+                if "sidebar" in html:
+                    previous_article = None
+                    next_article = None
+                    if file in sidebar_list:
+                        if sidebar_list[file]["previous"]:
+                            previous_article = {
+                                    "url": sidebar_list[file]["previous"][0],
+                                    "title": sidebar_list[file]["previous"][1]
+                                }
+                        if sidebar_list[file]["next"]:
+                            next_article = {
+                                    "url": sidebar_list[file]["next"][0],
+                                    "title": sidebar_list[file]["next"][1]
+                                }
+                    # get file last edit time
+                    last_edit_time = None
+                    if html['date']:
+                        try:
+                            if type(html["date"]) == str:
+                                date = html['date'].strip().split(" ")[0]
+                                last_edit_time = datetime.strptime(date,"%Y-%m-%d")
+                            elif type(html["date"]) == datetime:
+                                last_edit_time = html["date"]
+                        except:
+                            pass
+                    if last_edit_time is None and html["date"] is not False: # not disable show date
+                        # only get last edit time from git when is build, preview/serve mode not get to faster preview speed
+                        last_edit_time = utils.get_file_last_modify_time(file, git=is_build)
+                    html["date"] = last_edit_time.strftime("%Y-%m-%d") if last_edit_time else None
+                    vars = {
+                        "lang": lang,
+                        "metadata": metadata,
+                        "page_id" : id,
+                        "page_classes" : classes,
+                        "keywords" : html["keywords"],
+                        "description" : html["desc"],
+                        "header_items" : header_items_in,
+                        "title" : html["title"],
+                        "site_name" : site_config["site_name"],
+                        "js_vars": html["js_vars"],
+                        # navbar
+                        # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
+                        "logo_url" : html["navbar"][0],
+                        "logo_alt" : html["navbar"][1],
+                        "home_url" : html["navbar"][2],
+                        "navbar_title" : html["navbar"][3],
+                        "navbar_main" : html["navbar"][4],
+                        "navbar_options" : html["navbar"][5],
+                        "navbar_plugins" : html["navbar"][6],
+                        # sidebar info
+                        "sidebar_title" : html["sidebar"][0],
+                        "sidebar_items_html" : html["sidebar"][1],
+                        # docs body info
+                        "article_title" : html["title"],
+                        "tags" : html["tags"],
+                        "author" : html["author"] if "author" in html else None,
+                        "date" : html["date"],
+                        "show_source" : html["show_source"][0] if "show_source" in html else None,
+                        "source_url" : html["show_source"][1] if "show_source" in html else None,
+                        "body" : html["body"],
+                        "previous" : previous_article,
+                        "next" : next_article,
+                        "toc" : html["toc"] if "toc" in html else None,
+                        # footer
+                        "footer_top" : html["footer"][0],
+                        "footer_bottom" : html["footer"][1],
+                        "footer_js_items" : js_items_in
+                    }
+                    for plugin in plugins_objs:
+                        vars = plugin.__getattribute__("on_render_vars")(vars)
+                    rendered_html = renderer.render(**vars)
+                else:
+                    vars = {
+                        "lang": lang,
+                        "metadata": metadata,
+                        "page_id" : id,
+                        "page_classes" : classes,
+                        "keywords" : html["keywords"],
+                        "description" : html["desc"],
+                        "header_items" : header_items_in,
+                        "title" : html["title"],
+                        "site_name" : site_config["site_name"],
+                        "js_vars": html["js_vars"],
+                        # navbar
+                        # (logo_url, logo_alt, home_url, navbar_title, navbar_main, navbar_options, navbar_plugins),
+                        "logo_url" : html["navbar"][0],
+                        "logo_alt" : html["navbar"][1],
+                        "home_url" : html["navbar"][2],
+                        "navbar_title" : html["navbar"][3],
+                        "navbar_main" : html["navbar"][4],
+                        "navbar_options" : html["navbar"][5],
+                        "navbar_plugins" : html["navbar"][6],
+                        # docs body info
+                        "body" : html["body"],
+                        # footer
+                        "footer_top" : html["footer"][0],
+                        "footer_bottom" : html["footer"][1],
+                        "footer_js_items" : js_items_in
+                    }
+                    for plugin in plugins_objs:
+                        vars = plugin.__getattribute__("on_render_vars")(vars)
+                    rendered_html = renderer.render(**vars)
+                files[file] = rendered_html
+        except Exception as e:
+            log.e("Error rendering file: %s" % file)
+            raise e
     return files
 
 def update_html_abs_path(file_htmls, root_path):
@@ -917,7 +921,6 @@ def add_url_item(htmls, url, dir, site_root_url):
                 "raw": ""
             }
         }
-        
         @return {
             "url":{
                 "title": ""
@@ -1900,7 +1903,7 @@ def main():
                 log.i("build ok")
 
                 host = (args.host, args.port)
-                
+
                 def on_visit(url):
                     if args.fast:
                         path = utils.get_file_path_by_url(url, doc_src_path, site_config["route"], site_config["translate"])
@@ -1915,7 +1918,7 @@ def main():
                     queue = Queue(maxsize=50)
                     delay_time = (int(site_config["rebuild_changes_delay"]) if "rebuild_changes_delay" in site_config else 3) if int(args.delay) < 0 else int(args.delay)
                     t = threading.Thread(target=files_watch, args=(doc_src_path, log, delay_time, queue))
-                    t.setDaemon(True)
+                    t.daemon = True
                     t.start()
                     def server_loop(host, log):
                         server = HTTP_Server(host[0], host[1], serve_dir, visit_callback=on_visit)
@@ -1927,7 +1930,7 @@ def main():
 
                     if not t2:
                         t2 = threading.Thread(target=server_loop, args=(host, log))
-                        t2.setDaemon(True)
+                        t2.daemon = True
                         t2.start()
                 # clear file changed queue for rebuild
                 while not queue.empty():

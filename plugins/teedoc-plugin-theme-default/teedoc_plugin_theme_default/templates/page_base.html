@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html {% if lang %}lang="{{ lang }}"{% endif %} {% if page_id %} id="{{ page_id }}" {% endif %} class="{% for c in page_classes%} {{ c }} {% endfor%}" {% for k,v in metadata.items() %} {{ k }}="{{ v }}" {% endfor%}>
+<html {% if lang %}lang="{{ lang }}"{% endif %} {% if page_id %} id="{{ page_id }}" {% endif %} class="{% for c in page_classes%} {{ c }} {% endfor%}">
 <head>
     {% block meta %} 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="keywords" content="{% for k in keywords %}{{ k }}, {% endfor%}">
+        <meta name="keywords" content="{{ ', '.join(keywords) }}">
         <meta name="description" content="{{ description }}">
         <meta name="generator" content="teedoc">
         <meta name="theme" content="teedoc-plugin-theme-default">

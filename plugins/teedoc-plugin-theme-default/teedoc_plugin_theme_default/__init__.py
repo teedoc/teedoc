@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.20.2"
+__version__ = "1.21.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
@@ -113,16 +113,7 @@ class Plugin(Plugin_Base):
         else:
             self.code_highlight_js = None
             self.footer_js["/static/css/theme_default/prism.min.js"] = os.path.join(self.assets_abs_path, "prism.min.js")
-        self.images = {
-            "/static/image/theme_default/indicator.svg": os.path.join(self.assets_abs_path, "indicator.svg"),
-            "/static/image/theme_default/back.svg": os.path.join(self.assets_abs_path, "back.svg"),
-            "/static/image/theme_default/anchor.svg": os.path.join(self.assets_abs_path, "anchor.svg"),
-            "/static/image/theme_default/menu.svg": os.path.join(self.assets_abs_path, "menu.svg"),
-            "/static/image/theme_default/to-top.svg": os.path.join(self.assets_abs_path, "to-top.svg"),
-            "/static/image/theme_default/light_mode.svg": os.path.join(self.assets_abs_path, "light_mode.svg"),
-            "/static/image/theme_default/dark_mode.svg": os.path.join(self.assets_abs_path, "dark_mode.svg"),
-            "/static/image/theme_default/print.svg": os.path.join(self.assets_abs_path, "print.svg")
-        }
+        self.images = self._get_all_img_assets("/static/image/theme_default", self.assets_abs_path)
         # set site_root_url env value
         self.config['env']["site_root_url"] = self.site_config["site_root_url"]
         # replace variable in css with value
@@ -156,6 +147,16 @@ class Plugin(Plugin_Base):
             self.themes_btn = ""
 
         self.html_js_items = self._generate_html_js_items()
+
+    def _get_all_img_assets(self, to_url, from_dir):
+        assets = {}
+        names = os.listdir(from_dir)
+        for name in names:
+            ext = os.path.splitext(name)[1]
+            if ext not in [".jpg", ".png", ".svg", ".icon"]:
+                continue
+            assets[f'{to_url}/{name}'] = os.path.join(from_dir, name)
+        return assets
 
     def on_del(self):
         if os.path.exists(self.temp_dir):
