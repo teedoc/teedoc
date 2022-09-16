@@ -1,7 +1,11 @@
 teedoc update history
 ========
 
-## 2022-9-16
+## 2022-9-16 v1.31.0
+
+* Support directly use Jinja2 template in html file with out use layout in md file, more info see doc's html syntax part.
+
+## 2022-9-16 v1.30.1
 
 * Optimize sidebar
 * Add mermaid support for markdown

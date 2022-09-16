@@ -346,7 +346,9 @@ def get_file_last_modify_time(file_path, git=True):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         output, err = p.communicate()
         if p.returncode == 0:
-            last_edit_time = datetime.fromisoformat(output.decode("utf-8").strip())
+            date_str = output.decode("utf-8").strip()
+            if date_str:
+                last_edit_time = datetime.fromisoformat(date_str)
     if not last_edit_time: # this time is not accurate, just for outside of git repository's file
         last_edit_time = datetime.fromtimestamp(os.stat(file_path).st_mtime)
     return last_edit_time

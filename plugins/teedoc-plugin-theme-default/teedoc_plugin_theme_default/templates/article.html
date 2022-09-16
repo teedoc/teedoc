@@ -1,19 +1,31 @@
 <!DOCTYPE html>
 <html {% if lang %}lang="{{ lang }}"{% endif %} {% if page_id %}id="{{ page_id }}"{% endif %} class="{% for c in page_classes%} {{ c }} {% endfor%}">
+{% block head %}
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block keywords %}
     <meta name="keywords" content="{{ ', '.join(keywords) }}">
+    {% endblock %}
+    {% block description %}
     <meta name="description" content="{{ description }}">
+    {% endblock %}
     <meta name="generator" content="teedoc">
     <meta name="theme" content="teedoc-plugin-theme-default">
-    {% for item in header_items %}
-    {{ item|safe }}
-    {% endfor %}
+    {% block head_items %}
+        {% for item in header_items %}
+        {{ item|safe }}
+        {% endfor %}
+    {% endblock %}
+    {% block head_title %}
     <title>{% if title %}{{ title }} - {% endif %}{{ site_name }}</title>
+    {% endblock %}
     <script type="text/javascript">js_vars = {{ js_vars|tojson }}</script>
 </head>
+{% endblock %}
+{% block body %}
 <body class="type_doc">
+    {% block navbar %}
     <div id="navbar">
         <div id="navbar_menu">
             <a class="site_title" href="{{ home_url }}">
@@ -36,6 +48,7 @@
             </div>
         </div>
     </div>
+    {% endblock %}
     <div id="wrapper">
         <div id="sidebar_wrapper">
             <div id="sidebar">
@@ -54,7 +67,9 @@
                 <div id="content_body">
                     <div id="article_head">
                         <div id="article_title">
+                            {% block title %}
                             <h1>{{ article_title }}</h1>
+                            {% endblock %}
                         </div>
                         <div id="article_tags">
                             <ul>
@@ -129,7 +144,9 @@
                         {% endif %}
                     </div>
                     <div id="article_content">
-                        {{ body }}
+                        {% block content %}
+                            {{ body|safe }}
+                        {% endblock %}
                     </div>
                 </div>
                 <div id="previous_next">
@@ -176,4 +193,5 @@
         {{ item|safe }}
     {% endfor %}
 </body>
+{% endblock %}
 </html>

@@ -28,7 +28,8 @@ install_requires = [ "coloredlogs >= 15.0.1",
                      "flask >= 2.0.2",
                      "babel >= 2.9.1",
                      "requests",
-                     "progress"
+                     "progress",
+                     "html2text"
                    ]
 packages = find_packages()
 print("packages:", packages)

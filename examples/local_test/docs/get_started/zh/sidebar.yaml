@@ -24,6 +24,8 @@ items:
         url: /get_started/zh/plugins/themes.html#534543
 -   label: markdown 语法
     file: syntax/syntax_markdown.md
+-   label: HTML 语法
+    file: syntax/html.html
 -   label: Markdown 文件头
     url: /get_started/zh/syntax/syntax_markdown.html#列表
 -   label: jupyter notebook 语法

@@ -12,7 +12,7 @@
     {% block head_items %} 
         {% for item in header_items %}{{ item|safe }}{% endfor %}
     {% endblock %}
-    {% block title %}
+    {% block head_title %}
         <title>{% if title %}{{ title }} - {% endif %}{{ site_name }}</title>
     {% endblock %}
     {% block head_end %}

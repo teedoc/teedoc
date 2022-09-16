@@ -8,3 +8,4 @@ flask       >= 2.0.2
 babel       >= 2.9.1
 requests
 progress
+html2text

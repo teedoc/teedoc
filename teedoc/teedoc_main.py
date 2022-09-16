@@ -2,8 +2,10 @@ import os, sys, time
 try:
     from .html_renderer import Renderer
     from . import utils
+    from .html_parser import generate_html_item_from_html_file
 except Exception:
     from html_renderer import Renderer
+    from html_parser import generate_html_item_from_html_file
     import utils
 import subprocess
 import shutil
@@ -773,7 +775,10 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
             if not html:
                 files[file] = None
             else:
-                renderer = renderer0
+                if file.endswith(".html"):
+                    renderer = Renderer(os.path.basename(file), [os.path.dirname(file), theme_layout_root], log, html_templates_i18n_dirs, locale=locale)
+                else:
+                    renderer = renderer0
                 metadata = copy.deepcopy(html["metadata"])
                 if "title" in metadata:
                     metadata.pop("title")
@@ -1065,9 +1070,21 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
                 else:
                     for key in result['htmls']:
                         if result['htmls'][key]:
-                            result_htmls[key] = result['htmls'][key] # will cover the before
+                            result_htmls[key] = result['htmls'][key]  # will cover the before
+                        elif key not in result_htmls:
+                            result_htmls[key] = None
             if is_err():
                 return generate_return(plugins_objs, False, multiprocess)
+        # parse html files
+        unrecognized = []
+        for file, html in result_htmls.items():
+            if not html:
+                if file.endswith(".html"):
+                    result_htmls[file] = generate_html_item_from_html_file(file)
+                else:
+                    unrecognized.append(file)
+        for file in unrecognized:
+            result_htmls.pop(file)
         # copy not parsed files
         for path in files:
             if not path in result_htmls:
@@ -1264,10 +1281,11 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
 |dir:  {}
 |url:  {}
 |name: {}
+|files: {}
  -----------------------------------------------------
 '''.format(
         "📖" if type_name == "doc" else "🌈" if type_name == "page" else "🍉" if type_name == "blog" else "",
-        type_name, dir, url, name)
+        type_name, dir, url, name, len(all_files))
     )
         if translate:
             nav_lang_items = get_nav_translate_lang_items(ref_doc_url, site_config, doc_src_path, config_template_dir, type_name, log)
