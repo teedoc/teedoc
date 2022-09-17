@@ -212,7 +212,7 @@ class MDRenderer(
 
 def create_markdown_parser():
     plugins = [
-        'abbr',
+        # 'abbr',
         'strikethrough',
         'footnotes',
         'table',
