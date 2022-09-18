@@ -70,6 +70,7 @@ def parse_metadata(cell):
     if len(items_all) > 0:
         meta = yaml.load(items_all[0][0].strip(), Loader=yaml.Loader)
         cell_content = items_all[0][1].strip()
+        have_metadata = True
     return have_metadata, meta, cell_content
 
 def get_search_content(cells):
