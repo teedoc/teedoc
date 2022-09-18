@@ -66,13 +66,10 @@ def parse_metadata(cell):
         else:
             cell_content = content
         return have_metadata, meta, cell_content
-    items_all = re.findall("[-]*\n(.*)\n.*[-]*\n(.*)", content, re.MULTILINE|re.DOTALL)
+    items_all = re.findall("[-]{2}[-]$\n(.*?)\n[-]{3}(.*)", content, re.MULTILINE|re.DOTALL)
     if len(items_all) > 0:
         meta = yaml.load(items_all[0][0].strip(), Loader=yaml.Loader)
-        if len(items_all) > 1:
-            cell_content = items_all[1].strip()
-        else:
-            cell_content = ""
+        cell_content = items_all[0][1].strip()
     return have_metadata, meta, cell_content
 
 def get_search_content(cells):

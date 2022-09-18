@@ -3,8 +3,7 @@ import yaml
 
 class Meta_Parser:
     def __init__(self):
-        self.re_meta_flag = re.compile(r'---(.*?)\n---(.*)', re.MULTILINE|re.DOTALL)
-        self.re_meta = re.compile("(.*): (.*)")
+        self.re_meta_flag = re.compile("[-]{2}[-]$\n(.*?)\n[-]{3}(.*)", re.MULTILINE|re.DOTALL)
 
     def parse_meta(self, text):
         """
@@ -32,11 +31,11 @@ class Meta_Parser:
                         meta_kvs["title"] = text_strip[:idx]
                         text = text_strip[ idx2 + idx + 1:].strip()
             return meta_kvs, text
-        m = self.re_meta_flag.match(text_strip)
+        m = self.re_meta_flag.findall(text_strip)
         if not m:
             return meta_kvs, text
-        meta_kvs = yaml.load(m[1].strip(), Loader=yaml.Loader)
-        return meta_kvs, m[2]
+        meta_kvs = yaml.load(m[0][0].strip(), Loader=yaml.Loader)
+        return meta_kvs, m[0][1]
 
 if __name__ == "__main__":
     import time
