@@ -21,6 +21,8 @@ argparser = argparse.ArgumentParser()
 argparser.add_argument("-d", "--save-dir", default="logs", help="save thumbs up data dir")
 argparser.add_argument("-m", "--max-num", default=10000, type=int, help="max record num, page num more than this num will report as error")
 argparser.add_argument("-t", "--interval", default=60*60*24, type=int, help="interval time to save record data, unit is second") 
+argparser.add_argument("-p", "--port", default=5000, type=int, help="server port")
+argparser.add_argument("-H", "--host", default="0.0.0.0", help="server host")
 
 args = argparser.parse_args()
 
@@ -34,7 +36,7 @@ app = flask.Flask(__name__)
 CORS(app, supports_credentials=True)
 
 class Thumbs_Up:
-    def __init__(self, up_callback=lambda path,url:None, down_callback=lambda path, url:None, mem_full_callback=lambda :None):
+    def __init__(self, up_callback=lambda path,url:None, down_callback=lambda path, msg, url:None, mem_full_callback=lambda :None):
         self.data = {
             # "path": {
             #     "up": 0,
@@ -75,7 +77,7 @@ class Thumbs_Up:
         data["down"] += 1
         data["advices"].append(msg)
         print("-- down", path, data)
-        self.on_down(path, url)
+        self.on_down(path, msg, url)
         return data
 
     def save(self, save_dir):
@@ -108,9 +110,9 @@ def on_up(path, url):
     except:
         pass
 
-def on_down(path, url):
+def on_down(path, msg, url):
     print("-- on_down", path)
-    msg = f'Thumbs down: {url}'
+    msg = f'Thumbs down: {url}\n{msg}'
     try:
         send_msg(msg)
     except:
@@ -215,7 +217,7 @@ def thumbs_count():
     return flask.jsonify({'status': 'ok', "up_count": up_count, "down_count": down_count})
 
 def main():
-    app.run(host='0.0.0.0', port=5000, debug=True)\
+    app.run(host=args.host, port=args.port, debug=True)
 
 if __name__ == '__main__':
     main()

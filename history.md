@@ -1,6 +1,10 @@
 teedoc update history
 ========
 
+## 2022-9-19
+
+* Add thumbs-up plugin
+
 ## 2022-9-16 v1.31.0
 
 * Support directly use Jinja2 template in html file with out use layout in md file, more info see doc's html syntax part.
