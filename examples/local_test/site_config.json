@@ -124,6 +124,21 @@
                     "main_color": "#4caf7d"
                 }
             }
+        },
+        "teedoc-plugin-thumbs-up": {
+            "from": "../../plugins/teedoc-plugin-thumbs-up",
+            "config": {
+                "label_up": "有帮助",
+                "label_down": "没帮助",
+                "url": "http://192.168.0.50:5000",
+                "show_up_count": true,
+                "show_down_count": false,
+                "msg_already_voted": "You have already voted",
+                "msg_thanks": "Thanks for your vote",
+                "msg_down_prompt": "Thanks to tell us where we can improve?(At least 10 characters)",
+                "msg_down_prompt_error": "Message should be at least 10 characters and less than 256 characters",
+                "msg_error": "Request server failed!"
+            }
         }
     },
     "rebuild_changes_delay": 1,
