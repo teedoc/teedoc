@@ -23,6 +23,7 @@ argparser.add_argument("-m", "--max-num", default=10000, type=int, help="max rec
 argparser.add_argument("-t", "--interval", default=60*60*24, type=int, help="interval time to save record data, unit is second") 
 argparser.add_argument("-p", "--port", default=5000, type=int, help="server port")
 argparser.add_argument("-H", "--host", default="0.0.0.0", help="server host")
+argparser.add_argument("--feishu", default=None, help="feishu webhook url or token")
 
 args = argparser.parse_args()
 
@@ -106,25 +107,25 @@ def on_up(path, url):
     print("-- on_up", path)
     msg = f'Thumbs up: {url}'
     try:
-        send_msg(msg)
+        send_msg(msg, args.feishu)
     except:
-        pass
+        print("-- send msg error")
 
 def on_down(path, msg, url):
     print("-- on_down", path)
     msg = f'Thumbs down: {url}\n{msg}'
     try:
-        send_msg(msg)
+        send_msg(msg, args.feishu)
     except:
-        pass
+        print("-- send msg error")
 
 def on_mem_full_error():
     print("-- on_mem_full_error")
     msg = "Fatal error, reach max record num, check if have attack or too much pages"
     try:
-        send_msg(msg)
+        send_msg(msg, args.feishu)
     except:
-        pass
+        print("-- send msg error")
 
 thumbs_up_recorder = Thumbs_Up(on_up, on_down, on_mem_full_error)
 

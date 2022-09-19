@@ -1,7 +1,7 @@
 #thumbs_up_container{
-    border: none;
     margin-top: 2em;
     display: inline-flex;
+    border-top: 0.1em solid #f1f1f1;
 }
 
 #thumbs_up_container button {
@@ -48,3 +48,14 @@
     height: 4em;
     min-width: 6em;
 }
+
+/* dark mode */
+
+.dark #thumbs_up_container{
+    border-top: 0.1em solid #2d2d2d;
+}
+.dark #thumbs_up_container button {
+    background-color: #2d2d2d;
+    color: #a2a2a2;
+}
+

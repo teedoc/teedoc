@@ -1,8 +1,11 @@
-teedoc-plugin-ad-hint
+teedoc-plugin-thumbs-up
 ====
 
 
-Advertisement or global hint message support for [teedoc](https://github.com/Neutree/teedoc)
+Thumbs up support for [teedoc](https://github.com/Neutree/teedoc)
+
+Server demo see [server](./server), or use command `teedoc-thumbs-up-server` to run server.
+
 
 
 
