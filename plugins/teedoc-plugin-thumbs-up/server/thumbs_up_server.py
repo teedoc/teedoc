@@ -12,6 +12,8 @@ import os
 import glob
 import time
 import argparse
+import signal
+import sys
 try:
     from .feishu import send_msg
 except:
@@ -81,8 +83,11 @@ class Thumbs_Up:
         self.on_down(path, msg, url)
         return data
 
-    def save(self, save_dir):
-        if time.time() - self.last_save_time < save_interval:
+    def save(self, save_dir, save_now=False):
+        if not save_now:
+            if time.time() - self.last_save_time < save_interval:
+                return
+        if time.time() - self.last_save_time < 5: # for multiple save in short time, like signal trigger
             return
         datetime_now_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         os.makedirs(save_dir, exist_ok=True)
@@ -217,7 +222,19 @@ def thumbs_count():
     thumbs_up_recorder.save(save_dir)
     return flask.jsonify({'status': 'ok', "up_count": up_count, "down_count": down_count})
 
+
+def signalTrap():
+    def before_exit(signum, stack):
+        print("before_exit")
+        # TODO: this maybe called twice
+        thumbs_up_recorder.save(save_dir, save_now=True)
+        sys.exit(0)
+
+    signal.signal(signal.SIGALRM, before_exit)
+    signal.signal(signal.SIGINT, before_exit)
+
 def main():
+    signalTrap()
     app.run(host=args.host, port=args.port, debug=True)
 
 if __name__ == '__main__':
