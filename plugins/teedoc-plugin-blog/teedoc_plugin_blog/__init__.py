@@ -14,7 +14,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 import tempfile, shutil, json
 import time
-from datetime import datetime
+import datetime
 
 import mistune
 mistune_version = mistune.__version__.split(".") # 0.8.4, 2.0.0rc1
@@ -26,7 +26,7 @@ from teedoc_plugin_markdown_parser.parse_metadata import Meta_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 
 class Plugin(Plugin_Base):
@@ -150,15 +150,15 @@ class Plugin(Plugin_Base):
                     html_str = '<span id="blog_start"></span>' + html
                     date = None
                     ts = None
-                    if "date" in metadata and type(metadata["date"]) == datetime:
+                    if "date" in metadata and (type(metadata["date"]) == datetime.datetime or type(metadata["date"]) == datetime.date):
                         date = metadata["date"]
                         if type(date) == datetime.date:
                             ts = int(time.mktime(date.timetuple()))
                         else:
                             ts = int(date.timestamp())
                     else:
+                        date = metadata.get("date")
                         ts = int(os.stat(file).st_mtime)
-                        date = datetime.fromtimestamp(ts)
                     result["htmls"][file] = {
                         "title": title,
                         "desc": desc,
