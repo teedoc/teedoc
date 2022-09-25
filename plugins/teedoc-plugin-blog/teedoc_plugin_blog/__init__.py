@@ -25,7 +25,7 @@ from teedoc.metadata_parser import Metadata_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 
 class Plugin(Plugin_Base):
