@@ -5,6 +5,7 @@ import requests
 import subprocess
 from datetime import datetime
 
+has_git = False
 
 def sidebar_summary2dict(content):
     '''
@@ -341,7 +342,7 @@ def download_file(url, save_path):
 
 def get_file_last_modify_time(file_path, git=True):
     last_edit_time = None
-    if git:
+    if has_git and git:
         cmd = ["git", "log", "-1", "--format=%cd", "--date", "iso8601-strict", f"{file_path}"]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         output, err = p.communicate()
@@ -354,11 +355,14 @@ def get_file_last_modify_time(file_path, git=True):
     return last_edit_time
 
 def check_git():
+    global has_git
     cmd = ["git", "--version"]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
     output, err = p.communicate()
     if p.returncode != 0:
+        has_git = False
         return False
+    has_git = True
     return True
 
 if __name__ == "__main__":

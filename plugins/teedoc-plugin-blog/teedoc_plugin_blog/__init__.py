@@ -13,7 +13,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 import tempfile, shutil, json
 import time
-from datetime import datetime
+import datetime
 
 import mistune
 mistune_version = mistune.__version__.split(".") # 0.8.4, 2.0.0rc1
@@ -25,7 +25,7 @@ from teedoc.metadata_parser import Metadata_Parser
 from teedoc_plugin_markdown_parser.renderer import create_markdown_parser
 
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 
 class Plugin(Plugin_Base):
