@@ -6,6 +6,8 @@ import nbformat
 import re
 import os
 import yaml
+from teedoc.metadata_parser import Metadata_Parser
+
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 templates_dir = os.path.join(curr_dir, "templates")
@@ -34,7 +36,7 @@ class HTML:
         self.metadata = []
         self.raw = ""
 
-def parse_metadata(cell):
+def parse_metadata(cell, file_path):
     '''
         @cell {'cell_type': 'markdown',
                 'metadata': {'id': 'rX8mhOLljYeM'},
@@ -42,36 +44,9 @@ def parse_metadata(cell):
               }
     '''
     content = cell["source"].strip()
-    meta = {
-        "title": "",
-        "keywords": "",
-        "desc": "",
-        "tags": "",
-        "id": "",
-        "class": ""
-    }
-    have_metadata = False
-    if not content:
-        return have_metadata, meta, ""
-    if not content.startswith("---"):
-        content_list = content.split("\n")
-        if content_list[0].startswith("# "): # h1 header
-            meta["title"] = content_list[0][2:]
-            cell_content = "\n".join(content_list[1:])
-            have_metadata = True
-        elif len(content_list) > 1 and content_list[1].startswith("==="): # h1 header
-            meta["title"] = content_list[0]
-            cell_content = "\n".join(content_list[2:])
-            have_metadata = True
-        else:
-            cell_content = content
-        return have_metadata, meta, cell_content
-    items_all = re.findall("[-]{2}[-]$\n(.*?)\n[-]{3}(.*)", content, re.MULTILINE|re.DOTALL)
-    if len(items_all) > 0:
-        meta = yaml.load(items_all[0][0].strip(), Loader=yaml.Loader)
-        cell_content = items_all[0][1].strip()
-        have_metadata = True
-    return have_metadata, meta, cell_content
+    meta_parser = Metadata_Parser()
+    metadata, text = meta_parser.parse_meta(content, file_path)
+    return metadata, text
 
 def get_search_content(cells):
     content = ""
@@ -95,18 +70,15 @@ def convert_ipynb_to_html(path):
     html = HTML()
     with open(path, encoding="utf-8") as f:
         content = nbformat.read(f, as_version=4)
-        have_meta, html.metadata, first_cell_content = parse_metadata(content.cells[0])
-        if have_meta:
-            if first_cell_content:
-                content.cells[0]["source"] = first_cell_content
-            else:
-                content.cells = content.cells[1:]
-        elif first_cell_content:
+        html.metadata, first_cell_content = parse_metadata(content.cells[0], path)
+        if first_cell_content:
             content.cells[0]["source"] = first_cell_content
+        else:
+            content.cells = content.cells[1:]
         html.title = html.metadata.get("title", "")
-        html.keywords = (html.metadata["keywords"] if type(html.metadata["keywords"]) == list else html.metadata["keywords"].split(",")) if html.metadata.get("keywords") else []
+        html.keywords = html.metadata["keywords"]
         html.desc = html.metadata.get("desc", "")
-        html.tags = (html.metadata["tags"] if type(html.metadata["tags"]) == list else html.metadata["tags"].split(",")) if html.metadata.get("tags") else []
+        html.tags = html.metadata["tags"]
         body, resources = html_exporter.from_notebook_node(content)
         html.raw = get_search_content(content.cells)
         html.body = body

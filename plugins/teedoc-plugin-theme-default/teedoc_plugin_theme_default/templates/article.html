@@ -105,7 +105,7 @@
                         <span id="toc_btn"></span>
                     </div>
                     <div id="update_history">
-                        {% if "update" in metadata %}
+                        {% if "update" in metadata and metadata["update"]|length > 0 %}
                         <details open>
                             <summary>{{ _('Update history') }}</summary>
                             <div>

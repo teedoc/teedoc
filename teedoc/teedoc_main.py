@@ -55,10 +55,6 @@ def get_last_modify_time(html, file_path, git = False):
                 last_edit_time = datetime.datetime.strptime(date,"%Y-%m-%d")
         except:
             pass
-    if last_edit_time is None and "update" in html["metadata"]:
-        update = html["metadata"]["update"]
-        sorted(update, key=lambda x:x["date"], reverse=True)
-        last_edit_time = update[0]["date"]
     if last_edit_time is None:
         last_edit_time = utils.get_file_last_modify_time(file_path, git = git)
     if last_edit_time and type(last_edit_time) == datetime.datetime:

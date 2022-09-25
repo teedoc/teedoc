@@ -117,7 +117,6 @@ td, th {
 th {
     font-weight: 700;
     color: white;
-    filter: brightness(85%);
     filter: brightness(110%);
     border: 2px solid ${main_color};
     background-color: ${main_color};
@@ -314,6 +313,7 @@ pre[class*="language-"].line-numbers > code {
     /* width: var(--doc-sidebar-width); */
     transition: opacity 50ms;
     padding-top: 0;
+    z-index: 1;
 }
 #sidebar ul {
     padding-inline-start: 20px;
@@ -321,7 +321,6 @@ pre[class*="language-"].line-numbers > code {
 }
 #sidebar > ul {
     padding-inline-start: 0;
-    overflow-x: hidden;
     padding: .5rem;
     display: block;
     padding-bottom: 3em;
@@ -347,6 +346,7 @@ pre[class*="language-"].line-numbers > code {
 #sidebar li {
     list-style: none;
     margin: 2px 0;
+    position: relative;
 }
 #sidebar li > a {
     display: flex;
@@ -422,7 +422,6 @@ pre[class*="language-"].line-numbers > code {
 }
 #sidebar .tip {
     position: absolute;
-    background: #4caf7d;
     color: white;
     left: 300px;
     box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.19);
@@ -434,6 +433,7 @@ pre[class*="language-"].line-numbers > code {
     transition: 0.4s;
     visibility: hidden;
     opacity: 0;
+    background: ${main_color};
 }
 #sidebar li > a:hover+.tip, #sidebar .tip:hover {
     visibility: visible;
@@ -443,14 +443,15 @@ pre[class*="language-"].line-numbers > code {
     margin: 0.4em;
 }
 .blog_tags {
-    padding: 0.6em 0 0 0;
     text-align: center;
+    margin-top: 1em;
 }
 .blog_tags > span {
-    border: 1px solid #98d8b8;
     border-radius: 0.2em;
     padding: 0.2em;
     margin: 0.4em;
+    filter: brightness(120%);
+    border: 1px solid ${main_color};
 }
 #blog_list > ul {
     padding-left: 0;
@@ -480,6 +481,7 @@ html[lang^=zh] #article_content #blog_list h2:before {
 }
 .blog_cover {
     text-align: center;
+    margin-top: 1em;
 }
 .blog_cover > img {
     width: 100%;
@@ -586,6 +588,7 @@ html[lang^=zh].heading_no_counter #toc a.node-name--H2:before {
     justify-content: space-between;
     line-height: 2em;
     margin: auto;
+    overflow-x: auto;
 }
 #content_body h1 {
     line-height: initial;
@@ -1122,6 +1125,9 @@ details > .details-content, details > div {
     background-color: #0000000d;
 }
 
+#update_history {
+    overflow-x: auto;
+}
 #update_history details > div {
     padding: 0;
 }
