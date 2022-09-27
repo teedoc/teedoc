@@ -1031,14 +1031,12 @@ a.toc-link {
     align-items: normal;
     border: 0.2em solid #ebedf0;
     border-radius: 0.5em;
-    width: 100%;
     margin: 0.5em 0;
 }
 .tabset-title {
     font-size: medium;
     font-weight: 500;
     padding: 0.5em 1em;
-    width: 100%;
 }
 .tabset-content {
     display: flex;
@@ -1084,7 +1082,6 @@ details {
     align-items: normal;
     border: 0.2em solid #ebedf0;
     border-radius: 0.5em;
-    width: 100%;
     margin: 0.5em 0;
     transition: 0.4s;
 }
@@ -1092,7 +1089,6 @@ details > summary {
     font-size: medium;
     font-weight: 500;
     padding: 0.5em 1em;
-    width: 100%;
     cursor: pointer;
 }
 details > summary {
