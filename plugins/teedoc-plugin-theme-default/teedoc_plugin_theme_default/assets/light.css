@@ -325,6 +325,7 @@ pre[class*="language-"].line-numbers > code {
     display: block;
     padding-bottom: 3em;
     margin: 0;
+    overflow-y: auto;
 }
 #sidebar ul .show{
     /* display: block; */ /* js instead, just reserve this item*/
