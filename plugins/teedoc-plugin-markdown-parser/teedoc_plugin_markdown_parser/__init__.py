@@ -14,7 +14,7 @@ from teedoc import Fake_Logger
 import tempfile
 import time
 
-__version__ = "2.10.4"
+__version__ = "2.10.5"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -110,7 +110,10 @@ class Plugin(Plugin_Base):
             if ext.endswith("md"):
                 with open(file, encoding="utf-8") as f:
                     content = f.read().strip()
-                    content = self._update_link(content)
+                    try:
+                        content = self._update_link(content)
+                    except Exception as e:
+                        raise Exception("parse file {} error: {}".format(file, e))
                     try:
                         if not self.multiprocess:
                             md_parser = self.create_markdown_parser()
@@ -239,7 +242,7 @@ MathJax = {};
                             idx2 += i + flag_len
                             break
                 if idx2 == idx: # not find valid []()
-                    raise Exception('only have "[](", need ")" to close link')
+                    raise Exception('Markdown format error: link only have "[](", need ")" to close link at the {} character of this file content'.format(idx + 1))
                 # ](....md )
                 link = data[idx + flag_len: idx2].strip()
                 if (not is_abs_link(link)):
