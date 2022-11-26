@@ -357,9 +357,13 @@ def get_file_last_modify_time(file_path, git=True):
 def check_git():
     global has_git
     cmd = ["git", "--version"]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-    output, err = p.communicate()
-    if p.returncode != 0:
+    try:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        output, err = p.communicate()
+        if p.returncode != 0:
+            has_git = False
+            return False
+    except Exception:
         has_git = False
         return False
     has_git = True
