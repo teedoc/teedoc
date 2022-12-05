@@ -108,7 +108,11 @@
                     </div>
                     <div id="update_history">
                         {% if "update" in metadata and metadata["update"]|length > 0 %}
+                        {% if "update_open" in metadata and not metadata["update_open"] %}
+                        <details>
+                        {% else %}
                         <details open>
+                        {% endif %}
                             <summary>{{ _('Update history') }}</summary>
                             <div>
                                 <table>
