@@ -369,6 +369,20 @@ def check_git():
     has_git = True
     return True
 
+def get_sub_dirs(dir, trans_info):
+    '''
+        @trans_info  translate info in site_config
+        dir and dirs are all absolute path
+        e.g. [{'url': '/get_started/en/', 'src': ['docs/get_started/en', '/home/neucrack/projects/teedoc/examples/local_test/docs/get_started/en']}]
+    '''
+    sub_dirs = []
+    for info in trans_info:
+        d = info["src"][1]
+        if d.startswith(dir):
+            sub_dirs.append(d)
+    return sub_dirs
+
+
 if __name__ == "__main__":
     a = {
         "a": 1,

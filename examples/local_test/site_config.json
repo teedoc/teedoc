@@ -10,7 +10,8 @@
         "docs": {
             "/get_started/zh/": "docs/get_started/zh",
             "/develop/zh/": "docs/develop/zh",
-            "/develop/en/": "docs/develop/en"
+            "/develop/en/": "docs/develop/en",
+            "/more/": "docs/more"
         },
         "pages": {
             "/": "pages/index/zh"
@@ -29,12 +30,17 @@
                     "url": "/get_started/en/",
                     "src": "docs/get_started/en"
                 }
+            ],
+            "/more/": [ {
+                    "url": "/more/en/",
+                    "src": "docs/more/en"
+                }
             ]
         },
         "pages": {
             "/": [{
-                 "url": "/en/",
-                 "src": "pages/index/en"
+                    "url": "/en/",
+                    "src": "pages/index/en"
                 }
             ]
         }

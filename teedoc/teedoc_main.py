@@ -125,7 +125,7 @@ def copy_file(src, dst):
         return False
     return True
 
-def get_files(dir_path, warn=None):
+def get_files(dir_path, except_dirs, warn=None):
     result = []
     files = os.listdir(dir_path)
     if not files:
@@ -143,8 +143,9 @@ def get_files(dir_path, warn=None):
     for name in files:
         path = os.path.join(dir_path, name)
         if os.path.isdir(path):
-            f_list = get_files(path, warn)
-            result.extend(f_list)
+            if not path in except_dirs:
+                f_list = get_files(path, except_dirs, warn)
+                result.extend(f_list)
         else:
             result.append(path.replace("\\", "/"))
     return result
@@ -543,7 +544,7 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
                                 }
                 }
     '''
-    def generate_items(config, doc_url, page_url, level=0, parent_item_type="link"):
+    def generate_items(config, doc_url, page_url, level=0, parent_item_type="link", active_class = "active"):
         active_item = None
         have_label = "label" in config
         have_url = "url" in config and config["url"] != None and config["url"] != "null"
@@ -575,11 +576,36 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
         sub_items_ul_html = ""
         if "items" in config:
             sub_items_html = ""
-            for item in config["items"]:
-                item_html, _active_item = generate_items(item, doc_url, page_url, level = level + 1, parent_item_type = item_type)
-                if _active_item:
-                    active_item = _active_item
-                sub_items_html += item_html
+            if item_type == "selection":
+                item_htmls = []
+                active_items = [None] * len(config["items"])
+                count = 0
+                for i, item in enumerate(config["items"]):
+                    _active_class = active_class + "tmp"
+                    item_html, _active_item = generate_items(item, doc_url, page_url, level = level + 1, parent_item_type = item_type, active_class= _active_class)
+                    if _active_item:
+                        active_items[i] = _active_item
+                        count += 1
+                    item_htmls.append(item_html)
+                if count >= 1:
+                    final = 0
+                    max_len = 0
+                    for i, item in enumerate(active_items):
+                        if item and len(item["url"]) >= max_len:
+                            max_len = len(item["url"])
+                            final = i
+                    item_htmls[final] = item_htmls[final].replace(_active_class, active_class)
+                    active_item = active_items[final]
+                    for i in range(len(item_htmls)):
+                        if i != final:
+                            item_htmls[i] = item_htmls[i].replace(_active_class, "")
+                sub_items_html = "".join(item_htmls)
+            else:
+                for item in config["items"]:
+                    item_html, _active_item = generate_items(item, doc_url, page_url, level = level + 1, parent_item_type = item_type)
+                    if _active_item:
+                        active_item = _active_item
+                    sub_items_html += item_html
             sub_items_ul_html = "<ul>{}</ul>".format(sub_items_html)
         if item_type == "list":
             li_html = '<li class="sub_items {}"><a {}>{}</a>{}\n'.format(
@@ -590,14 +616,14 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
                         )
         elif item_type == "selection":
             li_html = '<li class="sub_items {}"><a {} href="{}">{}{}</a>{}'.format(
-                "active" if active else '',
+                active_class if active else '',
                 'target="{}"'.format(config["target"]) if "target" in config else "",
                 config["url"] if have_url else "", config["label"], active_item["label"] if active_item else "",
                 sub_items_ul_html
             )
         else: # link
             li_html = '<li class="{}"><a {} href="{}">{}</a>'.format(
-                "active" if active else '',
+                active_class if active else '',
                 'target="{}"'.format(config["target"]) if "target" in config else "",
                 config["url"] if have_url else "", config["label"]
             )
@@ -1223,10 +1249,11 @@ def get_templates_i18n_dirs(site_config, doc_src_path, log):
                     log.w("setting layout_i18n_dirs {} from site_config, dir not found".format(dir))
     return html_templates_i18n_dirs
 
-def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+def parse(type_name, plugin_func, routes, routes_trans, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
             sidebar, allow_no_navbar, update_files, max_threads_num, preview_mode, html_templates_i18n_dirs=[], multiprocess = True,
             translate = False, ref_doc_url="", ref_doc_dir = "", ref_locale = "en", translate_src_sidebar_list = None,
-            doc_configs = {}, nav_lang_items = [], is_build = True, layout_usage_queue = None):
+            doc_configs = {}, nav_lang_items = [], is_build = True, layout_usage_queue = None,
+            rebuild_docs = None):
     '''
         @return {
             "doc_url", {
@@ -1261,35 +1288,42 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
     # parse all docs in route
     for url, dirs in routes.items():
         _dir, dir = dirs
+        if rebuild_docs and dir not in rebuild_docs:
+            continue
         # get files
+        except_dirs = utils.get_sub_dirs(dir, routes_trans.get(url, []))
         if update_files:
             all_files = []
             for modify_file in update_files:
                 if modify_file.startswith(dir):
-                    all_files.append(modify_file)
+                    valid = True
+                    for d in except_dirs:
+                        if modify_file.startswith(d):
+                            valid = False
+                            break
+                    if valid:
+                        all_files.append(modify_file)
             if len(all_files) == 0:
                 continue
             log.i("update file:", all_files)
         else:
-            all_files = get_files(dir, warn = log.w)
+            all_files = get_files(dir, except_dirs, warn = log.w)
         if not update_files:
             name = doc_configs[url].get("name", "")
             log.i('''
  -----------------------------------------------------
-|parse {} {}:
+|parse {} {} {}:
 |dir:  {}
 |url:  {}
 |name: {}
 |files: {}
  -----------------------------------------------------
 '''.format(
+        "🌎" if translate else "",
         "📖" if type_name == "doc" else "🌈" if type_name == "page" else "🍉" if type_name == "blog" else "",
         type_name, dir, url, name, len(all_files))
     )
-        if translate:
-            nav_lang_items = get_nav_translate_lang_items(ref_doc_url, site_config, doc_src_path, config_template_dir, type_name, log)
-        else:
-            nav_lang_items = get_nav_translate_lang_items(url, site_config, doc_src_path, config_template_dir, type_name, log)
+        nav_lang_items = get_nav_translate_lang_items(ref_doc_url if translate else url, site_config, doc_src_path, config_template_dir, type_name, log)
         doc_config = doc_configs[url]
         # inform plugin parse doc start
         try:
@@ -1467,7 +1501,8 @@ def parse(type_name, plugin_func, routes, site_config, doc_src_path, config_temp
 
 def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir, log, update_files=None,
              preview_mode = False, max_threads_num = 1, multiprocess=True, parse_pages=True, copy_assets=True,
-             is_build = True, layout_usage_queue = None):
+             is_build = True, layout_usage_queue = None,
+             rebuild_docs = None):
     '''
         "route": {
             "docs": {
@@ -1493,26 +1528,31 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         # parse all docs
         if "docs" in site_config["route"]:
             routes = site_config["route"]["docs"]
-            ok, htmls_files = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+            routes_trans = site_config["translate"]["docs"]
+            ok, htmls_files = parse("doc", "on_parse_files", routes, routes_trans, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue=layout_usage_queue)
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue=layout_usage_queue,
+                        rebuild_docs = rebuild_docs)
             if not ok:
                 return False
         # parse all pages
         if "pages" in site_config["route"]:
             routes = site_config["route"]["pages"]
-            ok, htmls_pages = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+            routes_trans = site_config["translate"]["pages"]
+            ok, htmls_pages = parse("page", "on_parse_pages", routes, routes_trans, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue = layout_usage_queue)
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue = layout_usage_queue,
+                        rebuild_docs = rebuild_docs)
             if not ok:
                 return False
         # parse all blogs
         htmls_blog = None
         if "blog" in site_config["route"]:
             routes = site_config["route"]["blog"]
-            ok, htmls_blog = parse("blog", "on_parse_blog", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+            ok, htmls_blog = parse("blog", "on_parse_blog", routes, {}, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar={"items":[]}, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
-                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue = layout_usage_queue)
+                        html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue = layout_usage_queue,
+                        rebuild_docs = rebuild_docs)
             if not ok:
                 return False
         # parse all translate docs
@@ -1527,11 +1567,12 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                     sidebar_dict = get_sidebar(src_dir, config_template_dir) # must be success
                     sidebar_list = get_sidebar_list(sidebar_dict, src_dir, src, log)
                     #    pase mannually translated files, and change links of sidebar items that no mannually translated file
-                    ok, htmls_files2 = parse("doc", "on_parse_files", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                    ok, htmls_files2 = parse("doc", "on_parse_files", routes, {}, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                                 sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                                 html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
                                 translate=True, ref_doc_url=src, ref_doc_dir=src_dir, translate_src_sidebar_list = sidebar_list, is_build = is_build,
-                                layout_usage_queue = layout_usage_queue
+                                layout_usage_queue = layout_usage_queue,
+                                rebuild_docs = rebuild_docs
                                 )
                     #    create
                     htmls_files.update(htmls_files2)
@@ -1545,10 +1586,11 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
                         routes[dst["url"]] = dst["src"]
                     src_dir = site_config["route"]["pages"][src][1]
                     #    pase mannually translated files, and change links of sidebar items that no mannually translated file
-                    ok, htmls_pages2 = parse("page", "on_parse_pages", routes, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
+                    ok, htmls_pages2 = parse("page", "on_parse_pages", routes, {}, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                                 sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                                 html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess,
-                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir, is_build = is_build, layout_usage_queue = layout_usage_queue
+                                translate=True, ref_doc_url=src, ref_doc_dir=src_dir, is_build = is_build, layout_usage_queue = layout_usage_queue,
+                                rebuild_docs = rebuild_docs
                                 )
                     #    create
                     htmls_pages.update(htmls_pages2)
@@ -2027,6 +2069,7 @@ def main():
                         continue
                     # detect config.json or site_config.json change, if changed, update all docs file along with the json file
                     files = []
+                    docs = []
                     for path in files_changed:
                         # if path.replace(doc_src_path, "")
                         ext = os.path.splitext(path)
@@ -2040,11 +2083,16 @@ def main():
                         elif config_template_dir == dir:      # config template changed, just rebuild all
                             raise RebuildException()
                         elif file_name.endswith("config") or file_name.endswith("sidebar"):    # doc or pages config or sidebar changed, rebuild the changed doc
-                            files.extend(get_files(dir))
+                            docs.append(os.path.dirname(file_name))
                         else:                                 # normal file, nonly rebuild this file
                             files.append(path)
                     if files:
                         if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = files, preview_mode=True, max_threads_num=max_threads_num, is_build=False, layout_usage_queue = layout_usage_queue):
+                            return 1
+                        log.i("rebuild ok\n")
+                    if docs:
+                        if not build(doc_src_path, config_template_dir, plugins_objs, site_config=site_config, out_dir=out_dir, log=log, update_files = [], preview_mode=True, max_threads_num=max_threads_num, is_build=False, layout_usage_queue = layout_usage_queue,
+                                    rebuild_docs = docs):
                             return 1
                         log.i("rebuild ok\n")
                     if build_lock.locked():

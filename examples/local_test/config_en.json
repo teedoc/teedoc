@@ -1,5 +1,5 @@
 {
-    "locale": "zh_CN",
+    "locale": "en",
     "navbar": {
         "title": "teedoc",
         "logo": {
@@ -20,11 +20,11 @@
                 "type": "list",
                 "items": [
                     {
-                        "label": "更多",
+                        "label": "More",
                         "url": "/more/"
                     },
                     {
-                        "label": "更多英文",
+                        "label": "More English",
                         "url": "/more/en/"
                     },
                     {

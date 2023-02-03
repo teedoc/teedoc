@@ -326,6 +326,7 @@ pre[class*="language-"].line-numbers > code {
     padding-bottom: 3em;
     margin: 0;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 #sidebar ul .show{
     /* display: block; */ /* js instead, just reserve this item*/
@@ -422,9 +423,10 @@ pre[class*="language-"].line-numbers > code {
     margin: 1em 0 0.1em 0;
 }
 #sidebar .tip {
-    position: absolute;
+    position: fixed;
     color: white;
     left: 300px;
+    top: 18%;
     box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.19);
     border-radius: 0.2em;
     padding: 1em;
@@ -460,7 +462,7 @@ pre[class*="language-"].line-numbers > code {
 #blog_list > ul > li {
     list-style: none;
     box-shadow: 0px 0px 7px #00000033;
-    margin: 2em 0;
+    margin: 2em 1em;
     padding: 2em;
     border-radius: 0.4em;
 }
@@ -589,7 +591,6 @@ html[lang^=zh].heading_no_counter #toc a.node-name--H2:before {
     justify-content: space-between;
     line-height: 2em;
     margin: auto;
-    overflow-x: auto;
 }
 #content_body h1 {
     line-height: initial;
@@ -1262,6 +1263,7 @@ details > .details-content, details > div {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
+        position: -webkit-sticky;
         position: sticky;
         top: 1em;
         z-index: 97;

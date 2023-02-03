@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-26 15:03+0800\n"
+"POT-Creation-Date: 2023-02-03 17:41+0800\n"
 "PO-Revision-Date: 2021-10-11 13:57+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant_TW\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: teedoc_main.py:1357
+#: teedoc_main.py:1468
 msgid "no_translate_title"
 msgstr ""
 
-#: teedoc_main.py:1358
+#: teedoc_main.py:1469
 msgid "no_translate_hint"
 msgstr ""
 
-#: teedoc_main.py:1359
+#: teedoc_main.py:1470
 msgid "visit_hint"
 msgstr ""
 

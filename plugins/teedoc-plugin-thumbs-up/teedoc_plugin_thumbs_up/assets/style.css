@@ -59,3 +59,8 @@
     color: #a2a2a2;
 }
 
+@media print {
+    #thumbs_up_container {
+        display: none;
+    }
+}

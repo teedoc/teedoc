@@ -91,6 +91,8 @@ class Metadata_Parser:
             else:
                 metadata["ts"] = int(date.timestamp())
                 metadata["date"] = datetime.datetime.date(date)
+        elif not metadata["date"]:
+            metadata["date"] = False
         elif self.file:
             metadata["ts"] = int(os.stat(self.file).st_mtime)
             metadata["date"] = datetime.datetime.date(datetime.datetime.fromtimestamp(metadata["ts"]))
