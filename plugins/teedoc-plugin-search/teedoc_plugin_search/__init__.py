@@ -5,6 +5,7 @@ import tempfile
 import shutil
 import json
 import copy
+import re
 try:
     curr_path = os.path.dirname(os.path.abspath(__file__))
     teedoc_project_path = os.path.abspath(os.path.join(curr_path, "..", "..", ".."))
@@ -16,7 +17,13 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.5.1"
+__version__ = "1.5.2"
+
+def remove_format_chars(content):
+    content = re.sub("\|", "", content)
+    content = re.sub("[\n\-\=]+", " ", content)
+    content = re.sub(" +", " ", content)
+    return content
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-search"
@@ -239,10 +246,10 @@ class Plugin(Plugin_Base):
             for page_url in htmls_files[url]:
                 content[page_url] = {
                     "title": htmls_files[url][page_url]["title"],
-                    "content": htmls_files[url][page_url][self.content_from]
+                    "content": remove_format_chars(htmls_files[url][page_url][self.content_from])
                 }
             with open(path, "w", encoding="utf-8") as f:
-                json.dump(content, f, ensure_ascii=False)
+                json.dump(content, f, ensure_ascii=False, separators=(',', ':'))
         for i, url in enumerate(pages_url, len(docs_url)):
             index_content[url] = [self.docs_name[url], "{}static/search_index/index_{}.json".format(self.site_config["site_root_url"], i)]
             path = os.path.join(self.temp_dir, "index_{}.json".format(i))
@@ -252,15 +259,15 @@ class Plugin(Plugin_Base):
             for page_url in htmls_pages[url]:
                 content[page_url] = {
                     "title": htmls_pages[url][page_url]["title"],
-                    "content": htmls_pages[url][page_url][self.content_from]
+                    "content": remove_format_chars(htmls_pages[url][page_url][self.content_from])
                 }
             with open(path, "w", encoding="utf-8") as f:
-                json.dump(content, f, ensure_ascii=False)
+                json.dump(content, f, ensure_ascii=False, separators=(',', ':'))
         # write content to files
         #   index file
         index_path = os.path.join(self.temp_dir, "index.json")
         with open(index_path, "w", encoding="utf-8") as f:
-            json.dump(index_content, f, ensure_ascii=False)
+            json.dump(index_content, f, ensure_ascii=False, separators=(',', ':'))
 
         # add to copy file list
         generated_index_json["/static/search_index/index.json"] = index_path
@@ -268,8 +275,6 @@ class Plugin(Plugin_Base):
             generated_index_json["/static/search_index/index_{}.json".format(i)] = path
         self.files_to_copy.update(generated_index_json)
         return True
-        
-
 
 
 if __name__ == "__main__":
