@@ -1528,7 +1528,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         # parse all docs
         if "docs" in site_config["route"]:
             routes = site_config["route"]["docs"]
-            routes_trans = site_config["translate"]["docs"]
+            routes_trans = site_config.get("translate", {}).get("docs", {})
             ok, htmls_files = parse("doc", "on_parse_files", routes, routes_trans, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar=True, allow_no_navbar=False, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                         html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue=layout_usage_queue,
@@ -1538,7 +1538,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
         # parse all pages
         if "pages" in site_config["route"]:
             routes = site_config["route"]["pages"]
-            routes_trans = site_config["translate"]["pages"]
+            routes_trans = site_config.get("translate", {}).get("docs", {})
             ok, htmls_pages = parse("page", "on_parse_pages", routes, routes_trans, site_config, doc_src_path, config_template_dir, log, out_dir, plugins_objs,
                         sidebar=False, allow_no_navbar=True, update_files=update_files, max_threads_num=max_threads_num, preview_mode=preview_mode,
                         html_templates_i18n_dirs = html_templates_i18n_dirs, multiprocess = multiprocess, is_build = is_build, layout_usage_queue = layout_usage_queue,
