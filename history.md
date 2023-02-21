@@ -1,6 +1,40 @@
 teedoc update history
 ========
 
+## 2023-2-21 v1.33.1
+
+* Reduce search index files size
+* Support add translate doc in doc dir, e.g. we use i18n url like `/doc1/zh/index.html` and `/doc1/en/index.html`, now you can also use main doc as `/doc1/index.html` and translate doc at `/doc1/en/index.html`.
+
+dir structure:
+```
+.
+└── docs
+    └── doc1
+        └── en
+
+```
+
+site_config.json:
+```json
+{
+    "route": {
+        "docs": {
+            "/doc1/": "docs/doc1"
+        },
+    },
+    "translate": {
+        "docs":{
+            "/doc1/": [ {
+                    "url": "/doc1/en/",
+                    "src": "docs/doc1/en"
+                }
+            ]
+        },
+    }
+}
+```
+
 ## 2022-9-19
 
 * Add thumbs-up plugin
