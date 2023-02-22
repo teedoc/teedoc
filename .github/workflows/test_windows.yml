@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: test build linux macos
+name: test build windows
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -17,11 +17,10 @@ jobs:
     name: test build task
     # The type of runner that the job will run on
     strategy:
-      max-parallel: 4
+      max-parallel: 5
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"] # must use str, not int, or 3.10 will be recognized as 3.1
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -42,7 +41,6 @@ jobs:
       - name: test install and build
         run: |
           pip install .
-          export PATH=~/.local/bin:$PATH
           cd teedoc/templates/minimal
           teedoc --search-dir ../../../plugins install
           teedoc build

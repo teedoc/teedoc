@@ -382,6 +382,16 @@ def get_sub_dirs(dir, trans_info):
             sub_dirs.append(d)
     return sub_dirs
 
+def find_plugin_in_dir(dir, name):
+    '''
+        @dir plugins dir
+        @name plugin name
+        @return plugin path or None
+    '''
+    for dir_name in os.listdir(dir):
+        if dir_name == name:
+            return os.path.join(dir, dir_name)
+    return None
 
 if __name__ == "__main__":
     a = {

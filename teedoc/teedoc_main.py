@@ -1807,6 +1807,7 @@ def main():
     parser.add_argument("-m", "--multiprocess", action="store_true", default=platform.system().lower() != 'windows', help="use multiple process instead of threads, default mutiple process in unix like systems" )
     parser.add_argument("--fast", action="store_true", default=False, help="fast build mode for serve command")
     parser.add_argument("--template", type=str, default=None, help="for init command, based on which template to create project", choices=list(templates.keys()))
+    parser.add_argument("--search-dir", type=str, default=None, help="local plugins search dir for install command, install plugins from local dir and ignore site_config plugin from keyword")
     parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
     args = parser.parse_args()
 
@@ -1953,7 +1954,7 @@ def main():
                         sys.path.insert(0, path)
                     plugin_import_name = plugin.replace("-", "_")
                     module = __import__(plugin_import_name)
-                    log.i(f"plugin version: {module.__version__}")
+                    log.i(f"== plugin {plugin} v{module.__version__} ==")
                     plugin_obj = module.Plugin(doc_src_path=doc_src_path, config=plugin_config, site_config=site_config, logger=log, multiprocess = args.multiprocess)
                     plugin_obj.module_path = os.path.abspath(os.path.dirname(module.__file__))
                     plugins_objs.append(plugin_obj)
@@ -1962,10 +1963,27 @@ def main():
                 log.i("install, source doc root path: {}".format(doc_src_path))
                 log.i("plugins: {}".format(list(site_config["plugins"].keys())))
                 curr_path = os.getcwd()
+                plugins_dir = None if args.search_dir == "." else args.search_dir
+                if plugins_dir and not os.path.exists(plugins_dir):
+                    log.e("plugins dir not exist: {}".format(plugins_dir))
+                    sys.exit(1)
                 for plugin, info in site_config['plugins'].items():
-                    path = info['from']
+                    path = info["from"]
+                    local_path = None
+                    if plugins_dir:
+                        local_path = utils.find_plugin_in_dir(plugins_dir, plugin)
+                    # force install from local source code
+                    if local_path:
+                        log.i("install plugin <{}> from {}".format(plugin, local_path))
+                        cmd = [site_config["executable"]["pip"], "install", "--upgrade", local_path]
+                        p = subprocess.Popen(cmd, shell=False)
+                        p.communicate()
+                        if p.returncode != 0:
+                            log.e("install <{}> fail".format(plugin))
+                            return 1
+                        log.i("install <{}> complete".format(plugin))
                     # install from pypi.org
-                    if (not path) or path.lower() == "pypi":
+                    elif (not path) or path.lower() == "pypi":
                         if "version" in info:
                             plugin = f"{plugin}=={info['version']}"
                         log.i("install plugin <{}> from pypi.org".format(plugin))
