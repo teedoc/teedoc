@@ -32,6 +32,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Get submodules
+        run: |
+          git submodule update --init --recursive
+
       # Runs a set of commands using the runners shell
       - name: test build
         run: |
