@@ -558,6 +558,8 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log):
                     config["url"] = "/{}".format(config["url"])
             _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
             _config_url = config["url"] + "/" if (not config["url"].endswith(".html") and not config["url"].endswith("/")) else config["url"]
+            if _config_url.endswith("index.html"):
+                _config_url = _config_url[:-10]
             # print(parent_item_type, _doc_url, _config_url, page_url)
             if _doc_url == "/":
                 if page_url == "/index.html" and _config_url == "/":       # / / /index.html
