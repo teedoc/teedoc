@@ -1,9 +1,11 @@
 import shutil
 from setuptools import setup, find_packages
 import os
-from teedoc import __version__
 from glob import glob
 import sys
+
+with open("teedoc/version.py") as f:
+    exec(f.read())
 
 print("generate locale files")
 # os.system("cd teedoc && ./trans_prepare.sh && ./trans_finish.sh")
