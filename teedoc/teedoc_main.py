@@ -459,11 +459,13 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html,
                     "sub_indicator" if is_dir else ""
                 )
             elif "url" in config and config["url"] != None and config["url"] != "null":
-                li_item_html = '<li class="{} with_link"><a href="{}" {}><span class="label">{}</span><span class="{}"></span></a>'.format(
-                    "not_active",
+                target = config["target"].strip() if "target" in config else ""
+                li_item_html = '<li class="{} with_link"><a href="{}" {}><span class="label">{}</span>{}<span class="{}"></span></a>'.format(
+                    "not_active {}".format("ext_link" if target else ""),
                     config["url"],
-                    'target="{}"'.format(config["target"]) if "target" in config else "",
+                    'target="{}"'.format(target) if target else "",
                     config["label"],
+                    '<span class="ext_link_icon"></span>' if target == "_blank" else "",
                     "sub_indicator" if is_dir else ""
                 )
             elif not is_dir and level == 1:
