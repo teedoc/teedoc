@@ -44,7 +44,7 @@ jobs:
 
       - name: test install and build
         run: |
-          pip install .
+          pip3 install .
           export PATH=~/.local/bin:$PATH
           cd teedoc/templates/minimal
           teedoc --search-dir ../../../plugins install
