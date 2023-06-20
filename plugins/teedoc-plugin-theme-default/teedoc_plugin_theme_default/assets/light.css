@@ -936,6 +936,8 @@ h2:hover > .anchor, h3:hover > .anchor, h4:hover > .anchor, h5:hover > .anchor {
 }
 #toc_content > .toc-list > .toc-list-item {
     border-left: 2px solid #f1f1f1;
+    padding: 0.1em 0.1em;
+    line-height: 1.2em;
 }
 
 a.toc-link {
