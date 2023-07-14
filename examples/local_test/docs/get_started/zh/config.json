@@ -9,19 +9,7 @@
                 "id": "language",
                 "label": "Language: ",
                 "position": "right",
-                "type": "selection",
-                "items": [
-                    {
-                        "id": "zh",
-                        "url": "/get_started/zh/",
-                        "label": "中文"
-                    },
-                    {
-                        "id": "en",
-                        "url": "/get_started/en/",
-                        "label": "English"
-                    }
-                ]
+                "type": "language"
             }
         ]
     }

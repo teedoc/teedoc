@@ -26,16 +26,7 @@
             {
                 "label": "Language: ",
                 "position": "right",
-                "items": [
-                    {
-                        "url": "/develop/zh/",
-                        "label": "中文"
-                    },
-                    {
-                        "url": "/develop/en/",
-                        "label": "English"
-                    }
-                ]
+                "type": "language"
             }
         ]
     },
