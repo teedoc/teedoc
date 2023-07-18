@@ -71,13 +71,13 @@ class Metadata_Parser:
             if not metadata["keywords"]:
                 metadata["keywords"] = []
             elif type(metadata["keywords"]) == str:
-                metadata["keywords"] = metadata["keywords"].split(",")
+                metadata["keywords"] = [x.strip() for x in metadata["keywords"].split(",")]
             else:
                 raise Exception("keywords must be a list or a string split with ','")
         # tags
         if type(metadata["tags"]) != list:
             if type(metadata["tags"]) == str:
-                metadata["tags"] = metadata["tags"].split(",")
+                metadata["tags"] = [x.strip() for x in metadata["tags"].split(",")]
             else:
                 raise Exception("tags must be a list or a string split with ','")
         # date
