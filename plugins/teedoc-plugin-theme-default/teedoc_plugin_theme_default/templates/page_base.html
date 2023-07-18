@@ -19,7 +19,8 @@
     {% endblock %}
     {% block head_end %}
     {% endblock %}
-    <script type="text/javascript">js_vars = {{ js_vars|tojson }}</script>
+    <script type="text/javascript">js_vars = {{ js_vars|tojson2 }}</script>
+    <script type="text/javascript">metadata = {{ metadata|tojson2 }}</script>
 </head>
 <body class="type_page">
     {% block navbar %}

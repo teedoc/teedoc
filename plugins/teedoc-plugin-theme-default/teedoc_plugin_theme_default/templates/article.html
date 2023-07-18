@@ -22,7 +22,8 @@
     {% block head_title %}
     <title>{% if title %}{{ title }} - {% endif %}{{ site_name }}</title>
     {% endblock %}
-    <script type="text/javascript">js_vars = {{ js_vars|tojson }}</script>
+    <script type="text/javascript">js_vars = {{ js_vars|tojson2 }}</script>
+    <script type="text/javascript">metadata = {{ metadata|tojson2 }}</script>
 </head>
 {% endblock %}
 {% block body %}

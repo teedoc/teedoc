@@ -365,8 +365,6 @@ def update_navbar_language_urls(items, doc_url, page_url, not_found_urls):
     for item in items:
         new = item.copy()
         new["url"] += tail
-        if not_found_urls:
-            print(new["url"])
         if new["url"] in not_found_urls.keys():
             new["url"] = not_found_urls[new["url"]]
         new_items.append(new)
@@ -847,10 +845,6 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                     metadata.pop("keywords")
                 if "desc" in metadata:
                     metadata.pop("desc")
-                if "tags" in metadata:
-                    metadata.pop("tags")
-                if "id" in metadata:
-                    metadata.pop("id")
                 if "layout" in html["metadata"]:
                     html["metadata"]["layout"] = str(html["metadata"]["layout"])
                     if not html["metadata"]["layout"].endswith(".html"):
