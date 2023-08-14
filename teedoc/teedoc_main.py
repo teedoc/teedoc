@@ -3,10 +3,12 @@ try:
     from .html_renderer import Renderer
     from . import utils
     from .html_parser import generate_html_item_from_html_file
+    from .layout_i18n import main as trans_main
 except Exception:
     from html_renderer import Renderer
     from html_parser import generate_html_item_from_html_file
     import utils
+    from layout_i18n import main as trans_main
 import subprocess
 import shutil
 import re
@@ -365,8 +367,6 @@ def update_navbar_language_urls(items, doc_url, page_url, not_found_urls):
     for item in items:
         new = item.copy()
         new["url"] += tail
-        if not_found_urls:
-            print(new["url"])
         if new["url"] in not_found_urls.keys():
             new["url"] = not_found_urls[new["url"]]
         new_items.append(new)
@@ -1261,6 +1261,11 @@ def get_nav_translate_lang_items(doc_url, site_config, doc_src_path, config_temp
         lang_items = generate_navbar_language_items(routes, doc_configs, addtion_items={doc_url: config["locale"]})
     return lang_items
 
+def get_layout_root(doc_src_path, site_config):
+    layout_root = os.path.join(doc_src_path, site_config["layout_root_dir"]) if "layout_root_dir" in site_config else os.path.join(doc_src_path, "layout")
+    layout_root = os.path.abspath(layout_root).replace("\\", "/")
+    return layout_root
+
 def get_templates_i18n_dirs(site_config, doc_src_path, log):
     '''
         get template_i18n_dirs from site_config's  layout_i18n_dirs key, key canbe path str, or list
@@ -1272,7 +1277,8 @@ def get_templates_i18n_dirs(site_config, doc_src_path, log):
         if os.path.exists(dir):
             return dir
         return False
-    html_templates_i18n_dirs = []
+    layout_locales_dir = os.path.join(get_layout_root(doc_src_path, site_config), "locales")
+    html_templates_i18n_dirs = [layout_locales_dir] if os.path.exists(layout_locales_dir) else []
     if "layout_i18n_dirs" in site_config:
         if type(site_config["layout_i18n_dirs"]) == str:
             abs_dir = is_dir_valid(site_config["layout_i18n_dirs"], doc_src_path)
@@ -1382,7 +1388,6 @@ def parse(type_name, plugin_func, routes, routes_trans, site_config, doc_src_pat
         footer_js_items = []
         #     get html template from plugins
         html_template = None
-        html_templates_i18n_dirs = []
         for plugin in plugins_objs:
             items = plugin.on_add_html_header_items(type_name)
             _js_items = plugin.on_add_html_footer_js_items(type_name)
@@ -1566,6 +1571,7 @@ def build(doc_src_path, config_template_dir, plugins_objs, site_config, out_dir,
     if not update_files:
         if not check_udpate_routes(site_config, doc_src_path, log):
             return False
+    trans_main("all", get_layout_root(doc_src_path, site_config), rm_meta=True)
     if parse_pages:
         # get html template i18n dir
         html_templates_i18n_dirs = get_templates_i18n_dirs(site_config, doc_src_path, log)
@@ -1769,8 +1775,7 @@ def files_watch(doc_src_path, site_config, log, delay_time, queue, layout_usage_
                 files = [os.path.abspath(os.path.join(self.doc_src_path, event.src_path)).replace("\\", "/")]
                 self._append_files(files)
 
-    layout_root = os.path.join(doc_src_path, site_config["layout_root_dir"]) if "layout_root_dir" in site_config else os.path.join(doc_src_path, "layout")
-    layout_root = os.path.abspath(layout_root).replace("\\", "/")
+    layout_root = get_layout_root(doc_src_path, site_config)
     observer = Observer()
     handler = FileEventHandler(doc_src_path)
     files = os.listdir(doc_src_path)
@@ -1785,6 +1790,7 @@ def files_watch(doc_src_path, site_config, log, delay_time, queue, layout_usage_
         while True:
             time.sleep(delay_time)
             update_files = handler.get_update_files()
+            # TODO: check translate po files change in layout_root/locales dir
             update_files = check_layout_usage(update_files, layout_root, layout_usages)
             if update_files:
                 log.i("file changes detected:", update_files)
@@ -1852,7 +1858,7 @@ def main():
     parser.add_argument("--fast", action="store_true", default=False, help="fast build mode for serve command")
     parser.add_argument("--template", type=str, default=None, help="for init command, based on which template to create project", choices=list(templates.keys()))
     parser.add_argument("--search-dir", type=str, default=None, help="local plugins search dir for install command, install plugins from local dir and ignore site_config plugin from keyword")
-    parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json"])
+    parser.add_argument("command", choices=["install", "init", "build", "serve", "json2yaml", "yaml2json", "summary2yaml", "summary2json", "translate"])
     args = parser.parse_args()
 
     if args.log_level == "d":
@@ -1909,6 +1915,13 @@ def main():
                 f2.write(yaml_str)
             log.i("convert yaml from gitbook summary complete, file at: {}".format(yaml_path))
         return 0
+    elif args.command == "translate":
+        ok, site_config = parse_site_config(args.dir)
+        if not ok:
+            log.e("site config parse error")
+            return 1
+        layout_root = get_layout_root(args.dir, site_config)
+        return trans_main("all", layout_root, rm_meta=True)
     elif args.command == "init":
         log.i("init doc now")
         if not os.path.exists(args.dir):
