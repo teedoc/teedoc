@@ -847,10 +847,6 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
                     metadata.pop("keywords")
                 if "desc" in metadata:
                     metadata.pop("desc")
-                if "tags" in metadata:
-                    metadata.pop("tags")
-                if "id" in metadata:
-                    metadata.pop("id")
                 if "layout" in html["metadata"]:
                     html["metadata"]["layout"] = str(html["metadata"]["layout"])
                     if not html["metadata"]["layout"].endswith(".html"):

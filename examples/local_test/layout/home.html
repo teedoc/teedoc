@@ -11,7 +11,8 @@
     {{ item|safe }}
     {% endfor %}
     <title>{% if title %}{{ title }} - {{ site_name }} {% else %} {{ site_name }} {% endif %}</title>
-    <script type="text/javascript">js_vars = {{ js_vars|tojson }}</script>
+    <script type="text/javascript">js_vars = {{ js_vars|tojson2 }}</script>
+    <script type="text/javascript">metadata = {{ metadata|tojson2 }}</script>
 </head>
 <body>
     <div id="navbar">
