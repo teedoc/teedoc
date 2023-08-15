@@ -105,9 +105,9 @@ def compile(translate_dir, locale, domain="messages"):
 
 
 def rm_po_meta(po_path):
-    with open(po_path, "r") as f:
+    with open(po_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
-    with open(po_path, "w") as f:
+    with open(po_path, "w", encoding="utf-8") as f:
         start_line = 0
         start = False
         for i, line in enumerate(lines):
