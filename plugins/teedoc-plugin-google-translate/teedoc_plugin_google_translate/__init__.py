@@ -16,7 +16,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.1.5"
+__version__ = "1.1.6"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-google-translate"
@@ -24,7 +24,7 @@ class Plugin(Plugin_Base):
     defautl_config = {
         "lang": "auto",  # source page language
         "doc_types": ["page", "doc", "blog"],
-        "domain": "/"   # translate.google.com / translate.google.cn
+        "domain": "translate.google.com"   # translate.google.com / translate.google.cn
     }
 
     def on_init(self, config, doc_src_path, site_config, logger = None, multiprocess = True, **kw_args):
@@ -81,6 +81,7 @@ class Plugin(Plugin_Base):
                 var storeDomain = localStorage.getItem("googleTransDomain");
                 if(storeDomain){
                     domain = storeDomain;
+                    console.log("load google translate domain from local storage:" + domain);
                 }
                 function getUrl(domain){
                     if(domain == "/")
@@ -89,6 +90,7 @@ class Plugin(Plugin_Base):
                         return "https://" + domain + "/translate_a/element.js?cb=googleTranslateElementInit";
                 }
                 var url = getUrl(domain);
+                console.log("google translate domain:" + domain + ", url: " + url);
                 function googleTranslateElementInit() {
                     new google.translate.TranslateElement({pageLanguage: "''' + lang + '''", layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
                 }
@@ -149,14 +151,14 @@ class Plugin(Plugin_Base):
             ''',
             # f'<script type="text/javascript" src="//{domain}/translate_a/element.js?cb=googleTranslateElementInit"></script>'
         ]
-    
+
     def on_add_navbar_items(self):
         if not self.type_name in self.new_config["doc_types"]:
             return []
         trans_btn = '<a id="google_translate_element"><img class="icon" src="/static/image/google_translate/translate.svg"/>Translate</a>'
         items = [trans_btn]
         return items
-    
+
 
 
 if __name__ == "__main__":
