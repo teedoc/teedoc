@@ -654,10 +654,10 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log, no
                             sub_items_ul_html
                         )
         elif item_type == "selection":
-            li_html = '<li class="sub_items {}"><a {} href="{}">{}{}</a>{}'.format(
+            li_html = '<li class="sub_items {}"><a {} {}>{}{}</a>{}'.format(
                 active_class if active else '',
                 'target="{}"'.format(config["target"]) if "target" in config else "",
-                config["url"] if have_url else "", config["label"], active_item["label"] if active_item else "",
+                'href="{}"'.format(config["url"]) if have_url else "", config["label"], active_item["label"] if active_item else "",
                 sub_items_ul_html
             )
         else: # link
