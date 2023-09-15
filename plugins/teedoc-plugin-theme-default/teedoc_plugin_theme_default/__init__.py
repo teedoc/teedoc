@@ -12,7 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.24.0"
+__version__ = "1.24.1"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-theme-default"
@@ -248,7 +248,6 @@ class Plugin(Plugin_Base):
 
     def on_copy_files(self):
         res = self.files_to_copy
-        self.files_to_copy = {}
         return res
 
 

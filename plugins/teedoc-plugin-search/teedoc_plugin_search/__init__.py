@@ -17,7 +17,7 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
 
-__version__ = "1.5.2"
+__version__ = "1.5.3"
 
 def remove_format_chars(content):
     content = re.sub("\|", "", content)
@@ -81,7 +81,7 @@ class Plugin(Plugin_Base):
             "/static/image/search/up.svg": os.path.join(self.assets_abs_path, "up.svg"),
             "/static/image/search/cancel.svg": os.path.join(self.assets_abs_path, "cancel.svg"),
         }
-        
+
         # set site_root_url env value
         if not "env" in self.config:
             self.config['env'] = {}
@@ -206,7 +206,6 @@ class Plugin(Plugin_Base):
     
     def on_copy_files(self):
         res = self.files_to_copy
-        self.files_to_copy = {}
         return res
 
     def on_htmls(self, htmls_files, htmls_pages, htmls_blog=None):

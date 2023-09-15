@@ -1410,7 +1410,7 @@ def parse(type_name, plugin_func, routes, routes_trans, site_config, doc_src_pat
 
         # preview_mode js file
         if preview_mode:
-            footer_js_items.append('<script type="text/javascript" src="{}static/js/live.js"></script>'.format(site_config['site_root_url']))
+            footer_js_items.append('<script type="text/javascript" src="/static/js/live.js"></script>')
 
         # get sidebar config
         sidebar_dict = {}
