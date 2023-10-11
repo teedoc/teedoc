@@ -1850,7 +1850,7 @@ def main():
     parser.add_argument("--thread", type=int, default=0, help="how many threads use to building, default 0 will use max CPU supported")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="host address for serve command")
     parser.add_argument("--port", type=int, default=2333, help="port for serve command")
-    parser.add_argument("-m", "--multiprocess", action="store_true", default=platform.system().lower() != 'windows', help="use multiple process instead of threads, default mutiple process in unix like systems" )
+    parser.add_argument("-m", "--multiprocess", action="store_true", default=not platform.system().lower().strip() in ['windows'], help="use multiple process instead of threads, default mutiple process in unix like systems" )
     parser.add_argument("--fast", action="store_true", default=False, help="fast build mode for serve command")
     parser.add_argument("--template", type=str, default=None, help="for init command, based on which template to create project", choices=list(templates.keys()))
     parser.add_argument("--search-dir", type=str, default=None, help="local plugins search dir for install command, install plugins from local dir and ignore site_config plugin from keyword")
