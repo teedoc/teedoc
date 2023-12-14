@@ -257,12 +257,18 @@ pre[class*="language-"].line-numbers > code {
     visibility: hidden;
     margin-top: -5px;
     z-index: 101;
+    transition: 0.2s;
 }
 #navbar .sub_items ul:hover {
     visibility: visible;
 }
 #navbar .sub_items ul li {
     display: block;
+}
+
+#navbar .sub_items ul ul {
+    left: 100%;
+    top: 0;
 }
 
 

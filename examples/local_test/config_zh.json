@@ -21,7 +21,43 @@
                 "items": [
                     {
                         "label": "更多",
-                        "url": "/more/"
+                        "url": "/more/",
+                        "items": [
+                            {
+                                "label": "更多",
+                                "url": "/more/",
+                                "items": [
+                                    {
+                                        "label": "更多",
+                                        "url": "/more/"
+                                    },
+                                    {
+                                        "label": "更多英文",
+                                        "url": "/more/en/"
+                                    },
+                                    {
+                                        "label": "使用",
+                                        "url": "/get_started/zh/"
+                                    },
+                                    {
+                                        "label": "开发",
+                                        "url": "/develop/zh/"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "更多英文",
+                                "url": "/more/en/"
+                            },
+                            {
+                                "label": "使用",
+                                "url": "/get_started/zh/"
+                            },
+                            {
+                                "label": "开发",
+                                "url": "/develop/zh/"
+                            }
+                        ]
                     },
                     {
                         "label": "更多英文",
