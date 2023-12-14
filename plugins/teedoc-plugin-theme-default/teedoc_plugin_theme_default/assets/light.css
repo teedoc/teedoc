@@ -1180,6 +1180,10 @@ details > .details-content, details > div {
         left: 0;
         right: auto;
     }
+    #navbar .sub_items ul ul {
+        left: 0;
+        top: 3em;
+    }
     #sidebar_wrapper {
         position: fixed;
         top: 0;
