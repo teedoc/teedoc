@@ -39,12 +39,13 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: test build
         run: |
-          pip3 install -r requirements.txt
-          python3 teedoc/teedoc_main.py -d examples/local_test build
+          pip install -U pip
+          pip install -r requirements.txt
+          python teedoc/teedoc_main.py -d examples/local_test build
 
       - name: test install and build
         run: |
-          pip3 install .
+          pip install .
           export PATH=~/.local/bin:$PATH
           cd teedoc/templates/minimal
           teedoc --search-dir ../../../plugins install

@@ -98,14 +98,14 @@ def split_list(obj, n):
 def parse_site_config(doc_src_path):
     site_config_path = os.path.join(doc_src_path, "site_config.json")
     def check_site_config(config):
-        configs = ["site_name", "site_slogon", "site_root_url", "site_domain", "site_protocol", "route", "executable", "plugins"]
+        configs = ["site_name", "site_slogon", "site_root_url", "site_domain", "site_protocol", "route", "plugins"]
         for c in configs:
             if not c in config:
                 return False, "need {} keys, see example docs".format(configs)
         if not site_config['site_root_url'].endswith("/"):
             site_config['site_root_url'] = "{}/".format(site_config['site_root_url'])
         return True, ""
-    site_config = load_config(doc_src_path, doc_src_path, config_name="site_config")    
+    site_config = load_config(doc_src_path, doc_src_path, config_name="site_config")
     ok, msg = check_site_config(site_config)
     if not ok:
         return False, "check site_config.json fail: {}".format(msg)
@@ -2030,7 +2030,7 @@ def main():
                     # force install from local source code
                     if local_path:
                         log.i("install plugin <{}> from {}".format(plugin, local_path))
-                        cmd = [site_config["executable"]["pip"], "install", "--upgrade", local_path]
+                        cmd = [sys.executable, "-m", "pip", "install", "--upgrade", local_path]
                         p = subprocess.Popen(cmd, shell=False)
                         p.communicate()
                         if p.returncode != 0:
@@ -2043,9 +2043,9 @@ def main():
                             plugin = f"{plugin}=={info['version']}"
                         log.i("install plugin <{}> from pypi.org".format(plugin))
                         if args.index_url:
-                            cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin, "-i", args.index_url]
+                            cmd = [sys.executable, "-m", "pip", "install", "--upgrade", plugin, "-i", args.index_url]
                         else:
-                            cmd = [site_config["executable"]["pip"], "install", "--upgrade", plugin]
+                            cmd = [sys.executable, "-m", "pip", "install", "--upgrade", plugin]
                         p = subprocess.Popen(cmd, shell=False)
                         p.communicate()
                         if p.returncode != 0:
@@ -2055,7 +2055,7 @@ def main():
                     # install from git like: git+https://github.com/Neutree/COMTool.git#egg=comtool
                     elif path.startswith("svn") or path.startswith("git"):
                         log.i("install plugin <{}> from {}".format(plugin, path))
-                        cmd = [site_config["executable"]["pip"], "install", "-e", path]
+                        cmd = [sys.executable, "-m", "pip", "install", "-e", path]
                         log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
                         p = subprocess.Popen(cmd, shell=False)
                         p.communicate()

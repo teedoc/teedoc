@@ -16,10 +16,6 @@
             "/static/": "static"
         }
     },
-    "executable": {
-        "python": "python3",
-        "pip": "pip3"
-    },
     "plugins": {
         "teedoc-plugin-markdown-parser":{
             "from": "pypi",
