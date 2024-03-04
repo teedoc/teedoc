@@ -45,6 +45,8 @@ jobs:
 
       - name: test install and build
         run: |
+          pip install -U pip
+          pip install -r requirements.txt
           pip install .
           export PATH=~/.local/bin:$PATH
           cd teedoc/templates/minimal
