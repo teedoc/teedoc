@@ -14,7 +14,7 @@ from teedoc import Fake_Logger
 import tempfile
 import time
 
-__version__ = "2.10.5"
+__version__ = "2.11.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
@@ -96,7 +96,8 @@ class Plugin(Plugin_Base):
         result = {
             "ok": False,
             "msg": "",
-            "htmls": OrderedDict()
+            "htmls": OrderedDict(),
+            "drafts": []
         }
         # function parse md file is disabled
         if not "md" in self.config["parse_files"]:
@@ -122,6 +123,9 @@ class Plugin(Plugin_Base):
                             md_parser = self.md_parser
                             meta_parser = self.meta_parser
                         metadata, content_no_meta = meta_parser.parse_meta(content, file)
+                        if metadata.get("draft", False):
+                            result["drafts"].append(file)
+                            continue
                         html = md_parser(content_no_meta)
                     except Exception as e:
                         self.logger.w("parse markdown file {} fail, please check markdown content format".format(file))

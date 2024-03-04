@@ -1120,6 +1120,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
             out_path = out_path[:-1]
         # call plugins to parse files
         result_htmls = {}
+        drafts = []
         for plugin in plugins_objs:
             # parse file content
             result = plugin.__getattribute__(plugin_func)(files)
@@ -1134,6 +1135,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
                             result_htmls[key] = result['htmls'][key]  # will cover the before
                         elif key not in result_htmls:
                             result_htmls[key] = None
+                    drafts.extend(result.get("drafts", []))
             if is_err():
                 return generate_return(plugins_objs, False, multiprocess)
         # parse html files
@@ -1148,7 +1150,7 @@ def generate(multiprocess, html_template, html_templates_i18n_dirs, files, url, 
             result_htmls.pop(file)
         # copy not parsed files
         for path in files:
-            if not path in result_htmls:
+            if path not in result_htmls and path not in drafts:
                 copy_file(path, path.replace(in_path, out_path))
         # no file parsed, just return
         if not result_htmls:
