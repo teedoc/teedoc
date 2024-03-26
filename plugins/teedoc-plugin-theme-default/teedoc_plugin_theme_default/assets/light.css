@@ -152,8 +152,8 @@ pre[class*="language-"].line-numbers > code {
 .btn:hover,
 #page_content .btn:hover,
 #content_body .btn:hover {
-    background: #4caf7d;
-    box-shadow: 1px 1px 5px 0px green;
+    background: ${main_color};
+    box-shadow: 1px 1px 5px 0px ${main_color};
 }
 .btn:visited,
 #page_content .btn:visited,
