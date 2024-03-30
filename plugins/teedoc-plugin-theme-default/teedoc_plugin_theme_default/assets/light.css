@@ -148,12 +148,13 @@ pre[class*="language-"].line-numbers > code {
     cursor: pointer;
     transition: 0.2s;
     background: ${main_color};
+    box-shadow: 1px 1px 2px 0px ${main_color};
 }
 .btn:hover,
 #page_content .btn:hover,
 #content_body .btn:hover {
     background: ${main_color};
-    box-shadow: 1px 1px 5px 0px ${main_color};
+    box-shadow: 1px 1px 8px 0px ${main_color};
 }
 .btn:visited,
 #page_content .btn:visited,
