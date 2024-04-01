@@ -1268,9 +1268,6 @@ details > .details-content, details > div {
     #footer_top > ul {
         flex-direction: column;
     }
-    .md_page #page_content > div {
-        margin: 1.5em;
-    }
     #article_tools {
         width: 100%;
         display: flex;
