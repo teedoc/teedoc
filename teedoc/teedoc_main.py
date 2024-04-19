@@ -965,10 +965,10 @@ def update_html_abs_path(file_htmls, root_path):
             if content[6] == "/" and content[7] != "/": # href="/static/..."
                 content = "{}{}{}".format(content[:6], root_path[:-1], content[6:])
         elif content.startswith("url"):
-            if content[4] != "/" and content[5] == "/" and content[6] != "/": # url("/static/...")
-                content = "{}{}{}".format(content[:5], root_path[:-1], content[5:])
-            elif content[4] == "/" and content[5] != "/": # url(/static/...)
+            if content[4] == "/" and content[5] != "/": # url(/static/...)
                 content = "{}{}{}".format(content[:4], root_path[:-1], content[4:])
+            elif content[4] != "/" and len(content) > 6 and content[5] == "/" and content[6] != "/": # url("/static/...")
+                content = "{}{}{}".format(content[:5], root_path[:-1], content[5:])
         return content
 
     for path in file_htmls:
