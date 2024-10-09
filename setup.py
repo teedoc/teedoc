@@ -70,7 +70,7 @@ delete_build()
 
 os.chdir("teedoc")
 tempalte_files = glob("templates/**", recursive=True)
-package_data_files = ['static/js/*', "locales/*/*/*.?o", "templates/*"]
+package_data_files = ['static/js/*', "locales/*/*/*.?o", "templates/*", "*.cfg"]
 package_data_files.extend(tempalte_files)
 print(package_data_files)
 os.chdir("..")
@@ -132,7 +132,9 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         "teedoc" : package_data_files,
+        "": ["requirements.txt", "README*", "LICENSE"]
     },
+    include_package_data=True,
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:

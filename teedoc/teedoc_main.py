@@ -1782,7 +1782,7 @@ def files_watch(doc_src_path, site_config, log, delay_time, queue, layout_usage_
     for name in files:
         if name in ignores:
             continue
-        observer.schedule(handler, os.path.join(doc_src_path, name), True)
+        observer.schedule(handler, os.path.join(doc_src_path, name), recursive = True)
     observer.start()
     try:
         while True:
