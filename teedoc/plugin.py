@@ -1,8 +1,5 @@
-from .logger import Fake_Logger
 import os
-from collections import OrderedDict
 import tempfile
-import shutil
 
 class Plugin_Base:
     '''

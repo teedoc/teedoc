@@ -2007,6 +2007,7 @@ def main():
                         path = os.path.abspath(os.path.join(doc_src_path, path))
                     if os.path.exists(path):
                         sys.path.insert(0, path)
+                    print("1111111 sys.path:", sys.path)
                     plugin_import_name = plugin.replace("-", "_")
                     module = __import__(plugin_import_name)
                     log.i(f"== plugin {plugin} v{module.__version__} ==")
@@ -2031,8 +2032,8 @@ def main():
                     if local_path:
                         log.i("install plugin <{}> from {}".format(plugin, local_path))
                         cmd = [sys.executable, "-m", "pip", "install", "--upgrade", local_path]
-                        p = subprocess.Popen(cmd, shell=False)
-                        p.communicate()
+                        p = subprocess.Popen(" ".join(cmd), shell=True)
+                        out, err_out, = p.communicate()
                         if p.returncode != 0:
                             log.e("install <{}> fail".format(plugin))
                             return 1
@@ -2046,8 +2047,8 @@ def main():
                             cmd = [sys.executable, "-m", "pip", "install", "--upgrade", plugin, "-i", args.index_url]
                         else:
                             cmd = [sys.executable, "-m", "pip", "install", "--upgrade", plugin]
-                        p = subprocess.Popen(cmd, shell=False)
-                        p.communicate()
+                        p = subprocess.Popen(" ".join(cmd), shell=True)
+                        out, err_out, = p.communicate()
                         if p.returncode != 0:
                             log.e("install <{}> fail".format(plugin))
                             return 1
@@ -2057,8 +2058,8 @@ def main():
                         log.i("install plugin <{}> from {}".format(plugin, path))
                         cmd = [sys.executable, "-m", "pip", "install", "-e", path]
                         log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
-                        p = subprocess.Popen(cmd, shell=False)
-                        p.communicate()
+                        p = subprocess.Popen(" ".join(cmd), shell=True)
+                        out, err_out, = p.communicate()
                         if p.returncode != 0:
                             log.e("install <{}> fail".format(plugin))
                             return 1

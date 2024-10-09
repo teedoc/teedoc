@@ -8,7 +8,6 @@
 
 
 import logging
-import coloredlogs
 
 
 class Logger:
@@ -26,6 +25,7 @@ class Logger:
         elif level == "e":
             level_ = logging.ERROR
         # terminal output
+        import coloredlogs
         coloredlogs.DEFAULT_FIELD_STYLES = {'asctime': {'color': 'green'}, 'hostname': {'color': 'magenta'},
                                     'levelname': {'color': 'green', 'bold': True}, 'request_id': {'color': 'yellow'},
                                     'name': {'color': 'blue'}, 'programname': {'color': 'cyan'},
