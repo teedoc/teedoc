@@ -12,6 +12,7 @@ except Exception:
     pass
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
+from .version import __version__
 try:
     from .jupyter_convert import convert_ipynb_to_html
 except Exception:

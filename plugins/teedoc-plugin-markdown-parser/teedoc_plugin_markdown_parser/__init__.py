@@ -11,8 +11,8 @@ except Exception:
     pass
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
+from .version import __version__
 import tempfile
-import time
 
 
 class Plugin(Plugin_Base):

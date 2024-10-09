@@ -15,6 +15,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 from teedoc.utils import update_config
+from .version import __version__
 
 
 class Plugin(Plugin_Base):

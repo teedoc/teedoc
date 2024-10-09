@@ -13,8 +13,8 @@ except Exception:
     pass
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
+from .version import __version__
 
-__version__ = "1.5.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-comments-gitalk"

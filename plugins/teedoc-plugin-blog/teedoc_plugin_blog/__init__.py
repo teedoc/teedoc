@@ -12,8 +12,7 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 import tempfile, shutil, json
-import time
-import datetime
+from .version import __version__
 
 import mistune
 mistune_version = mistune.__version__.split(".") # 0.8.4, 2.0.0rc1
