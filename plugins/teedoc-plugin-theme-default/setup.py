@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
 import os
-from teedoc_plugin_theme_default import __version__
-
 
 print("generate locale files")
 # os.system("cd teedoc && ./trans_prepare.sh && ./trans_finish.sh")

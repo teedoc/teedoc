@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
 import os
 
-
 curr_dir = os.path.abspath(os.path.dirname(__file__))
 readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
