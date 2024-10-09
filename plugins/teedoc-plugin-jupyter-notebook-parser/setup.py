@@ -10,7 +10,8 @@ with open(readme_path) as f:
 
 install_requires = ["jupyter_core>=4.11.1",
                     "nbconvert>=7.0.0",
-                    "PyYaml >= 5.4.1"
+                    "PyYaml >= 5.4.1",
+                    "teedoc"
 ]
 packages = find_packages()
 print("packages:", packages)

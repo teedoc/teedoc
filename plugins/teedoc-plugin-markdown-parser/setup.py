@@ -9,7 +9,8 @@ with open(readme_path) as f:
      long_description = f.read()
 
 install_requires = ["mistune >=2.0.3,<3",
-                    "PyYaml >= 5.4.1"
+                    "PyYaml >= 5.4.1",
+                    "teedoc"
 ]
 packages = find_packages()
 print("packages:", packages)
