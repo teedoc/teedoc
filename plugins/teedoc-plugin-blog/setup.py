@@ -8,6 +8,11 @@ readme_path = os.path.join(curr_dir, "README.md")
 with open(readme_path) as f:
      long_description = f.read()
 
+# get version str
+version_path = os.path.join(curr_dir, "teedoc_plugin_blog", "version.py")
+with open(version_path) as f:
+    exec(f.read())
+
 install_requires = ["teedoc-plugin-markdown-parser",
                     "teedoc"]
 packages = find_packages()

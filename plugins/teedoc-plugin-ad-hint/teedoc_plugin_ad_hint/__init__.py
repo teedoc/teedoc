@@ -16,8 +16,6 @@ from teedoc import Fake_Logger
 from teedoc.utils import update_config
 import copy
 
-__version__ = "1.1.4"
-
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-ad-hint"
     desc = "advertisement adn hint support for teedoc"

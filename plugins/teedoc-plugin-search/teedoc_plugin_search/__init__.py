@@ -17,7 +17,6 @@ from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 # from teedoc.utils import update_config
 
-__version__ = "1.5.3"
 
 def remove_format_chars(content):
     content = re.sub("\|", "", content)

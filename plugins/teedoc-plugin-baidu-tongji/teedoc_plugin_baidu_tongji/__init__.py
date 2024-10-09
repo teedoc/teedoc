@@ -14,7 +14,6 @@ except Exception:
 from teedoc import Plugin_Base
 from teedoc import Fake_Logger
 
-__version__ = "1.0.4"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-baidu-tongji"

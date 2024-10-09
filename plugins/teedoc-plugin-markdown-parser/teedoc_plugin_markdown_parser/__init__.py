@@ -14,7 +14,6 @@ from teedoc import Fake_Logger
 import tempfile
 import time
 
-__version__ = "2.11.0"
 
 class Plugin(Plugin_Base):
     name = "teedoc-plugin-markdown-parser"
