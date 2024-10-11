@@ -82,7 +82,11 @@ class Metadata_Parser:
                 raise Exception("tags must be a list or a string split with ','")
         # date
         if len(metadata["update"]) > 0:
-            metadata["update"] = sorted(metadata["update"], key=lambda x:x["date"], reverse=True)
+            try:
+                metadata["update"] = sorted(metadata["update"], key=lambda x:x["date"], reverse=True)
+            except Exception as e:
+                msg = f"\n[ERROR] {e}\ncheck update time error, please ensure date format like `2024-06-21`, format like `2024-6-21` is invalid\n"
+                raise Exception(msg)
             metadata["date"] = metadata["update"][0]["date"]
         if (type(metadata["date"]) == datetime.datetime or type(metadata["date"]) == datetime.date):
             date = metadata["date"]

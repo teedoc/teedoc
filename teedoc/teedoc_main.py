@@ -2007,7 +2007,6 @@ def main():
                         path = os.path.abspath(os.path.join(doc_src_path, path))
                     if os.path.exists(path):
                         sys.path.insert(0, path)
-                    print("1111111 sys.path:", sys.path)
                     plugin_import_name = plugin.replace("-", "_")
                     module = __import__(plugin_import_name)
                     log.i(f"== plugin {plugin} v{module.__version__} ==")
