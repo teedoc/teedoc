@@ -2007,6 +2007,9 @@ def main():
                         path = os.path.abspath(os.path.join(doc_src_path, path))
                     if os.path.exists(path):
                         sys.path.insert(0, path)
+                    if args.search_dir and os.path.exists(os.path.join(args.search_dir, plugin)):
+                        log.i(f"found local plugin in {os.path.join(args.search_dir, plugin)}")
+                        sys.path.insert(0, os.path.abspath(os.path.join(args.search_dir, plugin)))
                     plugin_import_name = plugin.replace("-", "_")
                     module = __import__(plugin_import_name)
                     log.i(f"== plugin {plugin} v{module.__version__} ==")
