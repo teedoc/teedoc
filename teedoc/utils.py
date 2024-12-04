@@ -164,7 +164,7 @@ def update_config(old, update, level = 0, ignore=[]):
             # update item
             for i, item in enumerate(update[key]):
                 if "id" in item:
-                    if type(old_list_item[item["id"]]) == dict:
+                    if "id" in old_list_item and type(old_list_item[item["id"]]) == dict:
                         old_list_item[item["id"]] = update_config(old_list_item[item["id"]], item, level + 1)
                     else:
                         old_list_item[item["id"]] = item
