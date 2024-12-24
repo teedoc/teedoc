@@ -2033,7 +2033,7 @@ def main():
                     # force install from local source code
                     if local_path:
                         log.i("install plugin <{}> from {}".format(plugin, local_path))
-                        cmd = [sys.executable, "-m", "pip", "install", "--upgrade", local_path]
+                        cmd = [f'"{sys.executable}"', "-m", "pip", "install", "--upgrade", local_path]
                         p = subprocess.Popen(" ".join(cmd), shell=True)
                         out, err_out, = p.communicate()
                         if p.returncode != 0:
@@ -2046,9 +2046,9 @@ def main():
                             plugin = f"{plugin}=={info['version']}"
                         log.i("install plugin <{}> from pypi.org".format(plugin))
                         if args.index_url:
-                            cmd = [sys.executable, "-m", "pip", "install", "--upgrade", plugin, "-i", args.index_url]
+                            cmd = [f'"{sys.executable}"', "-m", "pip", "install", "--upgrade", plugin, "-i", args.index_url]
                         else:
-                            cmd = [sys.executable, "-m", "pip", "install", "--upgrade", plugin]
+                            cmd = [f'"{sys.executable}"', "-m", "pip", "install", "--upgrade", plugin]
                         p = subprocess.Popen(" ".join(cmd), shell=True)
                         out, err_out, = p.communicate()
                         if p.returncode != 0:
@@ -2058,7 +2058,7 @@ def main():
                     # install from git like: git+https://github.com/Neutree/COMTool.git#egg=comtool
                     elif path.startswith("svn") or path.startswith("git"):
                         log.i("install plugin <{}> from {}".format(plugin, path))
-                        cmd = [sys.executable, "-m", "pip", "install", "-e", path]
+                        cmd = [f'"{sys.executable}"', "-m", "pip", "install", "-e", path]
                         log.i("install <{}> by pip: {}".format(plugin, " ".join(cmd)))
                         p = subprocess.Popen(" ".join(cmd), shell=True)
                         out, err_out, = p.communicate()
