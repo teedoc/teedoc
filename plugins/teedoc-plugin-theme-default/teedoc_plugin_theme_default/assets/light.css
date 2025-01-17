@@ -616,6 +616,9 @@ html[lang^=zh].heading_no_counter #toc a.node-name--H2:before {
     object-fit: contain;
     cursor: zoom-in;
 }
+#content_body video {
+    max-width: 100%;
+}
 
 /* add numbers for titles */
 #article_content {
