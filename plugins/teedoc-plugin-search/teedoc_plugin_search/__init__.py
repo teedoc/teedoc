@@ -149,7 +149,11 @@ class Plugin(Plugin_Base):
             self.docs_name[url] = url
         else:
             self.docs_name[url] = doc_config["name"]
-        self.doc_locale = doc_config["locale"] if "locale" in doc_config else None
+            
+        locale = doc_config["locale"] if "locale" in doc_config else None
+        if ":" in locale:
+            locale = locale[:locale.index(":")]
+        self.doc_locale = locale
         # self.new_config = copy.deepcopy(self.config)
         # self.new_config = update_config(self.new_config, new_config)
         self.new_config = new_config
