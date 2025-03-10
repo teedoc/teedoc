@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, re
 from collections import OrderedDict
 import datetime
 import json
@@ -258,9 +258,9 @@ MathJax = {};
                         if link.endswith("." + ext):
                             link = link[:-len(ext)] + "html"
                             break
-                    link = link + endtail if endtail != "" else link
-                    if link.lower().endswith("readme.html"):
+                    if re.search(link, r"([/\\]|^)readme.html$", re.IGNORECASE):
                         link = link[:-len("readme.html")] + "index.html"
+                    link = link + endtail if endtail != "" else link
                 final += f'{data[:idx]}]({link})'
                 data = data[idx2 + 1:]
             return final
