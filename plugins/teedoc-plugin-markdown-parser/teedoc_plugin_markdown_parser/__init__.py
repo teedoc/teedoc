@@ -249,10 +249,16 @@ MathJax = {};
                 # ](....md )
                 link = data[idx + flag_len: idx2].strip()
                 if (not is_abs_link(link)):
-                    for ext in exts:
-                        if link.endswith(ext):
+                    endtail = ""
+                    if "#" in link and not link.startswith("#"):
+                        typea = link.index("#")
+                        endtail = link[typea:]
+                        link = link[:typea]
+                    for ext in exts:                            
+                        if link.endswith("." + ext):
                             link = link[:-len(ext)] + "html"
                             break
+                    link = link + endtail if endtail != "" else link
                     if link.lower().endswith("readme.html"):
                         link = link[:-len("readme.html")] + "index.html"
                 final += f'{data[:idx]}]({link})'
