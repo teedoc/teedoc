@@ -116,7 +116,7 @@ class Plugin(Plugin_Base):
                 for link in links:
                     if link.startswith(".") or os.path.isabs(link):
                         ret = re.sub("README.md", "index.html", c[0], flags=re.I)
-                        ret = re.sub(r".md", ".html", ret, re.I)
+                        ret = re.sub(r".md", ".html", ret, flags=re.I)
                         return ret
             return ret
         def re_del_ipynb(c):
@@ -126,7 +126,7 @@ class Plugin(Plugin_Base):
                 for link in links:
                     if link.startswith(".") or os.path.isabs(link):
                         ret = re.sub("README.ipynb", "index.html", c[0], flags=re.I)
-                        ret = re.sub(r".ipynb", ".html", ret, re.I)
+                        ret = re.sub(r".ipynb", ".html", ret, flags=re.I)
                         return ret
             return ret
         # <a class="anchor-link" href="#&#38142;&#25509;"> </a></h2><p><a href="./syntax_markdown.md">markdown 语法</a>
