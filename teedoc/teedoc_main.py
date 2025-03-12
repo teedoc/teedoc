@@ -489,6 +489,7 @@ def generate_sidebar_html(htmls, sidebar, doc_path, doc_url, sidebar_title_html,
         li_item_html = ""
         collapsed = False if ("collapsed" in config and config["collapsed"] == False) else True
         if "label" in config:
+            replace_symbol(config)
             if "file" in config and config["file"] != None and config["file"] != "null":
                 file_abs = os.path.join(doc_path, config["file"]).replace("\\", "/")
                 url = utils.get_url_by_file_rel(config["file"], doc_url)
@@ -601,29 +602,31 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log, no
         active = False
         # item_type: link, list, selection
         item_type = config["type"] if "type" in config else ("selection" if "items" in config else "link")
-        if have_label and have_url:
-            if not config["url"].startswith("http"):
-                if not config["url"].startswith("/"):
-                    config["url"] = "/{}".format(config["url"])
-            _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
-            _config_url = config["url"] + "/" if (not config["url"].endswith(".html") and not config["url"].endswith("/")) else config["url"]
-            if _config_url.endswith("index.html"):
-                _config_url = _config_url[:-10]
-            # print(parent_item_type, _doc_url, _config_url, page_url)
-            if _doc_url == "/":
-                if page_url == "/index.html" and _config_url == "/":       # / / /index.html
-                    active = True
-                elif _config_url == page_url:      # / /store.html /store.html
-                    active = True
-                elif parent_item_type == "selection" and _doc_url == _config_url: # / / /store.html
-                    active = True
-            else:
-                if _config_url != "/" and page_url.startswith(_config_url):
-                    active = True
+        if have_label:
+            replace_symbol(config)
+            if have_url:
+                if not config["url"].startswith("http"):
+                    if not config["url"].startswith("/"):
+                        config["url"] = "/{}".format(config["url"])
+                _doc_url = doc_url+"/" if not doc_url.endswith("/") else doc_url
+                _config_url = config["url"] + "/" if (not config["url"].endswith(".html") and not config["url"].endswith("/")) else config["url"]
+                if _config_url.endswith("index.html"):
+                    _config_url = _config_url[:-10]
+                # print(parent_item_type, _doc_url, _config_url, page_url)
+                if _doc_url == "/":
+                    if page_url == "/index.html" and _config_url == "/":       # / / /index.html
+                        active = True
+                    elif _config_url == page_url:      # / /store.html /store.html
+                        active = True
+                    elif parent_item_type == "selection" and _doc_url == _config_url: # / / /store.html
+                        active = True
                 else:
-                    active = _doc_url == _config_url
-            if active:
-                active_item = config
+                    if _config_url != "/" and page_url.startswith(_config_url):
+                        active = True
+                    else:
+                        active = _doc_url == _config_url
+                if active:
+                    active_item = config
         sub_items_ul_html = ""
         if "items" in config:
             sub_items_html = ""
@@ -676,11 +679,17 @@ def generate_navbar_html(htmls, navbar, doc_path, doc_url, plugins_objs, log, no
                 sub_items_ul_html
             )
         else: # link
-            li_html = '<li class="{}"><a {} href="{}">{}</a>'.format(
-                active_class if active else '',
-                'target="{}"'.format(config["target"]) if "target" in config else "",
-                config["url"] if have_url else "", config["label"]
-            )
+            if have_url:
+                li_html = '<li class="{}"><a {} href="{}">{}</a>'.format(
+                    active_class if active else '',
+                    'target="{}"'.format(config["target"]) if "target" in config else "",
+                    config["url"], config["label"]
+                )
+            else:
+                li_html = '<li class="{}">{}'.format(
+                    active_class if active else '',
+                    config["label"]
+                )
         html = '{}</li>\n'.format(li_html)
         return html, active_item
 
@@ -774,6 +783,8 @@ def generate_footer_html(htmls, footer, doc_path, doc_url, plugins_objs):
         have_label = "label" in config
         li_html = ""
         active = False
+        if have_label:
+            replace_symbol(config)
         if have_url:
             if (not config["url"].startswith("http") and
                 not config["url"].startswith("mailto")):
@@ -1826,7 +1837,10 @@ def files_watch(doc_src_path, site_config, log, delay_time, queue, layout_usage_
         observer.stop()
         observer.join()
 
-
+def replace_symbol(config):
+    if "has_symbol" in config and config["has_symbol"] == True:
+        time_format = config["time_format"] if "time_format" in config else "%Y-%m-%d %X"
+        config["label"] = config["label"].replace("{#buildtime}", time.strftime(time_format, time.localtime()))
 
 def main():
     try:
