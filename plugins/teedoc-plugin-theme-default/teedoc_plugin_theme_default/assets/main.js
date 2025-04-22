@@ -223,6 +223,11 @@ function addSequence(){
     var counth2=0, counth3=0, counth4=0;
     var html = document.getElementsByTagName("html")[0];
     var isZh = html.lang.substring(0, 2).toLowerCase() == "zh";
+    if(${heading_no_counter}){
+        html.classList.add("heading_no_counter");
+        console.log("heading_no_counter is set, skip heading counter generate");
+        return;
+    }
     for(var i=0; i<html.classList.length; ++i){
         if(html.classList[i] == "heading_no_counter"){
             return;

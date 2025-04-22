@@ -27,6 +27,7 @@
             "config": {
                 "dark": true,
                 "show_print_page": false,
+                "heading_no_counter": false,
                 "env":{
                     "main_color": "#4caf7d"
                 }

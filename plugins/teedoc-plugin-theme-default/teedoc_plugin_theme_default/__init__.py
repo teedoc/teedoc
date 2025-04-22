@@ -23,6 +23,7 @@ class Plugin(Plugin_Base):
         "mobile_navbar_collapsed": True,
         "show_print_page": True,
         "toc_depth": 4,
+        "heading_no_counter": False,
         "env": {
             "main_color": "#4caf7d",
             "sidebar_width": "300px",
@@ -57,6 +58,10 @@ class Plugin(Plugin_Base):
             self.config["env"]["show_print_page"] = "true"
         else:
             self.config["env"]["show_print_page"] = "false"
+        if self.config["heading_no_counter"]:
+            self.config["env"]["heading_no_counter"] = "true"
+        else:
+            self.config["env"]["heading_no_counter"] = "false"
         if type(self.config["toc_depth"]) != int:
             msg = "-- plugin <{}>'s toc_depth config should be integer, not {}".format(self.name, self.config["toc_depth"])
             self.logger.e(msg)

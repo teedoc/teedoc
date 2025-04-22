@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-02-03 17:41+0800\n"
+"POT-Creation-Date: 2025-04-22 11:36+0800\n"
 "PO-Revision-Date: 2021-09-07 16:55+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
 "Language-Team: zh_Hans_CN <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: templates/404.html:5 templates/404.html:56
 msgid "Page not found"
@@ -30,27 +30,27 @@ msgstr "返回上一页"
 msgid "Home"
 msgstr "首页"
 
-#: templates/article.html:89
+#: templates/article.html:90
 msgid "Last modify date:"
 msgstr "最后修改日期："
 
-#: templates/article.html:116
+#: templates/article.html:117
 msgid "Update history"
 msgstr "更新历史"
 
-#: templates/article.html:121
+#: templates/article.html:122
 msgid "Date"
 msgstr "日期"
 
-#: templates/article.html:122
+#: templates/article.html:123
 msgid "Version"
 msgstr "版本"
 
-#: templates/article.html:123
+#: templates/article.html:124
 msgid "Author"
 msgstr "作者"
 
-#: templates/article.html:124
+#: templates/article.html:125
 msgid "Update content"
 msgstr "更新内容"
 
