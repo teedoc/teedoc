@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, re
 from collections import OrderedDict
 import datetime
 import json
@@ -249,12 +249,18 @@ MathJax = {};
                 # ](....md )
                 link = data[idx + flag_len: idx2].strip()
                 if (not is_abs_link(link)):
-                    for ext in exts:
-                        if link.endswith(ext):
+                    endtail = ""
+                    if "#" in link and not link.startswith("#"):
+                        typea = link.index("#")
+                        endtail = link[typea:]
+                        link = link[:typea]
+                    for ext in exts:                            
+                        if link.endswith("." + ext):
                             link = link[:-len(ext)] + "html"
                             break
-                    if link.lower().endswith("readme.html"):
+                    if re.search(link, r"([/\\]|^)readme.html$", re.IGNORECASE):
                         link = link[:-len("readme.html")] + "index.html"
+                    link = link + endtail if endtail != "" else link
                 final += f'{data[:idx]}]({link})'
                 data = data[idx2 + 1:]
             return final

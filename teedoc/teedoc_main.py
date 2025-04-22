@@ -317,18 +317,33 @@ def generate_navbar_language_items(routes, doc_configs, addtion_items={}):
     '''
     items = []
     for url, dir in routes.items():
-        locale = Locale.parse(doc_configs[url]["locale"])
+        locale = doc_configs[url]["locale"]
+        localname = None
+        if ":" in locale:
+            locale = locale.split(":")
+            localname = locale[1] if locale[1] else None   
+            locale = locale[0]     
+        if not localname:
+            locale = Locale.parse(doc_configs[url]["locale"])
+            localname = locale.language_name + (" " + locale.script_name if locale.script_name else "")  
         item = {
             "url": url,
-            "label": locale.language_name + (" " + locale.script_name if locale.script_name else ""),
+            "label": localname,
             "comment": "language"
         }
         items.append(item)
     for url, locale in addtion_items.items():
-        locale = Locale.parse(locale)
+        localname = None
+        if ":" in locale:
+            locale = locale.split(":")
+            localname = locale[1] if locale[1] else None
+            locale = locale[0]  
+        if not localname:
+            locale = Locale.parse(locale)
+            localname = locale.language_name + (" " + locale.script_name if locale.script_name else "")          
         item = {
             "url": url,
-            "label": locale.language_name + (" " + locale.script_name if locale.script_name else ""),
+            "label": localname,
             "comment": "language"
         }
         items.append(item)
@@ -827,6 +842,8 @@ def construct_html(html_template, html_templates_i18n_dirs, htmls, header_items_
     template_root = os.path.join(doc_src_path, site_config["layout_root_dir"]) if "layout_root_dir" in site_config else os.path.join(doc_src_path, "layout")
     theme_layout_root = os.path.dirname(html_template)
     locale = doc_config["locale"].replace("-", "_") if "locale" in doc_config else None
+    if ":" in locale:
+        locale = locale[:locale.index(":")]
     lang = locale.replace("_", "-") if locale else None
     renderer0 = Renderer(os.path.basename(html_template), [theme_layout_root], log, html_templates_i18n_dirs, locale=locale)
     files = {}
@@ -1509,6 +1526,8 @@ def parse(type_name, plugin_func, routes, routes_trans, site_config, doc_src_pat
                 root_dir = os.path.abspath(os.path.dirname(__file__))
                 try:
                     locale = doc_config["locale"]
+                    if ":" in locale:
+                        locale = locale[:locale.index(":")]
                     lang = gettext.translation('messages', localedir=os.path.join(root_dir, 'locales'), languages=[locale])
                     lang.install()
                     _ = lang.gettext
